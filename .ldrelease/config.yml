@@ -1,0 +1,15 @@
+repo:
+  public: java-sdk-common
+  private: java-sdk-common-private
+
+publications:
+  - url: https://oss.sonatype.org/content/groups/public/com/launchdarkly/launchdarkly-java-sdk-common/
+    description: Sonatype
+  - url: https://javadoc.io/doc/com.launchdarkly/launchdarkly-java-sdk-common
+    description: documentation (javadoc.io)
+
+template:
+  name: gradle
+
+documentation:
+  githubPages: true
