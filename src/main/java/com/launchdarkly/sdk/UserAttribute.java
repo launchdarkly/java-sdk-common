@@ -8,7 +8,6 @@ import com.google.gson.stream.JsonWriter;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.function.Function;
 
 /**
  * Represents a built-in or custom attribute name supported by {@link LDUser}.
@@ -28,43 +27,93 @@ public final class UserAttribute {
   /**
    * Represents the user key attribute.
    */
-  public static final UserAttribute KEY = new UserAttribute("key", u -> u.key);
+  public static final UserAttribute KEY = new UserAttribute("key", new Function<LDUser, LDValue>() {
+    public LDValue apply(LDUser u) {
+      return u.key;
+    }
+  });
+
   /**
    * Represents the secondary key attribute.
    */
-  public static final UserAttribute SECONDARY_KEY = new UserAttribute("secondary", u -> u.secondary);
+  public static final UserAttribute SECONDARY_KEY = new UserAttribute("secondary", new Function<LDUser, LDValue>() {
+    public LDValue apply(LDUser u) {
+      return u.secondary;
+    }
+  });
+  
   /**
    * Represents the IP address attribute.
    */
-  public static final UserAttribute IP = new UserAttribute("ip", u -> u.ip);
+  public static final UserAttribute IP = new UserAttribute("ip", new Function<LDUser, LDValue>() {
+    public LDValue apply(LDUser u) {
+      return u.ip;
+    }
+  });
+
   /**
    * Represents the user key attribute.
    */
-  public static final UserAttribute EMAIL = new UserAttribute("email", u -> u.email);
+  public static final UserAttribute EMAIL = new UserAttribute("email", new Function<LDUser, LDValue>() {
+    public LDValue apply(LDUser u) {
+      return u.email;
+    }
+  });
+
   /**
    * Represents the full name attribute.
    */
-  public static final UserAttribute NAME = new UserAttribute("name", u -> u.name);
+  public static final UserAttribute NAME = new UserAttribute("name", new Function<LDUser, LDValue>() {
+    public LDValue apply(LDUser u) {
+      return u.name;
+    }
+  });
+
   /**
    * Represents the avatar URL attribute.
    */
-  public static final UserAttribute AVATAR = new UserAttribute("avatar", u -> u.avatar);
+  public static final UserAttribute AVATAR = new UserAttribute("avatar", new Function<LDUser, LDValue>() {
+    public LDValue apply(LDUser u) {
+      return u.avatar;
+    }
+  });
+
   /**
    * Represents the first name attribute.
    */
-  public static final UserAttribute FIRST_NAME = new UserAttribute("firstName", u -> u.firstName);
+  public static final UserAttribute FIRST_NAME = new UserAttribute("firstName", new Function<LDUser, LDValue>() {
+    public LDValue apply(LDUser u) {
+      return u.firstName;
+    }
+  });
+
   /**
    * Represents the last name attribute.
    */
-  public static final UserAttribute LAST_NAME = new UserAttribute("lastName", u -> u.lastName);
+  public static final UserAttribute LAST_NAME = new UserAttribute("lastName", new Function<LDUser, LDValue>() {
+    public LDValue apply(LDUser u) {
+      return u.lastName;
+    }
+  });
+
   /**
    * Represents the country attribute.
    */
-  public static final UserAttribute COUNTRY = new UserAttribute("country", u -> u.country);
+  public static final UserAttribute COUNTRY = new UserAttribute("country", new Function<LDUser, LDValue>() {
+    public LDValue apply(LDUser u) {
+      return u.country;
+    }
+  });
+
   /**
    * Represents the anonymous attribute.
    */
-  public static final UserAttribute ANONYMOUS = new UserAttribute("anonymous", u -> u.anonymous);
+  public static final UserAttribute ANONYMOUS = new UserAttribute("anonymous", new Function<LDUser, LDValue>() {
+    public LDValue apply(LDUser u) {
+      return u.anonymous;
+    }
+  });
+
   
   private static final Map<String, UserAttribute> BUILTINS;
   static {

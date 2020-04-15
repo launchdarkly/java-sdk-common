@@ -1,7 +1,6 @@
 package com.launchdarkly.sdk;
 
 import java.util.Iterator;
-import java.util.function.Function;
 
 /**
  * Internal helper classes that serve the same purpose as Guava helpers. We do not use Guava in this

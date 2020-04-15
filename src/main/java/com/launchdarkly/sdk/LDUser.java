@@ -2,6 +2,7 @@ package com.launchdarkly.sdk;
 
 import com.google.gson.Gson;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -9,7 +10,6 @@ import java.util.Set;
 
 import static com.launchdarkly.sdk.Helpers.hashFrom;
 import static com.launchdarkly.sdk.Helpers.objectsEqual;
-import static java.util.Collections.emptyList;
 import static java.util.Collections.unmodifiableMap;
 import static java.util.Collections.unmodifiableSet;
 
@@ -189,7 +189,7 @@ public class LDUser {
    * @return the custom attribute names
    */
   public Iterable<UserAttribute> getCustomAttributes() {
-    return custom == null ? emptyList() : custom.keySet();
+    return custom == null ? Collections.<UserAttribute>emptyList() : custom.keySet();
   }
   
   /**
@@ -200,7 +200,7 @@ public class LDUser {
    * @return the names of private attributes for this user
    */
   public Iterable<UserAttribute> getPrivateAttributes() {
-    return privateAttributeNames == null ? emptyList() : privateAttributeNames;
+    return privateAttributeNames == null ? Collections.<UserAttribute>emptyList() : privateAttributeNames;
   }
   
   /**

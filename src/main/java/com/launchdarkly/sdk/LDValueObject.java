@@ -4,13 +4,12 @@ import com.google.gson.annotations.JsonAdapter;
 import com.google.gson.stream.JsonWriter;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.Map;
-
-import static java.util.Collections.emptyMap;
 
 @JsonAdapter(LDValueTypeAdapter.class)
 final class LDValueObject extends LDValue {
-  private static final LDValueObject EMPTY = new LDValueObject(emptyMap());
+  private static final LDValueObject EMPTY = new LDValueObject(Collections.<String, LDValue>emptyMap());
   private final Map<String, LDValue> map;
   
   static LDValueObject fromMap(Map<String, LDValue> map) {

@@ -4,14 +4,14 @@ import com.google.gson.annotations.JsonAdapter;
 import com.google.gson.stream.JsonWriter;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.List;
 
-import static java.util.Collections.emptyList;
 import static java.util.Collections.unmodifiableList;
 
 @JsonAdapter(LDValueTypeAdapter.class)
 final class LDValueArray extends LDValue {
-  private static final LDValueArray EMPTY = new LDValueArray(emptyList());
+  private static final LDValueArray EMPTY = new LDValueArray(Collections.<LDValue>emptyList());
   private final List<LDValue> list;
   // Note that this is not  
 

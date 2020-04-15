@@ -7,7 +7,7 @@ This project contains Java classes and interfaces that are shared between the La
 
 ## Supported Java versions
 
-This version of the library works with Java 8 and above.
+This version of the library works with Java 7 and above.
 
 ## Contributing
 

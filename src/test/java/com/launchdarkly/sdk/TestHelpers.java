@@ -8,13 +8,17 @@ import java.util.Set;
 public class TestHelpers {
   public static <T> List<T> listFromIterable(Iterable<T> it) {
     List<T> list = new ArrayList<>();
-    it.forEach(list::add);
+    for (T t: it) {
+      list.add(t);
+    }
     return list;
   }
 
   public static <T> Set<T> setFromIterable(Iterable<T> it) {
     Set<T> set = new HashSet<>();
-    it.forEach(set::add);
+    for (T t: it) {
+      set.add(t);
+    }
     return set;
   }
 }

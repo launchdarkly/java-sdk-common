@@ -4,8 +4,6 @@ import org.junit.Test;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.function.BiFunction;
-import java.util.function.Function;
 
 import static com.launchdarkly.sdk.Helpers.transform;
 import static com.launchdarkly.sdk.TestHelpers.setFromIterable;
@@ -22,21 +20,68 @@ import static org.junit.Assert.assertTrue;
 @SuppressWarnings("javadoc")
 public class LDUserTest {
   private static enum OptionalStringAttributes {
-    secondary(LDUser::getSecondary, LDUser.Builder::secondary, LDUser.Builder::privateSecondary),
-    ip(LDUser::getIp, LDUser.Builder::ip, LDUser.Builder::privateIp),
-    firstName(LDUser::getFirstName, LDUser.Builder::firstName, LDUser.Builder::privateFirstName),
-    lastName(LDUser::getLastName, LDUser.Builder::lastName, LDUser.Builder::privateLastName),
-    email(LDUser::getEmail, LDUser.Builder::email, LDUser.Builder::privateEmail),
-    name(LDUser::getName, LDUser.Builder::name, LDUser.Builder::privateName),
-    avatar(LDUser::getAvatar, LDUser.Builder::avatar, LDUser.Builder::privateAvatar),
-    country(LDUser::getCountry, LDUser.Builder::country, LDUser.Builder::privateCountry);
+    secondary(
+        new Function<LDUser, String>() { public String apply(LDUser u) { return u.getSecondary(); } },
+        new BiFunction<LDUser.Builder, String, LDUser.Builder>()
+          { public LDUser.Builder apply(LDUser.Builder b, String s) { return b.secondary(s); } },
+          new BiFunction<LDUser.Builder, String, LDUser.Builder>()
+          { public LDUser.Builder apply(LDUser.Builder b, String s) { return b.privateSecondary(s); } }),
+
+    ip(
+        new Function<LDUser, String>() { public String apply(LDUser u) { return u.getIp(); } },
+        new BiFunction<LDUser.Builder, String, LDUser.Builder>()
+          { public LDUser.Builder apply(LDUser.Builder b, String s) { return b.ip(s); } },
+          new BiFunction<LDUser.Builder, String, LDUser.Builder>()
+          { public LDUser.Builder apply(LDUser.Builder b, String s) { return b.privateIp(s); } }),
+
+    firstName(
+        new Function<LDUser, String>() { public String apply(LDUser u) { return u.getFirstName(); } },
+        new BiFunction<LDUser.Builder, String, LDUser.Builder>()
+          { public LDUser.Builder apply(LDUser.Builder b, String s) { return b.firstName(s); } },
+          new BiFunction<LDUser.Builder, String, LDUser.Builder>()
+          { public LDUser.Builder apply(LDUser.Builder b, String s) { return b.privateFirstName(s); } }),
+
+    lastName(
+        new Function<LDUser, String>() { public String apply(LDUser u) { return u.getLastName(); } },
+        new BiFunction<LDUser.Builder, String, LDUser.Builder>()
+          { public LDUser.Builder apply(LDUser.Builder b, String s) { return b.lastName(s); } },
+          new BiFunction<LDUser.Builder, String, LDUser.Builder>()
+          { public LDUser.Builder apply(LDUser.Builder b, String s) { return b.privateLastName(s); } }),
+
+    email(
+        new Function<LDUser, String>() { public String apply(LDUser u) { return u.getEmail(); } },
+        new BiFunction<LDUser.Builder, String, LDUser.Builder>()
+          { public LDUser.Builder apply(LDUser.Builder b, String s) { return b.email(s); } },
+          new BiFunction<LDUser.Builder, String, LDUser.Builder>()
+          { public LDUser.Builder apply(LDUser.Builder b, String s) { return b.privateEmail(s); } }),
+
+    name(
+        new Function<LDUser, String>() { public String apply(LDUser u) { return u.getName(); } },
+        new BiFunction<LDUser.Builder, String, LDUser.Builder>()
+          { public LDUser.Builder apply(LDUser.Builder b, String s) { return b.name(s); } },
+          new BiFunction<LDUser.Builder, String, LDUser.Builder>()
+          { public LDUser.Builder apply(LDUser.Builder b, String s) { return b.privateName(s); } }),
+
+    avatar(
+        new Function<LDUser, String>() { public String apply(LDUser u) { return u.getAvatar(); } },
+        new BiFunction<LDUser.Builder, String, LDUser.Builder>()
+          { public LDUser.Builder apply(LDUser.Builder b, String s) { return b.avatar(s); } },
+          new BiFunction<LDUser.Builder, String, LDUser.Builder>()
+          { public LDUser.Builder apply(LDUser.Builder b, String s) { return b.privateAvatar(s); } }),
+
+    country(
+        new Function<LDUser, String>() { public String apply(LDUser u) { return u.getCountry(); } },
+        new BiFunction<LDUser.Builder, String, LDUser.Builder>()
+          { public LDUser.Builder apply(LDUser.Builder b, String s) { return b.country(s); } },
+          new BiFunction<LDUser.Builder, String, LDUser.Builder>()
+          { public LDUser.Builder apply(LDUser.Builder b, String s) { return b.privateCountry(s); } });
     
     final UserAttribute attribute;
     final Function<LDUser, String> getter;
     final BiFunction<LDUser.Builder, String, LDUser.Builder> setter;
     final BiFunction<LDUser.Builder, String, LDUser.Builder> privateSetter;
     
-    OptionalStringAttributes(
+    private OptionalStringAttributes(
         Function<LDUser, String> getter,
         BiFunction<LDUser.Builder, String, LDUser.Builder> setter,
         BiFunction<LDUser.Builder, String, LDUser.Builder> privateSetter
@@ -137,7 +182,9 @@ public class LDUserTest {
     assertThat(user.getAttribute(UserAttribute.forName("custom-string")), equalTo(stringValue));
     assertThat(user.getAttribute(UserAttribute.forName("custom-json")), equalTo(jsonValue));
     assertThat(setFromIterable(user.getCustomAttributes()),
-        equalTo(setFromIterable(transform(names, UserAttribute::forName))));
+        equalTo(setFromIterable(transform(names, new Function<String, UserAttribute>() {
+          public UserAttribute apply(String s) { return UserAttribute.forName(s); }
+        }))));
     assertThat(user.getPrivateAttributes(), emptyIterable());
     for (String name: names) {
       assertThat(name, user.isAttributePrivate(UserAttribute.forName(name)), is(false));
@@ -167,7 +214,9 @@ public class LDUserTest {
     assertThat(user.getAttribute(UserAttribute.forName("custom-string")), equalTo(stringValue));
     assertThat(user.getAttribute(UserAttribute.forName("custom-json")), equalTo(jsonValue));
     assertThat(setFromIterable(user.getCustomAttributes()),
-        equalTo(setFromIterable(transform(names, UserAttribute::forName))));
+        equalTo(setFromIterable(transform(names, new Function<String, UserAttribute>() {
+          public UserAttribute apply(String s) { return UserAttribute.forName(s); }
+        }))));
     assertThat(setFromIterable(user.getPrivateAttributes()), equalTo(setFromIterable(user.getCustomAttributes())));
     for (String name: names) {
       assertThat(name, user.isAttributePrivate(UserAttribute.forName(name)), is(true));

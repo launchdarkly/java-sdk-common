@@ -309,7 +309,12 @@ public abstract class LDValue {
    * @return an iterable of values of the specified type
    */
   public <T> Iterable<T> valuesAs(final Converter<T> converter) {
-    return transform(values(), converter::toType);
+    return transform(values(), new Function<LDValue, T>() {
+      @Override
+      public T apply(LDValue a) {
+        return converter.toType(a);
+      }
+    });
   }
   
   /**
