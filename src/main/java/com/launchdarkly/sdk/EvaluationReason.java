@@ -8,8 +8,9 @@ import java.util.Objects;
  * This is returned within {@link EvaluationDetail} by the SDK's "variation detail" methods such as
  * {@code boolVariationDetail}.
  * <p>
- * Note that this is an enum-like class hierarchy rather than an enum, because some of the
- * possible reasons have their own properties.
+ * Note that while {@link EvaluationReason} has subclasses as an implementation detail, the subclasses
+ * are not public and may be removed in the future. Always use methods of the base class such as
+ * {@link #getKind()} or {@link #getRuleIndex()} to inspect the reason.
  * 
  * @since 4.3.0
  */
@@ -51,7 +52,6 @@ public abstract class EvaluationReason {
   
   /**
    * Enumerated type defining the possible values of {@link EvaluationReason.Error#getErrorKind()}.
-   * @since 4.3.0
    */
   public static enum ErrorKind {
     /**
@@ -95,13 +95,74 @@ public abstract class EvaluationReason {
   
   /**
    * Returns an enum indicating the general category of the reason.
+   * 
    * @return a {@link Kind} value
    */
   public Kind getKind()
   {
     return kind;
   }
+
+  /**
+   * The index of the rule that was matched (0 for the first rule in the feature flag),
+   * if the {@code kind} is {@link Kind#RULE_MATCH}. Otherwise this returns -1.
+   * 
+   * @return the rule index or -1
+   */
+  public int getRuleIndex() {
+    return -1;
+  }
   
+  /**
+   * The unique identifier of the rule that was matched, if the {@code kind} is
+   * {@link Kind#RULE_MATCH}. Otherwise {@code null}.
+   * <p>
+   * Unlike the rule index, this identifier will not change if other rules are added or deleted.
+   * 
+   * @return the rule identifier or null
+   */
+  public String getRuleId() {
+    return null;
+  }
+  
+  /**
+   * The key of the prerequisite flag that did not return the desired variation, if the
+   * {@code kind} is {@link Kind#PREREQUISITE_FAILED}. Otherwise {@code null}.
+   * 
+   * @return the prerequisite flag key or null 
+   */
+  public String getPrerequisiteKey() {
+    return null;
+  }
+
+  /**
+   * An enumeration value indicating the general category of error, if the
+   * {@code kind} is {@link Kind#PREREQUISITE_FAILED}. Otherwise {@code null}.
+   * 
+   * @return the error kind or null
+   */
+  public ErrorKind getErrorKind() {
+    return null;
+  }
+
+  /**
+   * The exception that caused the error condition, if the {@code kind} is
+   * {@link EvaluationReason.Kind#ERROR} and the {@code errorKind} is {@link ErrorKind#EXCEPTION}.
+   * Otherwise {@code null}.
+   * 
+   * @return the exception insta
+   */
+  public Exception getException() {
+    return null;
+  }
+  
+  /**
+   * Returns a simple string representation of the reason.
+   * <p>
+   * This is a convenience method for debugging and any other use cases where a human-readable string is
+   * helpful. The exact format of the string is subject to change; if you need to make programmatic
+   * decisions based on the reason properties, use other methods like {@link #getKind()}.
+   */
   @Override
   public String toString() {
     return getKind().name();
@@ -116,7 +177,7 @@ public abstract class EvaluationReason {
    * Returns an instance of {@link Off}.
    * @return a reason object
    */
-  public static Off off() {
+  public static EvaluationReason off() {
     return Off.instance;
   }
   
@@ -124,7 +185,7 @@ public abstract class EvaluationReason {
    * Returns an instance of {@link TargetMatch}.
    * @return a reason object
    */
-  public static TargetMatch targetMatch() {
+  public static EvaluationReason targetMatch() {
     return TargetMatch.instance;
   }
   
@@ -134,7 +195,7 @@ public abstract class EvaluationReason {
    * @param ruleId the rule identifier
    * @return a reason object
    */
-  public static RuleMatch ruleMatch(int ruleIndex, String ruleId) {
+  public static EvaluationReason ruleMatch(int ruleIndex, String ruleId) {
     return new RuleMatch(ruleIndex, ruleId);
   }
   
@@ -143,7 +204,7 @@ public abstract class EvaluationReason {
    * @param prerequisiteKey the flag key of the prerequisite that failed 
    * @return a reason object
    */
-  public static PrerequisiteFailed prerequisiteFailed(String prerequisiteKey) {
+  public static EvaluationReason prerequisiteFailed(String prerequisiteKey) {
     return new PrerequisiteFailed(prerequisiteKey);
   }
   
@@ -151,7 +212,7 @@ public abstract class EvaluationReason {
    * Returns an instance of {@link Fallthrough}.
    * @return a reason object
    */
-  public static Fallthrough fallthrough() {
+  public static EvaluationReason fallthrough() {
     return Fallthrough.instance;
   }
   
@@ -160,7 +221,7 @@ public abstract class EvaluationReason {
    * @param errorKind describes the type of error
    * @return a reason object
    */
-  public static Error error(ErrorKind errorKind) {
+  public static EvaluationReason error(ErrorKind errorKind) {
     switch (errorKind) {
     case CLIENT_NOT_READY: return ERROR_CLIENT_NOT_READY;
     case EXCEPTION: return ERROR_EXCEPTION;
@@ -176,18 +237,18 @@ public abstract class EvaluationReason {
    * Returns an instance of {@link Error} with the kind {@link ErrorKind#EXCEPTION} and an exception instance.
    * @param exception the exception that caused the error
    * @return a reason object
-   * @since 4.11.0
    */
-  public static Error exception(Exception exception) {
+  public static EvaluationReason exception(Exception exception) {
     return new Error(ErrorKind.EXCEPTION, exception);
   }
   
   /**
    * Subclass of {@link EvaluationReason} that indicates that the flag was off and therefore returned
    * its configured off value.
-   * @since 4.3.0
+   * <p>
+   * This subclass is package-private; application code should only reference {@link EvaluationReason}.
    */
-  public static class Off extends EvaluationReason {
+  static final class Off extends EvaluationReason {
     private Off() {
       super(Kind.OFF);
     }
@@ -198,9 +259,10 @@ public abstract class EvaluationReason {
   /**
    * Subclass of {@link EvaluationReason} that indicates that the user key was specifically targeted
    * for this flag.
-   * @since 4.3.0
+   * <p>
+   * This subclass is package-private; application code should only reference {@link EvaluationReason}.
    */
-  public static class TargetMatch extends EvaluationReason {
+  static final class TargetMatch extends EvaluationReason {
     private TargetMatch()
     {
       super(Kind.TARGET_MATCH);
@@ -211,9 +273,10 @@ public abstract class EvaluationReason {
   
   /**
    * Subclass of {@link EvaluationReason} that indicates that the user matched one of the flag's rules.
-   * @since 4.3.0
+   * <p>
+   * This subclass is package-private; application code should only reference {@link EvaluationReason}.
    */
-  public static class RuleMatch extends EvaluationReason {
+  static final class RuleMatch extends EvaluationReason {
     private final int ruleIndex;
     private final String ruleId;
     
@@ -262,9 +325,10 @@ public abstract class EvaluationReason {
   /**
    * Subclass of {@link EvaluationReason} that indicates that the flag was considered off because it
    * had at least one prerequisite flag that either was off or did not return the desired variation.
-   * @since 4.3.0
+   * <p>
+   * This subclass is package-private; application code should only reference {@link EvaluationReason}.
    */
-  public static class PrerequisiteFailed extends EvaluationReason {
+  static final class PrerequisiteFailed extends EvaluationReason {
     private final String prerequisiteKey;
     
     private PrerequisiteFailed(String prerequisiteKey) {
@@ -300,9 +364,10 @@ public abstract class EvaluationReason {
   /**
    * Subclass of {@link EvaluationReason} that indicates that the flag was on but the user did not
    * match any targets or rules.
-   * @since 4.3.0
+   * <p>
+   * This subclass is package-private; application code should only reference {@link EvaluationReason}.
    */
-  public static class Fallthrough extends EvaluationReason {
+  static final class Fallthrough extends EvaluationReason {
     private Fallthrough()
     {
       super(Kind.FALLTHROUGH);
@@ -313,9 +378,10 @@ public abstract class EvaluationReason {
   
   /**
    * Subclass of {@link EvaluationReason} that indicates that the flag could not be evaluated.
-   * @since 4.3.0
+   * <p>
+   * This subclass is package-private; application code should only reference {@link EvaluationReason}.
    */
-  public static class Error extends EvaluationReason {
+  static final class Error extends EvaluationReason {
     private final ErrorKind errorKind;
     private transient final Exception exception;
     // The exception field is transient because we don't want it to be included in the JSON representation that
@@ -342,7 +408,6 @@ public abstract class EvaluationReason {
      * This is only set if {@link #getErrorKind()} is {@link ErrorKind#EXCEPTION}.
      * 
      * @return the exception instance
-     * @since 4.11.0
      */
     public Exception getException() {
       return exception;
