@@ -1,6 +1,9 @@
 package com.launchdarkly.sdk;
 
 import com.google.gson.annotations.JsonAdapter;
+import com.launchdarkly.sdk.json.GsonTypeAdapters;
+import com.launchdarkly.sdk.json.JsonSerializable;
+import com.launchdarkly.sdk.json.JsonSerialization;
 
 import java.util.Objects;
 
@@ -13,14 +16,18 @@ import java.util.Objects;
  * Note that while {@link EvaluationReason} has subclasses as an implementation detail, the subclasses
  * are not public and may be removed in the future. Always use methods of the base class such as
  * {@link #getKind()} or {@link #getRuleIndex()} to inspect the reason.
- * 
- * @since 4.3.0
+ * <p>
+ * LaunchDarkly defines a standard JSON encoding for evaluation reasons, used in analytics events.
+ * {@link EvaluationReason} can be converted to and from JSON in one of two ways:
+ * <ol>
+ * <li> With {@link JsonSerialization}.
+ * <li> With Gson, if and only if you configure your Gson instance with {@link GsonTypeAdapters}.
+ * </ol>
  */
 @JsonAdapter(EvaluationReasonTypeAdapter.class)
-public final class EvaluationReason {
+public final class EvaluationReason implements JsonSerializable {
   /**
    * Enumerated type defining the possible values of {@link EvaluationReason#getKind()}.
-   * @since 4.3.0
    */
   public static enum Kind {
     /**
@@ -239,6 +246,7 @@ public final class EvaluationReason {
   
   /**
    * Returns an instance of {@link TargetMatch}.
+   * 
    * @return a reason object
    */
   public static EvaluationReason targetMatch() {
@@ -247,6 +255,7 @@ public final class EvaluationReason {
   
   /**
    * Returns an instance of {@link RuleMatch}.
+   * 
    * @param ruleIndex the rule index
    * @param ruleId the rule identifier
    * @return a reason object
@@ -257,6 +266,7 @@ public final class EvaluationReason {
   
   /**
    * Returns an instance of {@link PrerequisiteFailed}.
+   * 
    * @param prerequisiteKey the flag key of the prerequisite that failed 
    * @return a reason object
    */
@@ -266,6 +276,7 @@ public final class EvaluationReason {
   
   /**
    * Returns an instance of {@link Error}.
+   * 
    * @param errorKind describes the type of error
    * @return a reason object
    */
@@ -283,6 +294,7 @@ public final class EvaluationReason {
 
   /**
    * Returns an instance of {@link Error} with the kind {@link ErrorKind#EXCEPTION} and an exception instance.
+   * 
    * @param exception the exception that caused the error
    * @return a reason object
    */

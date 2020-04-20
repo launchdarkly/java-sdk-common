@@ -1,7 +1,5 @@
 package com.launchdarkly.sdk;
 
-import com.google.gson.Gson;
-
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -18,10 +16,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-@SuppressWarnings("javadoc")
 public class LDValueTest {
-  private static final Gson gson = new Gson();
-  
   private static final int someInt = 3;
   private static final long someLong = 3;
   private static final float someFloat = 3.25f;
@@ -374,39 +369,6 @@ public class LDValueTest {
     assertEquals(n, LDValue.Convert.Double.fromType(n).doubleValue(), 0);
   }
 
-  @Test
-  public void testToJsonString() {
-    assertEquals("null", LDValue.ofNull().toJsonString());
-    assertEquals("true", aTrueBoolValue.toJsonString());
-    assertEquals("false", LDValue.of(false).toJsonString());
-    assertEquals(String.valueOf(someInt), anIntValue.toJsonString());
-    assertEquals(String.valueOf(someLong), aLongValue.toJsonString());
-    assertEquals(String.valueOf(someFloat), aFloatValue.toJsonString());
-    assertEquals(String.valueOf(someDouble), aDoubleValue.toJsonString());
-    assertEquals("\"hi\"", aStringValue.toJsonString());
-    assertEquals("[3]", anArrayValue.toJsonString());
-    assertEquals("{\"1\":\"x\"}", anObjectValue.toJsonString());
-  }
-  
-  @Test
-  public void testDefaultGsonSerialization() {
-    LDValue[] values = new LDValue[] {
-        LDValue.ofNull(),
-        aTrueBoolValue,
-        anIntValue,
-        aLongValue,
-        aFloatValue,
-        aDoubleValue,
-        aStringValue,
-        anArrayValue,
-        anObjectValue
-    };
-    for (LDValue value: values) {
-      assertEquals(value.toString(), value.toJsonString(), gson.toJson(value));
-      assertEquals(value.toString(), value, LDValue.normalize(gson.fromJson(value.toJsonString(), LDValue.class)));
-    }
-  }
-  
   @Test
   public void testTypeConversions() {
     testTypeConversion(LDValue.Convert.Boolean, new Boolean[] { true, false }, LDValue.of(true), LDValue.of(false));

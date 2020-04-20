@@ -115,7 +115,7 @@ public final class UserAttribute {
   });
 
   
-  private static final Map<String, UserAttribute> BUILTINS;
+  static final Map<String, UserAttribute> BUILTINS;
   static {
     BUILTINS = new HashMap<>();
     for (UserAttribute a: new UserAttribute[] { KEY, SECONDARY_KEY, IP, EMAIL, NAME, AVATAR, FIRST_NAME, LAST_NAME, COUNTRY, ANONYMOUS }) {

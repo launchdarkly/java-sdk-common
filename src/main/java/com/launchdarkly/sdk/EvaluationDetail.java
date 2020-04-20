@@ -1,16 +1,25 @@
 package com.launchdarkly.sdk;
 
+import com.launchdarkly.sdk.json.GsonTypeAdapters;
+import com.launchdarkly.sdk.json.JsonSerializable;
+import com.launchdarkly.sdk.json.JsonSerialization;
+
 import static com.launchdarkly.sdk.Helpers.hashFrom;
 import static com.launchdarkly.sdk.Helpers.objectsEqual;
 
 /**
  * An object returned by the SDK's "variation detail" methods such as {@code boolVariationDetail},
  * combining the result of a flag evaluation with an explanation of how it was calculated.
+ * <p>
+ * {@link EvaluationReason} can be converted to and from JSON in one of two ways:
+ * <ol>
+ * <li> With {@link JsonSerialization}.
+ * <li> With Gson, if and only if you configure your Gson instance with {@link GsonTypeAdapters}.
+ * </ol>
  * 
  * @param <T> the type of the wrapped value
- * @since 4.3.0
  */
-public class EvaluationDetail<T> {
+public final class EvaluationDetail<T> implements JsonSerializable {
 
   private final EvaluationReason reason;
   private final Integer variationIndex;
