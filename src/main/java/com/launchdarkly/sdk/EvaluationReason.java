@@ -1,5 +1,7 @@
 package com.launchdarkly.sdk;
 
+import com.google.gson.annotations.JsonAdapter;
+
 import java.util.Objects;
 
 /**
@@ -14,8 +16,8 @@ import java.util.Objects;
  * 
  * @since 4.3.0
  */
-public abstract class EvaluationReason {
-
+@JsonAdapter(EvaluationReasonTypeAdapter.class)
+public final class EvaluationReason {
   /**
    * Enumerated type defining the possible values of {@link EvaluationReason#getKind()}.
    * @since 4.3.0
@@ -83,15 +85,41 @@ public abstract class EvaluationReason {
     EXCEPTION
   }
   
-  // static instances to avoid repeatedly allocating reasons for the same errors
-  private static final Error ERROR_CLIENT_NOT_READY = new Error(ErrorKind.CLIENT_NOT_READY, null);
-  private static final Error ERROR_FLAG_NOT_FOUND = new Error(ErrorKind.FLAG_NOT_FOUND, null);
-  private static final Error ERROR_MALFORMED_FLAG = new Error(ErrorKind.MALFORMED_FLAG, null);
-  private static final Error ERROR_USER_NOT_SPECIFIED = new Error(ErrorKind.USER_NOT_SPECIFIED, null);
-  private static final Error ERROR_WRONG_TYPE = new Error(ErrorKind.WRONG_TYPE, null);
-  private static final Error ERROR_EXCEPTION = new Error(ErrorKind.EXCEPTION, null);
+  // static instances to avoid repeatedly allocating reasons for the same parameters
+  private static final EvaluationReason OFF_INSTANCE = new EvaluationReason(Kind.OFF);
+  private static final EvaluationReason FALLTHROUGH_INSTANCE = new EvaluationReason(Kind.FALLTHROUGH);
+  private static final EvaluationReason TARGET_MATCH_INSTANCE = new EvaluationReason(Kind.TARGET_MATCH);
+  private static final EvaluationReason ERROR_CLIENT_NOT_READY = new EvaluationReason(ErrorKind.CLIENT_NOT_READY, null);
+  private static final EvaluationReason ERROR_FLAG_NOT_FOUND = new EvaluationReason(ErrorKind.FLAG_NOT_FOUND, null);
+  private static final EvaluationReason ERROR_MALFORMED_FLAG = new EvaluationReason(ErrorKind.MALFORMED_FLAG, null);
+  private static final EvaluationReason ERROR_USER_NOT_SPECIFIED = new EvaluationReason(ErrorKind.USER_NOT_SPECIFIED, null);
+  private static final EvaluationReason ERROR_WRONG_TYPE = new EvaluationReason(ErrorKind.WRONG_TYPE, null);
+  private static final EvaluationReason ERROR_EXCEPTION = new EvaluationReason(ErrorKind.EXCEPTION, null);
   
   private final Kind kind;
+  private final int ruleIndex;
+  private final String ruleId;
+  private final String prerequisiteKey;
+  private final ErrorKind errorKind;
+  private final Exception exception;
+  
+  private EvaluationReason(Kind kind, int ruleIndex, String ruleId, String prerequisiteKey,
+      ErrorKind errorKind, Exception exception) {
+    this.kind = kind;
+    this.ruleIndex = ruleIndex;
+    this.ruleId = ruleId;
+    this.prerequisiteKey = prerequisiteKey;
+    this.errorKind = errorKind;
+    this.exception = exception;
+  }
+  
+  private EvaluationReason(Kind kind) {
+    this(kind, -1, null, null, null, null);
+  }
+  
+  private EvaluationReason(ErrorKind errorKind, Exception exception) {
+    this(Kind.ERROR, -1, null, null, errorKind, exception);
+  }
   
   /**
    * Returns an enum indicating the general category of the reason.
@@ -110,7 +138,7 @@ public abstract class EvaluationReason {
    * @return the rule index or -1
    */
   public int getRuleIndex() {
-    return -1;
+    return ruleIndex;
   }
   
   /**
@@ -122,7 +150,7 @@ public abstract class EvaluationReason {
    * @return the rule identifier or null
    */
   public String getRuleId() {
-    return null;
+    return ruleId;
   }
   
   /**
@@ -132,7 +160,7 @@ public abstract class EvaluationReason {
    * @return the prerequisite flag key or null 
    */
   public String getPrerequisiteKey() {
-    return null;
+    return prerequisiteKey;
   }
 
   /**
@@ -142,7 +170,7 @@ public abstract class EvaluationReason {
    * @return the error kind or null
    */
   public ErrorKind getErrorKind() {
-    return null;
+    return errorKind;
   }
 
   /**
@@ -153,7 +181,7 @@ public abstract class EvaluationReason {
    * @return the exception insta
    */
   public Exception getException() {
-    return null;
+    return exception;
   }
   
   /**
@@ -165,12 +193,32 @@ public abstract class EvaluationReason {
    */
   @Override
   public String toString() {
-    return getKind().name();
+    switch (kind) {
+    case RULE_MATCH:
+      return kind + "(" + ruleIndex + (ruleId == null ? "" : ("," + ruleId)) + ")";
+    case PREREQUISITE_FAILED:
+      return kind + "(" + prerequisiteKey + ")";
+    case ERROR:
+      return kind + "(" + errorKind + (exception == null ? "" : ("," + exception)) + ")";
+    default:
+      return getKind().name();
+    }
   }
-
-  protected EvaluationReason(Kind kind)
-  {
-    this.kind = kind;
+  
+  @Override
+  public boolean equals(Object other) {
+    if (other instanceof EvaluationReason) {
+      EvaluationReason o = (EvaluationReason)other;
+      return kind == o.kind && ruleIndex == o.ruleIndex && Objects.equals(ruleId, o.ruleId)&&
+          Objects.equals(prerequisiteKey, o.prerequisiteKey) && Objects.equals(errorKind, o.errorKind) &&
+          Objects.equals(exception, o.exception);
+    }
+    return false;
+  }
+  
+  @Override
+  public int hashCode() {
+    return Objects.hash(kind, ruleIndex, ruleId, prerequisiteKey, errorKind, exception);
   }
   
   /**
@@ -178,7 +226,15 @@ public abstract class EvaluationReason {
    * @return a reason object
    */
   public static EvaluationReason off() {
-    return Off.instance;
+    return OFF_INSTANCE;
+  }
+
+  /**
+   * Returns an instance of {@link Fallthrough}.
+   * @return a reason object
+   */
+  public static EvaluationReason fallthrough() {
+    return FALLTHROUGH_INSTANCE;
   }
   
   /**
@@ -186,7 +242,7 @@ public abstract class EvaluationReason {
    * @return a reason object
    */
   public static EvaluationReason targetMatch() {
-    return TargetMatch.instance;
+    return TARGET_MATCH_INSTANCE;
   }
   
   /**
@@ -196,7 +252,7 @@ public abstract class EvaluationReason {
    * @return a reason object
    */
   public static EvaluationReason ruleMatch(int ruleIndex, String ruleId) {
-    return new RuleMatch(ruleIndex, ruleId);
+    return new EvaluationReason(Kind.RULE_MATCH, ruleIndex, ruleId, null, null, null);
   }
   
   /**
@@ -205,15 +261,7 @@ public abstract class EvaluationReason {
    * @return a reason object
    */
   public static EvaluationReason prerequisiteFailed(String prerequisiteKey) {
-    return new PrerequisiteFailed(prerequisiteKey);
-  }
-  
-  /**
-   * Returns an instance of {@link Fallthrough}.
-   * @return a reason object
-   */
-  public static EvaluationReason fallthrough() {
-    return Fallthrough.instance;
+    return new EvaluationReason(Kind.PREREQUISITE_FAILED, -1, null, prerequisiteKey, null, null);
   }
   
   /**
@@ -229,7 +277,7 @@ public abstract class EvaluationReason {
     case MALFORMED_FLAG: return ERROR_MALFORMED_FLAG;
     case USER_NOT_SPECIFIED: return ERROR_USER_NOT_SPECIFIED;
     case WRONG_TYPE: return ERROR_WRONG_TYPE;
-    default: return new Error(errorKind, null);
+    default: return new EvaluationReason(errorKind, null);
     }
   }
 
@@ -239,193 +287,6 @@ public abstract class EvaluationReason {
    * @return a reason object
    */
   public static EvaluationReason exception(Exception exception) {
-    return new Error(ErrorKind.EXCEPTION, exception);
-  }
-  
-  /**
-   * Subclass of {@link EvaluationReason} that indicates that the flag was off and therefore returned
-   * its configured off value.
-   * <p>
-   * This subclass is package-private; application code should only reference {@link EvaluationReason}.
-   */
-  static final class Off extends EvaluationReason {
-    private Off() {
-      super(Kind.OFF);
-    }
-    
-    private static final Off instance = new Off();
-  }
-  
-  /**
-   * Subclass of {@link EvaluationReason} that indicates that the user key was specifically targeted
-   * for this flag.
-   * <p>
-   * This subclass is package-private; application code should only reference {@link EvaluationReason}.
-   */
-  static final class TargetMatch extends EvaluationReason {
-    private TargetMatch()
-    {
-      super(Kind.TARGET_MATCH);
-    }
-    
-    private static final TargetMatch instance = new TargetMatch();
-  }
-  
-  /**
-   * Subclass of {@link EvaluationReason} that indicates that the user matched one of the flag's rules.
-   * <p>
-   * This subclass is package-private; application code should only reference {@link EvaluationReason}.
-   */
-  static final class RuleMatch extends EvaluationReason {
-    private final int ruleIndex;
-    private final String ruleId;
-    
-    private RuleMatch(int ruleIndex, String ruleId) {
-      super(Kind.RULE_MATCH);
-      this.ruleIndex = ruleIndex;
-      this.ruleId = ruleId;
-    }
-    
-    /**
-     * The index of the rule that was matched (0 for the first rule in the feature flag).
-     * @return the rule index
-     */
-    public int getRuleIndex() {
-      return ruleIndex;
-    }
-    
-    /**
-     * A unique string identifier for the matched rule, which will not change if other rules are added or deleted.
-     * @return the rule identifier
-     */
-    public String getRuleId() {
-      return ruleId;
-    }
-    
-    @Override
-    public boolean equals(Object other) {
-      if (other instanceof RuleMatch) {
-        RuleMatch o = (RuleMatch)other;
-        return ruleIndex == o.ruleIndex && Objects.equals(ruleId, o.ruleId);
-      }
-      return false;
-    }
-    
-    @Override
-    public int hashCode() {
-      return Objects.hash(ruleIndex, ruleId);
-    }
-    
-    @Override
-    public String toString() {
-      return getKind().name() + "(" + ruleIndex + (ruleId == null ? "" : ("," + ruleId)) + ")";
-    }
-  }
-  
-  /**
-   * Subclass of {@link EvaluationReason} that indicates that the flag was considered off because it
-   * had at least one prerequisite flag that either was off or did not return the desired variation.
-   * <p>
-   * This subclass is package-private; application code should only reference {@link EvaluationReason}.
-   */
-  static final class PrerequisiteFailed extends EvaluationReason {
-    private final String prerequisiteKey;
-    
-    private PrerequisiteFailed(String prerequisiteKey) {
-      super(Kind.PREREQUISITE_FAILED);
-      this.prerequisiteKey = prerequisiteKey;
-    }
-    
-    /**
-     * The key of the prerequisite flag that did not return the desired variation.
-     * @return the prerequisite flag key 
-     */
-    public String getPrerequisiteKey() {
-      return prerequisiteKey;
-    }
-    
-    @Override
-    public boolean equals(Object other) {
-      return (other instanceof PrerequisiteFailed) &&
-          ((PrerequisiteFailed)other).prerequisiteKey.equals(prerequisiteKey);
-    }
-    
-    @Override
-    public int hashCode() {
-      return prerequisiteKey.hashCode();
-    }
-    
-    @Override
-    public String toString() {
-      return getKind().name() + "(" + prerequisiteKey + ")";
-    }
-  }
-  
-  /**
-   * Subclass of {@link EvaluationReason} that indicates that the flag was on but the user did not
-   * match any targets or rules.
-   * <p>
-   * This subclass is package-private; application code should only reference {@link EvaluationReason}.
-   */
-  static final class Fallthrough extends EvaluationReason {
-    private Fallthrough()
-    {
-      super(Kind.FALLTHROUGH);
-    }
-    
-    private static final Fallthrough instance = new Fallthrough();
-  }
-  
-  /**
-   * Subclass of {@link EvaluationReason} that indicates that the flag could not be evaluated.
-   * <p>
-   * This subclass is package-private; application code should only reference {@link EvaluationReason}.
-   */
-  static final class Error extends EvaluationReason {
-    private final ErrorKind errorKind;
-    private transient final Exception exception;
-    // The exception field is transient because we don't want it to be included in the JSON representation that
-    // is used in analytics events; the LD event service wouldn't know what to do with it (and it would include
-    // a potentially large amount of stacktrace data).
-    
-    private Error(ErrorKind errorKind, Exception exception) {
-      super(Kind.ERROR);
-      this.errorKind = errorKind;
-      this.exception = exception;
-    }
-    
-    /**
-     * An enumeration value indicating the general category of error.
-     * @return the error kind
-     */
-    public ErrorKind getErrorKind() {
-      return errorKind;
-    }
-    
-    /**
-     * Returns the exception that caused the error condition, if applicable.
-     * <p>
-     * This is only set if {@link #getErrorKind()} is {@link ErrorKind#EXCEPTION}.
-     * 
-     * @return the exception instance
-     */
-    public Exception getException() {
-      return exception;
-    }
-    
-    @Override
-    public boolean equals(Object other) {
-      return other instanceof Error && errorKind == ((Error) other).errorKind && Objects.equals(exception, ((Error) other).exception);
-    }
-    
-    @Override
-    public int hashCode() {
-      return Objects.hash(errorKind, exception);
-    }
-    
-    @Override
-    public String toString() {
-      return getKind().name() + "(" + errorKind.name() + (exception == null ? "" : ("," + exception)) + ")";
-    }
+    return new EvaluationReason(ErrorKind.EXCEPTION, exception);
   }
 }
