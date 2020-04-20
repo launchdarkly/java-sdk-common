@@ -1,8 +1,6 @@
 package com.launchdarkly.sdk;
 
 import com.google.gson.Gson;
-import com.launchdarkly.sdk.EvaluationReason;
-import com.launchdarkly.sdk.LDValue;
 
 import org.junit.Test;
 
@@ -74,9 +72,9 @@ public class EvaluationReasonTest {
   @Test
   public void errorInstancesAreReused() {
     for (EvaluationReason.ErrorKind errorKind: EvaluationReason.ErrorKind.values()) {
-      EvaluationReason.Error r0 = EvaluationReason.error(errorKind);
+      EvaluationReason r0 = EvaluationReason.error(errorKind);
       assertEquals(errorKind, r0.getErrorKind());
-      EvaluationReason.Error r1 = EvaluationReason.error(errorKind);
+      EvaluationReason r1 = EvaluationReason.error(errorKind);
       assertSame(r0, r1);
     }
   }
