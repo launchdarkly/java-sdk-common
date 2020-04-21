@@ -304,7 +304,7 @@ public class LDUser implements JsonSerializable {
     /**
      * Changes the user's key.
      * 
-     * @param key the user key
+     * @param s the user key
      * @return the builder
      */
     public Builder key(String s) {

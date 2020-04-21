@@ -16,6 +16,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+@SuppressWarnings("javadoc")
 public class LDValueTest {
   private static final int someInt = 3;
   private static final long someLong = 3;

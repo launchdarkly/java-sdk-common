@@ -6,6 +6,7 @@ import com.google.gson.JsonElement;
 
 import static org.junit.Assert.assertEquals;
 
+@SuppressWarnings("javadoc")
 public abstract class JsonTestHelpers {
   // Note that when we verify the behavior of Gson with GsonTypeAdapters in this project's unit tests,
   // that is not an adequate test for whether the adapters will work in the Java SDK where there is

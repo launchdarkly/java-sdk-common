@@ -7,6 +7,7 @@ import org.junit.Test;
 import static com.launchdarkly.sdk.json.JsonTestHelpers.verifySerialize;
 import static com.launchdarkly.sdk.json.JsonTestHelpers.verifySerializeAndDeserialize;
 
+@SuppressWarnings("javadoc")
 public class EvaluationReasonJsonSerializationTest {
   @Test
   public void reasonJsonSerializations() throws Exception {

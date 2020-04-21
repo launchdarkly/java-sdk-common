@@ -9,6 +9,7 @@ import static com.launchdarkly.sdk.json.JsonTestHelpers.verifySerialize;
 import static com.launchdarkly.sdk.json.JsonTestHelpers.verifySerializeAndDeserialize;
 import static org.junit.Assert.assertEquals;
 
+@SuppressWarnings("javadoc")
 public class LDValueJsonSerializationTest {
   @Test
   public void jsonEncodingForNull() throws Exception {

@@ -17,8 +17,8 @@ import com.launchdarkly.sdk.LDValue;
  * <ol>
  * <li> The {@link JsonSerialization} methods.
  * <li> A Gson instance that has been configured with {@link GsonTypeAdapters}.
- * <li> For {@link LDValue}, you may also use the convenience methods {@link #toJsonString()} and
- * {@link #parse(String)}.
+ * <li> For {@link LDValue}, you may also use the convenience methods {@link LDValue#toJsonString()} and
+ * {@link LDValue#parse(String)}.
  * </ol>
  */
 public abstract class JsonSerialization {
