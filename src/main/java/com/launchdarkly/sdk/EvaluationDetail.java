@@ -8,7 +8,6 @@ import static com.launchdarkly.sdk.Helpers.objectsEqual;
  * combining the result of a flag evaluation with an explanation of how it was calculated.
  * 
  * @param <T> the type of the wrapped value
- * @since 4.3.0
  */
 public class EvaluationDetail<T> {
 
@@ -37,7 +36,6 @@ public class EvaluationDetail<T> {
    * @param variationIndex an optional variation index
    * @param reason an {@link EvaluationReason} (should not be null)
    * @return an {@link EvaluationDetail}
-   * @since 4.8.0
    */
   public static <T> EvaluationDetail<T> fromValue(T value, Integer variationIndex, EvaluationReason reason) {
     return new EvaluationDetail<T>(reason, variationIndex, value);

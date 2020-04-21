@@ -2,8 +2,6 @@ package com.launchdarkly.sdk;
 
 /**
  * Describes the type of an {@link LDValue}. These correspond to the standard types in JSON.
- * 
- * @since 4.8.0
  */
 public enum LDValueType {
   /**

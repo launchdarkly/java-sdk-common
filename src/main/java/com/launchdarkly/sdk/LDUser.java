@@ -566,7 +566,6 @@ public class LDUser {
      * @param k the key for the custom attribute
      * @param v the value for the custom attribute
      * @return the builder
-     * @since 4.8.0
      */
     public Builder custom(String k, LDValue v) {
       if (k != null) {
@@ -648,7 +647,6 @@ public class LDUser {
      * @param k the key for the custom attribute
      * @param v the value for the custom attribute
      * @return the builder
-     * @since 4.8.0
      */
     public Builder privateCustom(String k, LDValue v) {
       if (k != null) {

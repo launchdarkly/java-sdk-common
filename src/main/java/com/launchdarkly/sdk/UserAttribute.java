@@ -19,8 +19,6 @@ import java.util.Map;
  * For a fuller description of user attributes and how they can be referenced in feature flag rules, see the reference
  * guides on <a href="https://docs.launchdarkly.com/home/managing-users/user-attributes">Setting user attributes</a>
  * and <a href="https://docs.launchdarkly.com/home/managing-flags/targeting-users">Targeting users</a>.
- * 
- * @since 5.0.0
  */
 @JsonAdapter(UserAttribute.UserAttributeTypeAdapter.class)
 public final class UserAttribute {

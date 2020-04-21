@@ -13,14 +13,11 @@ import java.util.Objects;
  * Note that while {@link EvaluationReason} has subclasses as an implementation detail, the subclasses
  * are not public and may be removed in the future. Always use methods of the base class such as
  * {@link #getKind()} or {@link #getRuleIndex()} to inspect the reason.
- * 
- * @since 4.3.0
  */
 @JsonAdapter(EvaluationReasonTypeAdapter.class)
 public final class EvaluationReason {
   /**
    * Enumerated type defining the possible values of {@link EvaluationReason#getKind()}.
-   * @since 4.3.0
    */
   public static enum Kind {
     /**
@@ -53,7 +50,7 @@ public final class EvaluationReason {
   }
   
   /**
-   * Enumerated type defining the possible values of {@link EvaluationReason.Error#getErrorKind()}.
+   * Enumerated type defining the possible values of {@link #getErrorKind()}.
    */
   public static enum ErrorKind {
     /**
@@ -80,7 +77,7 @@ public final class EvaluationReason {
     WRONG_TYPE,
     /**
      * Indicates that an unexpected exception stopped flag evaluation. An error message will always be logged
-     * in this case, and the exception should be available via {@link EvaluationReason.Error#getException()}.
+     * in this case, and the exception should be available via {@link #getException()}.
      */
     EXCEPTION
   }
@@ -176,9 +173,12 @@ public final class EvaluationReason {
   /**
    * The exception that caused the error condition, if the {@code kind} is
    * {@link EvaluationReason.Kind#ERROR} and the {@code errorKind} is {@link ErrorKind#EXCEPTION}.
-   * Otherwise {@code null}.
+   * Otherwise {@code null}. 
+   * <p>
+   * Note that the exception will not be included in the JSON serialization of the reason when it
+   * appears in analytics events; it is only provided informationally for use by application code.
    * 
-   * @return the exception insta
+   * @return the exception instance
    */
   public Exception getException() {
     return exception;
@@ -222,7 +222,8 @@ public final class EvaluationReason {
   }
   
   /**
-   * Returns an instance of {@link Off}.
+   * Returns an instance whose {@code kind} is {@link Kind#OFF}.
+   * 
    * @return a reason object
    */
   public static EvaluationReason off() {
@@ -230,7 +231,8 @@ public final class EvaluationReason {
   }
 
   /**
-   * Returns an instance of {@link Fallthrough}.
+   * Returns an instance whose {@code kind} is {@link Kind#FALLTHROUGH}.
+   * 
    * @return a reason object
    */
   public static EvaluationReason fallthrough() {
@@ -238,7 +240,8 @@ public final class EvaluationReason {
   }
   
   /**
-   * Returns an instance of {@link TargetMatch}.
+   * Returns an instance whose {@code kind} is {@link Kind#TARGET_MATCH}.
+   * 
    * @return a reason object
    */
   public static EvaluationReason targetMatch() {
@@ -246,7 +249,8 @@ public final class EvaluationReason {
   }
   
   /**
-   * Returns an instance of {@link RuleMatch}.
+   * Returns an instance whose {@code kind} is {@link Kind#RULE_MATCH}.
+   * 
    * @param ruleIndex the rule index
    * @param ruleId the rule identifier
    * @return a reason object
@@ -256,7 +260,8 @@ public final class EvaluationReason {
   }
   
   /**
-   * Returns an instance of {@link PrerequisiteFailed}.
+   * Returns an instance whose {@code kind} is {@link Kind#PREREQUISITE_FAILED}.
+   * 
    * @param prerequisiteKey the flag key of the prerequisite that failed 
    * @return a reason object
    */
@@ -265,7 +270,8 @@ public final class EvaluationReason {
   }
   
   /**
-   * Returns an instance of {@link Error}.
+   * Returns an instance whose {@code kind} is {@link Kind#ERROR}.
+   * 
    * @param errorKind describes the type of error
    * @return a reason object
    */
@@ -282,7 +288,11 @@ public final class EvaluationReason {
   }
 
   /**
-   * Returns an instance of {@link Error} with the kind {@link ErrorKind#EXCEPTION} and an exception instance.
+   * Returns an instance whose {@code kind} is {@link Kind#ERROR}, with an exception instance.
+   * <p>
+   * Note that the exception will not be included in the JSON serialization of the reason when it
+   * appears in analytics events; it is only provided informationally for use by application code.
+   * 
    * @param exception the exception that caused the error
    * @return a reason object
    */
