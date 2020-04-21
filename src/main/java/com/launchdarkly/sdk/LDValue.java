@@ -468,7 +468,6 @@ public abstract class LDValue implements JsonSerializable {
    * complex type.
    * 
    * @param <T> the type to convert from/to
-   * @since 4.8.0
    */
   public static abstract class Converter<T> {
     /**
@@ -569,8 +568,6 @@ public abstract class LDValue implements JsonSerializable {
    * These are mostly useful for methods that convert {@link LDValue} to or from a collection of
    * some type, such as {@link LDValue.Converter#arrayOf(Object...)} and
    * {@link LDValue#valuesAs(Converter)}.
-   * 
-   * @since 4.8.0
    */
   public static abstract class Convert {
     private Convert() {}

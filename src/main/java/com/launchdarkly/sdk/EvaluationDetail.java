@@ -46,7 +46,6 @@ public final class EvaluationDetail<T> implements JsonSerializable {
    * @param variationIndex an optional variation index
    * @param reason an {@link EvaluationReason} (should not be null)
    * @return an {@link EvaluationDetail}
-   * @since 4.8.0
    */
   public static <T> EvaluationDetail<T> fromValue(T value, Integer variationIndex, EvaluationReason reason) {
     return new EvaluationDetail<T>(reason, variationIndex, value);

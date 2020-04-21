@@ -7,8 +7,6 @@ import java.util.Map;
  * A builder created by {@link LDValue#buildObject()}.
  * <p>
  * Builder methods are not thread-safe.
- * 
- * @since 4.8.0
  */
 public final class ObjectBuilder {
   // Note that we're not using ImmutableMap here because we don't want to duplicate its semantics
