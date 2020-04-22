@@ -29,8 +29,10 @@ import java.io.IOException;
  * An application that wishes to use Gson to serialize or deserialize classes from the SDK should
  * configure its {@code Gson} instance as follows:
  * <pre><code>
+ *     import com.launchdarkly.sdk.json.GsonTypeAdapters;
+ *     
  *     Gson gson = new GsonBuilder()
- *         .registerTypeAdapterFactory(new com.launchdarkly.sdk.GsonTypeAdapters())
+ *         .registerTypeAdapterFactory(new GsonTypeAdapters())
  *         // any other GsonBuilder options go here
  *         .create();
  * </code></pre>
