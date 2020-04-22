@@ -1,7 +1,7 @@
 package com.launchdarkly.sdk;
 
 import com.google.gson.annotations.JsonAdapter;
-import com.launchdarkly.sdk.json.GsonTypeAdapters;
+import com.launchdarkly.sdk.json.LDGson;
 import com.launchdarkly.sdk.json.JsonSerializable;
 import com.launchdarkly.sdk.json.JsonSerialization;
 
@@ -31,7 +31,7 @@ import static java.util.Collections.unmodifiableSet;
  * events. {@link LDUser} can be converted to and from JSON in one of two ways:
  * <ol>
  * <li> With {@link JsonSerialization}.
- * <li> With Gson, if and only if you configure your Gson instance with {@link GsonTypeAdapters}.
+ * <li> With Gson, if and only if you configure your Gson instance with {@link LDGson}.
  * </ol>
  */
 @JsonAdapter(LDUserTypeAdapter.class)

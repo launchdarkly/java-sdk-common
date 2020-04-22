@@ -29,12 +29,12 @@ import java.io.IOException;
  * An application that wishes to use Gson to serialize or deserialize classes from the SDK should
  * configure its {@code Gson} instance as follows:
  * <pre><code>
- *     import com.launchdarkly.sdk.json.GsonTypeAdapters;
+ *     import com.launchdarkly.sdk.json.LDGson;
  *     
  *     Gson gson = new GsonBuilder()
- *         .registerTypeAdapterFactory(new GsonTypeAdapters())
- *         // any other GsonBuilder options go here
- *         .create();
+ *       .registerTypeAdapterFactory(LDGson.typeAdapters())
+ *       // any other GsonBuilder options go here
+ *       .create();
  * </code></pre>
  * <p>
  * This causes Gson to use the correct JSON representation logic (the same that would be used by
@@ -45,34 +45,57 @@ import java.io.IOException;
  * <p>
  * Note that some of the LaunchDarkly SDK distributions deliberately do not expose Gson as a
  * dependency, so if you are using Gson in your application you will need to make sure you have
- * defined your own dependency on it. Referencing {@link GsonTypeAdapters} will cause a runtime
+ * defined your own dependency on it. Referencing {@link LDGson} will cause a runtime
  * exception if Gson is not in the caller's classpath.
  */
-public class GsonTypeAdapters implements TypeAdapterFactory {
+public abstract class LDGson {
+  
   // Implementation note:
-  // The main reason this class exists is the Java server-side SDK's issue with Gson interoperability
-  // due to the use of shading in the default jar artifact. If the Gson type references in this class
+  // The reason this class exists is the Java server-side SDK's issue with Gson interoperability due
+  // to the use of shading in the default jar artifact. If the Gson type references in this class
   // were also shaded in the SDK jar, then this class would not work with an unshaded Gson instance,
   // which would defeat the whole purpose. Therefore, the Java SDK build will need to have special-
-  // case handling for this class when it builds the jar, and embed the original class file instead
-  // of one that has had shading applied. By design, none of the other Gson-related classes in this
-  // project would need such special handling; in the Java server-side SDK jar, they would be meant
-  // to use the shaded copy of Gson.
+  // case handling for this class (and its inner classes) when it builds the jar, and embed the
+  // original class files instead of the ones that have had shading applied. By design, none of the
+  // other Gson-related classes in this project would need such special handling; in the Java
+  // server-side SDK jar, they would be meant to use the shaded copy of Gson.
   
-  @Override
-  public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
-    if (JsonSerializable.class.isAssignableFrom(type.getRawType())) {
-      return new GsonTypeAdapter<>(gson, type);
-    }
-    return null;
+  /**
+   * Returns a Gson {@code TypeAdapterFactory} that defines the correct serialization and
+   * deserialization behavior for all LaunchDarkly SDK objects that implement {@link JsonSerializable}.
+   * <pre><code>
+   *     import com.launchdarkly.sdk.json.LDGson;
+   *     
+   *     Gson gson = new GsonBuilder()
+   *       .registerTypeAdapterFactory(LDGson.typeAdapters())
+   *       // any other GsonBuilder options go here
+   *       .create();
+   * </code></pre>
+   * @return a {@code TypeAdapterFactory}
+   */
+  public static TypeAdapterFactory typeAdapters() {
+    return LDTypeAdapterFactory.INSTANCE;
   }
   
-  private static class GsonTypeAdapter<T> extends TypeAdapter<T> {
+  private static class LDTypeAdapterFactory implements TypeAdapterFactory {
+    // Note that this static initializer will only run if application code actually references LDGson.
+    private static LDTypeAdapterFactory INSTANCE = new LDTypeAdapterFactory();
+    
+    @Override
+    public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
+      if (JsonSerializable.class.isAssignableFrom(type.getRawType())) {
+        return new LDTypeAdapter<T>(gson, type);
+      }
+      return null;
+    }
+  }
+
+  private static class LDTypeAdapter<T> extends TypeAdapter<T> {
     private final Gson gson;
     private final Class<T> objectClass;
     
     @SuppressWarnings("unchecked")
-    GsonTypeAdapter(Gson gson, TypeToken<T> type) {
+    LDTypeAdapter(Gson gson, TypeToken<T> type) {
       this.gson = gson;
       this.objectClass = (Class<T>)type.getRawType();
     }
