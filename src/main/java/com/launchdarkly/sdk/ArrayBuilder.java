@@ -7,8 +7,6 @@ import java.util.List;
  * A builder created by {@link LDValue#buildArray()}.
  * <p>
  * Builder methods are not thread-safe.
- * 
- * @since 4.8.0
  */
 public final class ArrayBuilder {
   private List<LDValue> builder = new ArrayList<>();

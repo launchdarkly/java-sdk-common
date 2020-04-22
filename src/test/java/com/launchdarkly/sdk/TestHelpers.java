@@ -5,6 +5,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+@SuppressWarnings("javadoc")
 public class TestHelpers {
   public static <T> List<T> listFromIterable(Iterable<T> it) {
     List<T> list = new ArrayList<>();

@@ -10,6 +10,15 @@ The LaunchDarkly SDK team monitors the [issue tracker](https://github.com/launch
  
 We encourage pull requests and other contributions from the community. Before submitting pull requests, ensure that all temporary or unintended code is removed. Don't worry about adding reviewers to the pull request; the LaunchDarkly SDK team will add themselves. The SDK team will acknowledge all pull requests within two business days.
  
+## Release notes and `@since`
+
+Since this project is meant to be used from multiple LaunchDarkly SDKs and its Javadoc documentation will also appear in the Javadocs for those SDKs, please use the following conventions:
+
+1. All changes and fixes should be documented in the changelog and release notes for this project as part of the usual release process.
+2. They should _also_ be documented in the changelogs and release notes for the next Java/Android SDK releases that incorporate the new `java-sdk-common` release. Users of those should not be expected to monitor this repository; its existence as a separate project is an implementation detail.
+3. When adding a new public type or method, include a `@since` tag in its Javadoc comment, in the following format: `@since Java server-side SDK $NEXT_JAVA_VERSION / Android SDK $NEXT_ANDROID_VERSION`, where `$NEXT_JAVA_VERSION` and `$NEXT_ANDROID_VERSION` are the next minor version releases of those SDKs that will incorporate this feature-- even though those have not been released yet.
+
+
 ## Build instructions
  
 ### Prerequisites

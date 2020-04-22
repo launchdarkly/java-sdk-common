@@ -28,8 +28,6 @@ import static java.util.Collections.emptyList;
  * from the API, so the SDK does not expose this dependency and cannot cause version conflicts in
  * applications that use Gson themselves. Second, Gson's array and object types are mutable, which can
  * cause concurrency risks.
- * 
- * @since 4.8.0
  */
 @JsonAdapter(LDValueTypeAdapter.class)
 public abstract class LDValue {
@@ -426,7 +424,6 @@ public abstract class LDValue {
    * complex type.
    * 
    * @param <T> the type to convert from/to
-   * @since 4.8.0
    */
   public static abstract class Converter<T> {
     /**
@@ -527,8 +524,6 @@ public abstract class LDValue {
    * These are mostly useful for methods that convert {@link LDValue} to or from a collection of
    * some type, such as {@link LDValue.Converter#arrayOf(Object...)} and
    * {@link LDValue#valuesAs(Converter)}.
-   * 
-   * @since 4.8.0
    */
   public static abstract class Convert {
     private Convert() {}
