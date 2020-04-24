@@ -1,7 +1,6 @@
 package com.launchdarkly.sdk;
 
-import static com.launchdarkly.sdk.Helpers.hashFrom;
-import static com.launchdarkly.sdk.Helpers.objectsEqual;
+import java.util.Objects;
 
 /**
  * An object returned by the SDK's "variation detail" methods such as {@code boolVariationDetail},
@@ -89,17 +88,20 @@ public class EvaluationDetail<T> {
   
   @Override
   public boolean equals(Object other) {
+    if (other == this) {
+      return true;
+    }
     if (other instanceof EvaluationDetail) {
       @SuppressWarnings("unchecked")
       EvaluationDetail<T> o = (EvaluationDetail<T>)other;
-      return objectsEqual(reason, o.reason) && objectsEqual(variationIndex, o.variationIndex) && objectsEqual(value, o.value);
+      return Objects.equals(reason, o.reason) && Objects.equals(variationIndex, o.variationIndex) && Objects.equals(value, o.value);
     }
     return false;
   }
   
   @Override
   public int hashCode() {
-    return hashFrom(reason, variationIndex, value);
+    return Objects.hash(reason, variationIndex, value);
   }
   
   @Override

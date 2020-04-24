@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 
 import static com.launchdarkly.sdk.TestHelpers.listFromIterable;
+import static java.util.Arrays.asList;
 import static java.util.Collections.addAll;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -287,77 +288,42 @@ public class LDValueTest {
   }
 
   @Test
-  public void testEqualsAndHashCodeForPrimitives()
+  public void equalValuesAreEqual()
   {
-      assertValueAndHashEqual(LDValue.ofNull(), LDValue.ofNull());
-      assertValueAndHashEqual(LDValue.of(true), LDValue.of(true));
-      assertValueAndHashNotEqual(LDValue.of(true), LDValue.of(false));
-      assertValueAndHashEqual(LDValue.of(1), LDValue.of(1));
-      assertValueAndHashEqual(LDValue.of(1), LDValue.of(1.0f));
-      assertValueAndHashNotEqual(LDValue.of(1), LDValue.of(2));
-      assertValueAndHashEqual(LDValue.of("a"), LDValue.of("a"));
-      assertValueAndHashNotEqual(LDValue.of("a"), LDValue.of("b"));
-      assertNotEquals(LDValue.of(false), LDValue.of(0));
+    List<List<LDValue>> testValues = asList(
+        asList(LDValue.ofNull(), LDValue.ofNull()),
+        asList(LDValue.of(true), LDValue.of(true)),
+        asList(LDValue.of(false), LDValue.of(false)),
+        asList(LDValue.of(1), LDValue.of(1)),
+        asList(LDValue.of(2), LDValue.of(2)),
+        asList(LDValue.of(3), LDValue.of(3.0f)),
+        asList(LDValue.of("a"), LDValue.of("a")),
+        asList(LDValue.of("b"), LDValue.of("b")),
+        
+        // arrays use deep equality
+        asList(LDValue.buildArray().build(), LDValue.buildArray().build()),
+        asList(LDValue.buildArray().add("a").build(), LDValue.buildArray().add("a").build()),
+        asList(LDValue.buildArray().add("a").add("b").build(),
+            LDValue.buildArray().add("a").add("b").build()),
+        asList(LDValue.buildArray().add("a").add("c").build(),
+            LDValue.buildArray().add("a").add("c").build()),
+        asList(LDValue.buildArray().add("a").add(LDValue.buildArray().add("b").add("c").build()).build(),
+            LDValue.buildArray().add("a").add(LDValue.buildArray().add("b").add("c").build()).build()),
+        asList(LDValue.buildArray().add("a").add(LDValue.buildArray().add("b").add("d").build()).build(),
+            LDValue.buildArray().add("a").add(LDValue.buildArray().add("b").add("d").build()).build()),
+        
+        // objects use deep equality
+        asList(LDValue.buildObject().build(), LDValue.buildObject().build()),
+        asList(LDValue.buildObject().put("a", LDValue.of(1)).build(),
+            LDValue.buildObject().put("a", LDValue.of(1)).build()),
+        asList(LDValue.buildObject().put("a", LDValue.of(2)).build(),
+            LDValue.buildObject().put("a", LDValue.of(2)).build()),
+        asList(LDValue.buildObject().put("a", LDValue.of(1)).put("b", LDValue.of(2)).build(),
+            LDValue.buildObject().put("b", LDValue.of(2)).put("a", LDValue.of(1)).build())
+        );
+    TestHelpers.doEqualityTests(testValues);
   }
-
-  private void assertValueAndHashEqual(LDValue a, LDValue b)
-  {
-    assertEquals(a, b);
-    assertEquals(a.hashCode(), b.hashCode());
-  }
-
-  private void assertValueAndHashNotEqual(LDValue a, LDValue b)
-  {
-    assertNotEquals(a, b);
-    assertNotEquals(a.hashCode(), b.hashCode());
-  }
-
-  @Test
-  public void equalsUsesDeepEqualityForArrays()
-  {
-    LDValue a1 = LDValue.buildArray().add("a")
-          .add(LDValue.buildArray().add("b").add("c").build())
-          .build();
-
-    LDValue a2 = LDValue.buildArray().add("a").build();
-    assertValueAndHashNotEqual(a1, a2);
-
-    LDValue a3 = LDValue.buildArray().add("a").add("b").add("c").build();
-    assertValueAndHashNotEqual(a1, a3);
-
-    LDValue a4 = LDValue.buildArray().add("a")
-        .add(LDValue.buildArray().add("b").add("x").build())
-        .build();
-    assertValueAndHashNotEqual(a1, a4);
-  }
-
-  @Test
-  public void equalsUsesDeepEqualityForObjects()
-  {
-      LDValue o1 = LDValue.buildObject()
-          .put("a", "b")
-          .put("c", LDValue.buildObject().put("d", "e").build())
-          .build();
-
-      LDValue o2 = LDValue.buildObject()
-          .put("a", "b")
-          .build();
-      assertValueAndHashNotEqual(o1, o2);
-
-      LDValue o3 = LDValue.buildObject()
-          .put("a", "b")
-          .put("c", LDValue.buildObject().put("d", "e").build())
-          .put("f", "g")
-          .build();
-      assertValueAndHashNotEqual(o1, o3);
-      
-      LDValue o4 = LDValue.buildObject()
-          .put("a", "b")
-          .put("c", LDValue.buildObject().put("d", "f").build())
-          .build();
-      assertValueAndHashNotEqual(o1, o4);
-  }
-
+  
   @Test
   public void canUseLongTypeForNumberGreaterThanMaxInt() {
     long n = (long)Integer.MAX_VALUE + 1;

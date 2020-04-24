@@ -6,10 +6,9 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
-import static com.launchdarkly.sdk.Helpers.hashFrom;
-import static com.launchdarkly.sdk.Helpers.objectsEqual;
 import static java.util.Collections.unmodifiableMap;
 import static java.util.Collections.unmodifiableSet;
 
@@ -231,28 +230,30 @@ public class LDUser {
   
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
-
-    LDUser ldUser = (LDUser) o;
-
-    return objectsEqual(key, ldUser.key) &&
-        objectsEqual(secondary, ldUser.secondary) &&
-        objectsEqual(ip, ldUser.ip) &&
-        objectsEqual(email, ldUser.email) &&
-        objectsEqual(name, ldUser.name) &&
-        objectsEqual(avatar, ldUser.avatar) &&
-        objectsEqual(firstName, ldUser.firstName) &&
-        objectsEqual(lastName, ldUser.lastName) &&
-        objectsEqual(anonymous, ldUser.anonymous) &&
-        objectsEqual(country, ldUser.country) &&
-        objectsEqual(custom, ldUser.custom) &&
-        objectsEqual(privateAttributeNames, ldUser.privateAttributeNames);
+    if (this == o) {
+      return true;
+    }
+    if (o instanceof LDUser) {
+      LDUser ldUser = (LDUser) o;
+      return Objects.equals(key, ldUser.key) &&
+          Objects.equals(secondary, ldUser.secondary) &&
+          Objects.equals(ip, ldUser.ip) &&
+          Objects.equals(email, ldUser.email) &&
+          Objects.equals(name, ldUser.name) &&
+          Objects.equals(avatar, ldUser.avatar) &&
+          Objects.equals(firstName, ldUser.firstName) &&
+          Objects.equals(lastName, ldUser.lastName) &&
+          Objects.equals(anonymous, ldUser.anonymous) &&
+          Objects.equals(country, ldUser.country) &&
+          Objects.equals(custom, ldUser.custom) &&
+          Objects.equals(privateAttributeNames, ldUser.privateAttributeNames);
+    }
+    return false;
   }
 
   @Override
   public int hashCode() {
-    return hashFrom(key, secondary, ip, email, name, avatar, firstName, lastName, anonymous, country, custom, privateAttributeNames);
+    return Objects.hash(key, secondary, ip, email, name, avatar, firstName, lastName, anonymous, country, custom, privateAttributeNames);
   }
 
   /**

@@ -207,6 +207,9 @@ public final class EvaluationReason {
   
   @Override
   public boolean equals(Object other) {
+    if (other == this) {
+      return true;
+    }
     if (other instanceof EvaluationReason) {
       EvaluationReason o = (EvaluationReason)other;
       return kind == o.kind && ruleIndex == o.ruleIndex && Objects.equals(ruleId, o.ruleId)&&
