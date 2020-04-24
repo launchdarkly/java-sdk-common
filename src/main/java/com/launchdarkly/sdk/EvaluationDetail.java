@@ -1,5 +1,7 @@
 package com.launchdarkly.sdk;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -9,21 +11,23 @@ import java.util.Objects;
  * @param <T> the type of the wrapped value
  */
 public class EvaluationDetail<T> {
-
-  private final EvaluationReason reason;
-  private final Integer variationIndex;
-  private final T value;
-
   /**
-   * Constructs an instance with all properties specified.
-   * 
-   * @param reason an {@link EvaluationReason} (should not be null)
-   * @param variationIndex an optional variation index
-   * @param value a value of the desired type
+   * If {@link #getVariationIndex()} is equal to this constant, it means no variation was chosen
+   * (evaluation failed and returned a default value).
    */
-  public EvaluationDetail(EvaluationReason reason, Integer variationIndex, T value) {
+  public static final int NO_VARIATION = -1;
+  
+  private static final Iterable<EvaluationDetail<?>> BOOLEAN_SINGLETONS = createBooleanSingletons();
+  
+  private final T value;
+  private final int variationIndex;
+  private final EvaluationReason reason;
+
+  // Constructor is private to allow us to use different creation strategies in the factory method
+  // (such as interning some commonly used instances).
+  private EvaluationDetail(T value, int variationIndex, EvaluationReason reason) {
     this.value = value;
-    this.variationIndex = variationIndex;
+    this.variationIndex = variationIndex >= 0 ? variationIndex : NO_VARIATION;
     this.reason = reason;
   }
 
@@ -32,12 +36,23 @@ public class EvaluationDetail<T> {
    * 
    * @param <T> the type of the value
    * @param value a value of the desired type
-   * @param variationIndex an optional variation index
+   * @param variationIndex a variation index, or {@link #NO_VARIATION} (any negative number will be
+   *   changed to {@link #NO_VARIATION})
    * @param reason an {@link EvaluationReason} (should not be null)
    * @return an {@link EvaluationDetail}
    */
-  public static <T> EvaluationDetail<T> fromValue(T value, Integer variationIndex, EvaluationReason reason) {
-    return new EvaluationDetail<T>(reason, variationIndex, value);
+  @SuppressWarnings("unchecked")
+  public static <T> EvaluationDetail<T> fromValue(T value, int variationIndex, EvaluationReason reason) {
+    // Return an existing singleton if possible to avoid creating a lot of ephemeral objects for the
+    // typical boolean flag cases.
+    if (value != null && (value.getClass() == Boolean.class || value.getClass() == LDValueBool.class)) {
+      for (EvaluationDetail<?> d: BOOLEAN_SINGLETONS) {
+        if (d.value == value && d.variationIndex == variationIndex && d.reason == reason) {
+          return (EvaluationDetail<T>)d;
+        }
+      }
+    }
+    return new EvaluationDetail<T>(value, variationIndex, reason);
   }
   
   /**
@@ -48,11 +63,12 @@ public class EvaluationDetail<T> {
    * @return an {@link EvaluationDetail}
    */
   public static EvaluationDetail<LDValue> error(EvaluationReason.ErrorKind errorKind, LDValue defaultValue) {
-    return new EvaluationDetail<LDValue>(EvaluationReason.error(errorKind), null, LDValue.normalize(defaultValue));
+    return new EvaluationDetail<LDValue>(LDValue.normalize(defaultValue), NO_VARIATION, EvaluationReason.error(errorKind));
   }
   
   /**
    * An object describing the main factor that influenced the flag evaluation value.
+   * 
    * @return an {@link EvaluationReason}
    */
   public EvaluationReason getReason() {
@@ -60,17 +76,19 @@ public class EvaluationDetail<T> {
   }
 
   /**
-   * The index of the returned value within the flag's list of variations, e.g. 0 for the first variation -
-   * or {@code null} if the default value was returned.
-   * @return the variation index or null
+   * The index of the returned value within the flag's list of variations, e.g. 0 for the first variation,
+   * or {@link #NO_VARIATION}.
+   * 
+   * @return the variation index if applicable
    */
-  public Integer getVariationIndex() {
+  public int getVariationIndex() {
     return variationIndex;
   }
 
   /**
    * The result of the flag evaluation. This will be either one of the flag's variations or the default
    * value that was passed to the {@code variation} method.
+   * 
    * @return the flag value
    */
   public T getValue() {
@@ -79,11 +97,12 @@ public class EvaluationDetail<T> {
   
   /**
    * Returns true if the flag evaluation returned the default value, rather than one of the flag's
-   * variations.
+   * variations. If so, {@link #getVariationIndex()} will be {@link #NO_VARIATION}.
+   * 
    * @return true if this is the default value
    */
   public boolean isDefaultValue() {
-    return variationIndex == null;
+    return variationIndex < 0;
   }
   
   @Override
@@ -94,7 +113,7 @@ public class EvaluationDetail<T> {
     if (other instanceof EvaluationDetail) {
       @SuppressWarnings("unchecked")
       EvaluationDetail<T> o = (EvaluationDetail<T>)other;
-      return Objects.equals(reason, o.reason) && Objects.equals(variationIndex, o.variationIndex) && Objects.equals(value, o.value);
+      return Objects.equals(reason, o.reason) && variationIndex == o.variationIndex && Objects.equals(value, o.value);
     }
     return false;
   }
@@ -104,8 +123,39 @@ public class EvaluationDetail<T> {
     return Objects.hash(reason, variationIndex, value);
   }
   
+  /**
+   * Returns a simple string representation of this instance.
+   * <p>
+   * This is a convenience method for debugging and any other use cases where a human-readable string is
+   * helpful. The exact format of the string is subject to change; if you need to make programmatic
+   * decisions based on the object's properties, use other methods like {@link #getValue()}.
+   */
   @Override
   public String toString() {
-    return "{" + reason + "," + variationIndex + "," + value + "}";
+    return "{" + value + "," + variationIndex + "," + reason + "}";
+  }
+  
+  private static Iterable<EvaluationDetail<?>> createBooleanSingletons() {
+    // Boolean flags are very commonly used, so we'll generate likely combinations here because it's
+    // better to iterate through a few more array elements than to create an instance. Note that the
+    // internal evaluation logic will use LDValue whereas boolVariation() uses Boolean.
+    List<EvaluationDetail<?>> ret = new ArrayList<>();
+    
+    // It's more common for false to be variation 0, so put that first 
+    for (int iFalseVariation = 0; iFalseVariation < 2; iFalseVariation++) {
+      // It's more common for the off variation to be variation 0, so put that first
+      for (int iOffVariation = 0; iOffVariation < 2; iOffVariation++) {
+        for (int iTruth = 0; iTruth < 2; iTruth++) {
+          for (int iType = 0; iType < 2; iType++) {
+            Object value = iType == 0 ? LDValue.of(iTruth == 1) : Boolean.valueOf(iTruth == 1);
+            int variationIndex = iTruth == 0 ? iFalseVariation : (1 - iFalseVariation);
+            EvaluationReason reason = variationIndex == iOffVariation ? EvaluationReason.off() : EvaluationReason.fallthrough();
+            ret.add(new EvaluationDetail<Object>(value, variationIndex, reason));
+          }
+        }
+      }
+    }
+    
+    return ret;
   }
 }
