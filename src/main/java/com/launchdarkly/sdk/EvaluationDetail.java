@@ -1,8 +1,6 @@
 package com.launchdarkly.sdk;
 
-import com.launchdarkly.sdk.json.LDGson;
 import com.launchdarkly.sdk.json.JsonSerializable;
-import com.launchdarkly.sdk.json.JsonSerialization;
 
 import static com.launchdarkly.sdk.Helpers.hashFrom;
 import static com.launchdarkly.sdk.Helpers.objectsEqual;
@@ -13,8 +11,8 @@ import static com.launchdarkly.sdk.Helpers.objectsEqual;
  * <p>
  * {@link EvaluationReason} can be converted to and from JSON in one of two ways:
  * <ol>
- * <li> With {@link JsonSerialization}.
- * <li> With Gson, if and only if you configure your Gson instance with {@link LDGson}.
+ * <li> With {@link com.launchdarkly.sdk.json.JsonSerialization}.
+ * <li> With Gson, if and only if you configure your Gson instance with {@link com.launchdarkly.sdk.json.LDGson}.
  * </ol>
  * 
  * @param <T> the type of the wrapped value

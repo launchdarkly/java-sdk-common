@@ -3,7 +3,6 @@ package com.launchdarkly.sdk;
 import com.google.gson.Gson;
 import com.google.gson.annotations.JsonAdapter;
 import com.google.gson.stream.JsonWriter;
-import com.launchdarkly.sdk.json.LDGson;
 import com.launchdarkly.sdk.json.JsonSerializable;
 import com.launchdarkly.sdk.json.JsonSerialization;
 import com.launchdarkly.sdk.json.SerializationException;
@@ -35,8 +34,8 @@ import static java.util.Collections.emptyList;
  * <p>
  * {@link LDValue} can be converted to and from JSON in one of three ways:
  * <ol>
- * <li> With {@link JsonSerialization}.
- * <li> With Gson, if and only if you configure your Gson instance with {@link LDGson}.
+ * <li> With {@link com.launchdarkly.sdk.json.JsonSerialization}.
+ * <li> With Gson, if and only if you configure your Gson instance with {@link com.launchdarkly.sdk.json.LDGson}.
  * <li> With the {@link LDValue} methods {@link #toJsonString()} and {@link #parse(String)}.
  * </ol>
  */

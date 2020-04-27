@@ -1,9 +1,7 @@
 package com.launchdarkly.sdk;
 
 import com.google.gson.annotations.JsonAdapter;
-import com.launchdarkly.sdk.json.LDGson;
 import com.launchdarkly.sdk.json.JsonSerializable;
-import com.launchdarkly.sdk.json.JsonSerialization;
 
 import java.util.Objects;
 
@@ -20,8 +18,8 @@ import java.util.Objects;
  * LaunchDarkly defines a standard JSON encoding for evaluation reasons, used in analytics events.
  * {@link EvaluationReason} can be converted to and from JSON in one of two ways:
  * <ol>
- * <li> With {@link JsonSerialization}.
- * <li> With Gson, if and only if you configure your Gson instance with {@link LDGson}.
+ * <li> With {@link com.launchdarkly.sdk.json.JsonSerialization}.
+ * <li> With Gson, if and only if you configure your Gson instance with {@link com.launchdarkly.sdk.json.LDGson}.
  * </ol>
  */
 @JsonAdapter(EvaluationReasonTypeAdapter.class)
