@@ -1,6 +1,7 @@
 package com.launchdarkly.sdk;
 
 import com.google.gson.annotations.JsonAdapter;
+import com.launchdarkly.sdk.json.JsonSerializable;
 
 import java.util.Objects;
 
@@ -13,9 +14,16 @@ import java.util.Objects;
  * Note that while {@link EvaluationReason} has subclasses as an implementation detail, the subclasses
  * are not public and may be removed in the future. Always use methods of the base class such as
  * {@link #getKind()} or {@link #getRuleIndex()} to inspect the reason.
+ * <p>
+ * LaunchDarkly defines a standard JSON encoding for evaluation reasons, used in analytics events.
+ * {@link EvaluationReason} can be converted to and from JSON in one of two ways:
+ * <ol>
+ * <li> With {@link com.launchdarkly.sdk.json.JsonSerialization}.
+ * <li> With Gson, if and only if you configure your Gson instance with {@link com.launchdarkly.sdk.json.LDGson}.
+ * </ol>
  */
 @JsonAdapter(EvaluationReasonTypeAdapter.class)
-public final class EvaluationReason {
+public final class EvaluationReason implements JsonSerializable {
   /**
    * Enumerated type defining the possible values of {@link EvaluationReason#getKind()}.
    */

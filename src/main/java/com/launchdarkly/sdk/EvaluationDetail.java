@@ -1,5 +1,7 @@
 package com.launchdarkly.sdk;
 
+import com.launchdarkly.sdk.json.JsonSerializable;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -7,10 +9,16 @@ import java.util.Objects;
 /**
  * An object returned by the SDK's "variation detail" methods such as {@code boolVariationDetail},
  * combining the result of a flag evaluation with an explanation of how it was calculated.
+ * <p>
+ * {@link EvaluationReason} can be converted to and from JSON in one of two ways:
+ * <ol>
+ * <li> With {@link com.launchdarkly.sdk.json.JsonSerialization}.
+ * <li> With Gson, if and only if you configure your Gson instance with {@link com.launchdarkly.sdk.json.LDGson}.
+ * </ol>
  * 
  * @param <T> the type of the wrapped value
  */
-public class EvaluationDetail<T> {
+public final class EvaluationDetail<T> implements JsonSerializable {
   /**
    * If {@link #getVariationIndex()} is equal to this constant, it means no variation was chosen
    * (evaluation failed and returned a default value).
