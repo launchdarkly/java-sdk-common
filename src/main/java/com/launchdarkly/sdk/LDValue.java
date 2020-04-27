@@ -3,6 +3,10 @@ package com.launchdarkly.sdk;
 import com.google.gson.Gson;
 import com.google.gson.annotations.JsonAdapter;
 import com.google.gson.stream.JsonWriter;
+import com.launchdarkly.sdk.json.LDGson;
+import com.launchdarkly.sdk.json.JsonSerializable;
+import com.launchdarkly.sdk.json.JsonSerialization;
+import com.launchdarkly.sdk.json.SerializationException;
 
 import java.io.IOException;
 import java.util.Map;
@@ -28,9 +32,16 @@ import static java.util.Collections.emptyList;
  * from the API, so the SDK does not expose this dependency and cannot cause version conflicts in
  * applications that use Gson themselves. Second, Gson's array and object types are mutable, which can
  * cause concurrency risks.
+ * <p>
+ * {@link LDValue} can be converted to and from JSON in one of three ways:
+ * <ol>
+ * <li> With {@link JsonSerialization}.
+ * <li> With Gson, if and only if you configure your Gson instance with {@link LDGson}.
+ * <li> With the {@link LDValue} methods {@link #toJsonString()} and {@link #parse(String)}.
+ * </ol>
  */
 @JsonAdapter(LDValueTypeAdapter.class)
-public abstract class LDValue {
+public abstract class LDValue implements JsonSerializable {
   static final Gson gson = new Gson();
   
   /**
@@ -148,11 +159,26 @@ public abstract class LDValue {
   
   /**
    * Parses an LDValue from a JSON representation.
+   * <p>
+   * This convenience method is equivalent to using {@link JsonSerialization#deserialize(String, Class)}
+   * with the {@code LDValue} class, except for two things: 1. you do not have to provide the class
+   * parameter; 2. parsing errors are thrown as an unchecked {@code RuntimeException}, rather than a
+   * checked {@link SerializationException}, making this method somewhat more convenient in cases such
+   * as test code where explicit error handling is less important.
+   * 
    * @param json a JSON string
    * @return an LDValue
    */
   public static LDValue parse(String json) {
-    return gson.fromJson(json, LDValue.class);
+    try {
+      return JsonSerialization.deserialize(json, LDValue.class);
+    } catch (SerializationException e) {
+      if (e.getCause() instanceof RuntimeException) {
+        throw (RuntimeException)e.getCause();
+      } else {
+        throw new RuntimeException(e.getCause());
+      }
+    }
   }
   
   /**
@@ -339,6 +365,9 @@ public abstract class LDValue {
   
   /**
    * Converts this value to its JSON serialization.
+   * <p>
+   * This method is equivalent to passing the {@code LDValue} instance to
+   * {@link JsonSerialization#serialize(JsonSerializable)}.
    * 
    * @return a JSON string
    */
@@ -352,11 +381,26 @@ public abstract class LDValue {
     return value == (double)((int)value);
   }
   
+  /**
+   * Returns a string representation of this value.
+   * <p>
+   * This method currently returns the same JSON serialization as {@link #toJsonString()}. However,
+   * like most {@code toString()} implementations, it is intended mainly for convenience in
+   * debugging or other use cases where the goal is simply to have a human-readable format; it is
+   * not guaranteed to always match {@link #toJsonString()} in the future. If you need to verify
+   * the value type or other properties programmatically, use the getter methods of {@code LDValue}. 
+   */
   @Override
   public String toString() {
     return toJsonString();
   }
   
+  /**
+   * Returns true if the other object is an {@link LDValue} that is logically equal.
+   * <p>
+   * This is a deep equality comparison: for JSON arrays each element is compared recursively, and
+   * for JSON objects all property names and values must be deeply equal regardless of ordering.
+   */
   @Override
   public boolean equals(Object o) {
     if (o instanceof LDValue) {

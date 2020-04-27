@@ -49,6 +49,10 @@ To build the project and run all unit tests:
 ./gradlew test
 ```
 
-### Note on Java version and Android support
+## Note on Java version and Android support
 
 This project is limited to Java 7 because it is used in both the LaunchDarkly server-side Java SDK and the LaunchDarkly Android SDK. Android only supports Java 8 to a limited degree, depending on both the version of the Android developer tools and the Android API version. Since this is a small code base, we have decided to use Java 7 for it despite the minor inconveniences that this causes in terms of syntax.
+
+## Note on dependencies
+
+This project's `build.gradle` contains special logic to exclude dependencies from `pom.xml`. This is because it is meant to be used as part of one of the LaunchDarkly SDKs, and the different SDKs have different strategies for either exposing or embedding these dependencies. Therefore, it is the responsibility of each SDK to provide its own dependency for any module that is actually required in order for `java-sdk-common` to work; currently that is only Gson.

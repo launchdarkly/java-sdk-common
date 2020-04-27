@@ -1,6 +1,9 @@
 package com.launchdarkly.sdk;
 
-import com.google.gson.Gson;
+import com.google.gson.annotations.JsonAdapter;
+import com.launchdarkly.sdk.json.LDGson;
+import com.launchdarkly.sdk.json.JsonSerializable;
+import com.launchdarkly.sdk.json.JsonSerialization;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -23,15 +26,16 @@ import static java.util.Collections.unmodifiableSet;
  * For a fuller description of user attributes and how they can be referenced in feature flag rules, see the reference
  * guides on <a href="https://docs.launchdarkly.com/home/managing-users/user-attributes">Setting user attributes</a>
  * and <a href="https://docs.launchdarkly.com/home/managing-flags/targeting-users">Targeting users</a>.
- * <p> 
- * If you want to pass an LDUser object to the front end to be used with the JavaScript SDK, call {@link #toJsonString()}
- * to get its JSON encoding. Do not try to pass an LDUser instance to a reflection-based encoder such as Gson; its
- * internal structure does not correspond directly to the JSON encoding, and an external instance of Gson will not
- * recognize the Gson annotations used inside the SDK.
+ * <p>
+ * LaunchDarkly defines a standard JSON encoding for user objects, used by the JavaScript SDK and also in analytics
+ * events. {@link LDUser} can be converted to and from JSON in one of two ways:
+ * <ol>
+ * <li> With {@link JsonSerialization}.
+ * <li> With Gson, if and only if you configure your Gson instance with {@link LDGson}.
+ * </ol>
  */
-public class LDUser {
-  private static final Gson defaultGson = new Gson();
-
+@JsonAdapter(LDUserTypeAdapter.class)
+public class LDUser implements JsonSerializable {
   // Note that these fields are all stored internally as LDValue rather than String so that
   // we don't waste time repeatedly converting them to LDValue in the rule evaluation logic.
   final LDValue key;
@@ -212,22 +216,6 @@ public class LDUser {
   public boolean isAttributePrivate(UserAttribute attribute) {
     return privateAttributeNames != null && privateAttributeNames.contains(attribute);
   }
-
-  /**
-   * Converts the user data to its standard JSON representation.
-   * <p>
-   * This is the same format that the LaunchDarkly JavaScript browser SDK uses to represent users, so
-   * it is the simplest way to pass user data to front-end code.
-   * <p>
-   * Do not pass the {@link LDUser} object to a reflection-based JSON encoder such as Gson. Although the
-   * SDK uses Gson internally, it uses shading so that the Gson types are not exposed, so an external
-   * instance of Gson will not recognize the type adapters that provide the correct format.
-   * 
-   * @return a JSON representation of the user
-   */
-  public String toJsonString() {
-    return defaultGson.toJson(this);
-  }
   
   @Override
   public boolean equals(Object o) {
@@ -255,6 +243,11 @@ public class LDUser {
     return hashFrom(key, secondary, ip, email, name, avatar, firstName, lastName, anonymous, country, custom, privateAttributeNames);
   }
 
+  @Override
+  public String toString() {
+    return "LDUser(" + JsonSerialization.serialize(this) + ")";
+  }
+  
   /**
    * A <a href="http://en.wikipedia.org/wiki/Builder_pattern">builder</a> that helps construct {@link LDUser} objects. Builder
    * calls can be chained, enabling the following pattern:
@@ -306,6 +299,17 @@ public class LDUser {
       this.country = user.country.stringValue();
       this.custom = user.custom == null ? null : new HashMap<>(user.custom);
       this.privateAttributes = user.privateAttributeNames == null ? null : new HashSet<>(user.privateAttributeNames);
+    }
+    
+    /**
+     * Changes the user's key.
+     * 
+     * @param s the user key
+     * @return the builder
+     */
+    public Builder key(String s) {
+      this.key = s;
+      return this;
     }
     
     /**
@@ -657,7 +661,7 @@ public class LDUser {
       return this;
     }
 
-    private void addPrivate(UserAttribute attribute) {
+    void addPrivate(UserAttribute attribute) {
       if (privateAttributes == null) {
         privateAttributes = new HashSet<>();
       }
