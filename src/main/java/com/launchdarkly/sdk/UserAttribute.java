@@ -4,6 +4,7 @@ import com.google.gson.TypeAdapter;
 import com.google.gson.annotations.JsonAdapter;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
+import com.launchdarkly.sdk.json.JsonSerializable;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -21,7 +22,7 @@ import java.util.Map;
  * and <a href="https://docs.launchdarkly.com/home/managing-flags/targeting-users">Targeting users</a>.
  */
 @JsonAdapter(UserAttribute.UserAttributeTypeAdapter.class)
-public final class UserAttribute {
+public final class UserAttribute implements JsonSerializable {
   /**
    * Represents the user key attribute.
    */
@@ -187,7 +188,14 @@ public final class UserAttribute {
   static final class UserAttributeTypeAdapter extends TypeAdapter<UserAttribute>{    
     @Override
     public UserAttribute read(JsonReader reader) throws IOException {
-      return UserAttribute.forName(reader.nextString());
+      // Unfortunately, JsonReader.nextString() does not actually enforce that the value is a string
+      switch (reader.peek()) {
+      case STRING:
+        return UserAttribute.forName(reader.nextString());
+      default:
+        throw new IllegalStateException("expected string for UserAttribute");
+        // IllegalStateException seems to be what Gson parsing methods normally use for wrong types
+      }
     }
   
     @Override

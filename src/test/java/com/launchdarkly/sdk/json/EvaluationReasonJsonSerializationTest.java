@@ -4,6 +4,7 @@ import com.launchdarkly.sdk.EvaluationReason;
 
 import org.junit.Test;
 
+import static com.launchdarkly.sdk.json.JsonTestHelpers.verifyDeserializeInvalidJson;
 import static com.launchdarkly.sdk.json.JsonTestHelpers.verifySerialize;
 import static com.launchdarkly.sdk.json.JsonTestHelpers.verifySerializeAndDeserialize;
 
@@ -20,6 +21,8 @@ public class EvaluationReasonJsonSerializationTest {
         "{\"kind\":\"PREREQUISITE_FAILED\",\"prerequisiteKey\":\"key\"}");
     verifySerializeAndDeserialize(EvaluationReason.error(EvaluationReason.ErrorKind.FLAG_NOT_FOUND),
         "{\"kind\":\"ERROR\",\"errorKind\":\"FLAG_NOT_FOUND\"}");
+
+    verifyDeserializeInvalidJson(EvaluationReason.class, "3");
   }
 
   @Test

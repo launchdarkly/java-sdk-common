@@ -1,7 +1,15 @@
 package com.launchdarkly.sdk.json;
 
 import com.google.gson.Gson;
+import com.launchdarkly.sdk.EvaluationDetail;
+import com.launchdarkly.sdk.EvaluationReason;
+import com.launchdarkly.sdk.LDUser;
 import com.launchdarkly.sdk.LDValue;
+import com.launchdarkly.sdk.UserAttribute;
+
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Helper methods for JSON serialization of SDK classes.
@@ -22,6 +30,8 @@ import com.launchdarkly.sdk.LDValue;
  * </ol>
  */
 public abstract class JsonSerialization {
+  static final List<Class<? extends JsonSerializable>> knownDeserializableClasses = new ArrayList<>();
+  
   static final Gson gson = new Gson();
   
   /**
@@ -66,5 +76,51 @@ public abstract class JsonSerialization {
     } catch (Exception e) {
       throw new SerializationException(e);
     }
+  }
+  
+  /**
+   * Internal method to return all of the classes that we should have a custom deserializer for.
+   * <p>
+   * The reason for this method is for some JSON frameworks, such as Jackson, it is not possible to
+   * register a general deserializer for a base type like JsonSerializable and have it be called by
+   * the framework when someone wants to deserialize some concrete type descended from that base type.
+   * Instead, we must register a deserializer for each of the latter.
+   * <p>
+   * Since the SDKs may define their own JsonSerializable types that are not in this common library,
+   * there is a reflection-based mechanism for discovering those: the SDK may define a class called
+   * com.launchdarkly.sdk.json.SdkSerializationExtensions, with a static method whose signature is
+   * the same as this method, and whatever it returns will be added to this return value.
+   * <p>
+   * In the case of a base class like LDValue where the deserializer is for the base class (because
+   * application code does not know about the subclasses) and implements its own polymorphism, we
+   * should only list the base class.
+   * 
+   * @return classes we should have a custom deserializer for
+   */
+  static Iterable<Class<? extends JsonSerializable>> getDeserializableClasses() {
+    synchronized (knownDeserializableClasses) {
+      if (knownDeserializableClasses.isEmpty()) {
+        knownDeserializableClasses.add(EvaluationReason.class);
+        knownDeserializableClasses.add(EvaluationDetail.class);
+        knownDeserializableClasses.add(LDUser.class);
+        knownDeserializableClasses.add(LDValue.class);
+        knownDeserializableClasses.add(UserAttribute.class);
+        
+        // Use reflection to find any additional classes provided by an SDK; if there are none or if
+        // this fails for any reason, don't worry about it
+        try {
+          Class<?> sdkExtensionsClass = Class.forName("com.launchdarkly.sdk.json.SdkSerializationExtensions");
+          Method method = sdkExtensionsClass.getMethod("getDeserializableClasses");
+          @SuppressWarnings("unchecked")
+          Iterable<Class<? extends JsonSerializable>> sdkClasses =
+              (Iterable<Class<? extends JsonSerializable>>) method.invoke(null);
+          for (Class<? extends JsonSerializable> c: sdkClasses) {
+            knownDeserializableClasses.add(c);
+          }
+        } catch (Exception e) {} 
+      }
+    }
+    
+    return knownDeserializableClasses;
   }
 }

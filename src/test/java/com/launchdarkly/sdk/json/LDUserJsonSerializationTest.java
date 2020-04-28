@@ -5,6 +5,7 @@ import com.launchdarkly.sdk.LDValue;
 
 import org.junit.Test;
 
+import static com.launchdarkly.sdk.json.JsonTestHelpers.verifyDeserializeInvalidJson;
 import static com.launchdarkly.sdk.json.JsonTestHelpers.verifySerializeAndDeserialize;
 
 @SuppressWarnings("javadoc")
@@ -13,6 +14,9 @@ public class LDUserJsonSerializationTest {
   public void minimalJsonEncoding() throws Exception {
     LDUser user = new LDUser("userkey");
     verifySerializeAndDeserialize(user, "{\"key\":\"userkey\"}");
+    
+    verifyDeserializeInvalidJson(LDUser.class, "3");
+    verifyDeserializeInvalidJson(LDUser.class, "{\"key\":\"userkey\",\"name\":3");
   }
 
   @Test

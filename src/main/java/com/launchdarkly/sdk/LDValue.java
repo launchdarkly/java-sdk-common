@@ -32,11 +32,14 @@ import static java.util.Collections.emptyList;
  * applications that use Gson themselves. Second, Gson's array and object types are mutable, which can
  * cause concurrency risks.
  * <p>
- * {@link LDValue} can be converted to and from JSON in one of three ways:
+ * {@link LDValue} can be converted to and from JSON in any of these ways:
  * <ol>
- * <li> With {@link com.launchdarkly.sdk.json.JsonSerialization}.
- * <li> With Gson, if and only if you configure your Gson instance with {@link com.launchdarkly.sdk.json.LDGson}.
  * <li> With the {@link LDValue} methods {@link #toJsonString()} and {@link #parse(String)}.
+ * <li> With {@link com.launchdarkly.sdk.json.JsonSerialization}.
+ * <li> With Gson, if and only if you configure your {@code Gson} instance with
+ * {@link com.launchdarkly.sdk.json.LDGson}.
+ * <li> With Jackson, if and only if you configure your {@code ObjectMapper} instance with
+ * {@link com.launchdarkly.sdk.json.LDJackson}.
  * </ol>
  */
 @JsonAdapter(LDValueTypeAdapter.class)

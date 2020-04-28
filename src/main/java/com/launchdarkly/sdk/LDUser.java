@@ -26,10 +26,13 @@ import static java.util.Collections.unmodifiableSet;
  * and <a href="https://docs.launchdarkly.com/home/managing-flags/targeting-users">Targeting users</a>.
  * <p>
  * LaunchDarkly defines a standard JSON encoding for user objects, used by the JavaScript SDK and also in analytics
- * events. {@link LDUser} can be converted to and from JSON in one of two ways:
+ * events. {@link LDUser} can be converted to and from JSON in any of these ways:
  * <ol>
- * <li> With {@link com.launchdarkly.sdk.json.JsonSerialization}.
- * <li> With Gson, if and only if you configure your Gson instance with {@link com.launchdarkly.sdk.json.LDGson}.
+ * <li> With {@link JsonSerialization}.
+ * <li> With Gson, if and only if you configure your {@code Gson} instance with
+ * {@link com.launchdarkly.sdk.json.LDGson}.
+ * <li> With Jackson, if and only if you configure your {@code ObjectMapper} instance with
+ * {@link com.launchdarkly.sdk.json.LDJackson}.
  * </ol>
  */
 @JsonAdapter(LDUserTypeAdapter.class)

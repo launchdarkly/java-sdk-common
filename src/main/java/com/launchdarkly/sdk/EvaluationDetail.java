@@ -10,10 +10,13 @@ import java.util.Objects;
  * An object returned by the SDK's "variation detail" methods such as {@code boolVariationDetail},
  * combining the result of a flag evaluation with an explanation of how it was calculated.
  * <p>
- * {@link EvaluationReason} can be converted to and from JSON in one of two ways:
+ * {@link EvaluationReason} can be converted to and from JSON in any of these ways:
  * <ol>
  * <li> With {@link com.launchdarkly.sdk.json.JsonSerialization}.
- * <li> With Gson, if and only if you configure your Gson instance with {@link com.launchdarkly.sdk.json.LDGson}.
+ * <li> With Gson, if and only if you configure your {@code Gson} instance with
+ * {@link com.launchdarkly.sdk.json.LDGson}.
+ * <li> With Jackson, if and only if you configure your {@code ObjectMapper} instance with
+ * {@link com.launchdarkly.sdk.json.LDJackson}.
  * </ol>
  * 
  * @param <T> the type of the wrapped value
