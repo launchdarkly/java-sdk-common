@@ -163,10 +163,13 @@ public abstract class LDValue implements JsonSerializable {
    * Parses an LDValue from a JSON representation.
    * <p>
    * This convenience method is equivalent to using {@link JsonSerialization#deserialize(String, Class)}
-   * with the {@code LDValue} class, except for two things: 1. you do not have to provide the class
-   * parameter; 2. parsing errors are thrown as an unchecked {@code RuntimeException}, rather than a
-   * checked {@link SerializationException}, making this method somewhat more convenient in cases such
-   * as test code where explicit error handling is less important.
+   * with the {@code LDValue} class, except for two things:
+   * <p>
+   * 1. You do not have to provide the class parameter.
+   * <p>
+   * 2. Parsing errors are thrown as an unchecked {@code RuntimeException} that wraps the checked
+   * {@link SerializationException}, making this method somewhat more convenient in cases such as
+   * test code where explicit error handling is less important.
    * 
    * @param json a JSON string
    * @return an LDValue
@@ -175,11 +178,7 @@ public abstract class LDValue implements JsonSerializable {
     try {
       return JsonSerialization.deserialize(json, LDValue.class);
     } catch (SerializationException e) {
-      if (e.getCause() instanceof RuntimeException) {
-        throw (RuntimeException)e.getCause();
-      } else {
-        throw new RuntimeException(e.getCause());
-      }
+      throw new RuntimeException(e);
     }
   }
   
