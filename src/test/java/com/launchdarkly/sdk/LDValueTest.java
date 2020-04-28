@@ -1,5 +1,7 @@
 package com.launchdarkly.sdk;
 
+import com.launchdarkly.sdk.json.SerializationException;
+
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -10,6 +12,8 @@ import java.util.Map;
 import static com.launchdarkly.sdk.TestHelpers.listFromIterable;
 import static java.util.Arrays.asList;
 import static java.util.Collections.addAll;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.instanceOf;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
@@ -372,5 +376,14 @@ public class LDValueTest {
       map.put(String.valueOf(++i), v);
     }
     assertEquals(objectValue, converter.objectFrom(map));
+  }
+  
+  @Test
+  public void parseThrowsRuntimeExceptionForMalformedJson() {
+    try {
+      LDValue.parse("{");
+    } catch (RuntimeException e) {
+      assertThat(e.getCause(), instanceOf(SerializationException.class));
+    }
   }
 }
