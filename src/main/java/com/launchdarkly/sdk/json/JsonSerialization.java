@@ -113,6 +113,10 @@ public abstract class JsonSerialization {
    * @return classes we should have a custom deserializer for
    */
   static Iterable<Class<? extends JsonSerializable>> getDeserializableClasses() {
+    // COVERAGE: This method should be excluded from code coverage analysis, because we can't test the
+    // reflective SDK extension logic inside this repo. SdkSerializationExtensions is not defined in this
+    // repo by necessity, and if we defined it in the test code then we would not be able to test the
+    // default case where it *doesn't* exist. This functionality is tested in the Java SDK.
     synchronized (knownDeserializableClasses) {
       if (knownDeserializableClasses.isEmpty()) {
         knownDeserializableClasses.add(EvaluationReason.class);

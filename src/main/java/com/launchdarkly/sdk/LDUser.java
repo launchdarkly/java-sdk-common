@@ -7,6 +7,7 @@ import com.launchdarkly.sdk.json.JsonSerialization;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
@@ -666,7 +667,7 @@ public class LDUser implements JsonSerializable {
 
     void addPrivate(UserAttribute attribute) {
       if (privateAttributes == null) {
-        privateAttributes = new HashSet<>();
+        privateAttributes = new LinkedHashSet<>(); // LinkedHashSet preserves insertion order, for test determinacy
       }
       privateAttributes.add(attribute);
     }

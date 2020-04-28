@@ -4,22 +4,17 @@ import com.launchdarkly.sdk.json.SerializationException;
 
 import org.junit.Test;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
-import static com.launchdarkly.sdk.TestHelpers.listFromIterable;
 import static java.util.Arrays.asList;
-import static java.util.Collections.addAll;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
 @SuppressWarnings("javadoc")
 public class LDValueTest {
@@ -40,6 +35,58 @@ public class LDValueTest {
   private static final LDValue anObjectValue = LDValue.buildObject().put("1", LDValue.of("x")).build();
   
   @Test
+  public void normalize() {
+    assertEquals(LDValue.ofNull(), LDValue.normalize(null));
+    assertEquals(LDValue.ofNull(), LDValue.normalize(LDValue.ofNull()));
+    assertEquals(LDValue.of(true), LDValue.normalize(LDValue.of(true)));
+  }
+  
+  @Test
+  public void isNull() {
+    assertTrue(LDValue.ofNull().isNull());
+    LDValue[] nonNulls = new LDValue[] { aStringValue, anIntValue, aLongValue, aFloatValue,
+        aDoubleValue, anArrayValue, anObjectValue };
+    for (LDValue value: nonNulls) {
+      assertFalse(value.toString(), value.isNull());
+    }
+  }
+  
+  @Test
+  public void isNumber() {
+    LDValue[] nonNumerics = new LDValue[] { LDValue.ofNull(), aStringValue, anArrayValue, anObjectValue };
+    LDValue[] numerics = new LDValue[] { anIntValue, aLongValue, aFloatValue, aDoubleValue };
+    for (LDValue value: nonNumerics) {
+      assertFalse(value.toString(), value.isNumber());
+    }
+    for (LDValue value: numerics) {
+      assertTrue(value.toString(), value.isNumber());
+    }
+  }
+
+  @Test
+  public void isInt() {
+    LDValue[] nonInts = new LDValue[] { LDValue.ofNull(), aStringValue, anArrayValue, anObjectValue,
+        LDValue.of(1.5f), LDValue.of(1.5d) };
+    LDValue[] ints = new LDValue[] { anIntValue, aLongValue, LDValue.of(1.0f), LDValue.of(1.0d) };
+    for (LDValue value: nonInts) {
+      assertFalse(value.toString(), value.isInt());
+    }
+    for (LDValue value: ints) {
+      assertTrue(value.toString(), value.isInt());
+    }
+  }
+
+  @Test
+  public void isString() {
+    LDValue[] nonStrings = new LDValue[] { anIntValue, aLongValue, aFloatValue,
+        aDoubleValue, anArrayValue, anObjectValue };
+    assertTrue(aStringValue.isString());
+    for (LDValue value: nonStrings) {
+      assertFalse(value.toString(), value.isString());
+    }
+  }
+
+  @Test
   public void canGetValueAsBoolean() {
     assertEquals(LDValueType.BOOLEAN, aTrueBoolValue.getType());
     assertTrue(aTrueBoolValue.booleanValue());
@@ -58,8 +105,9 @@ public class LDValueTest {
         anObjectValue,
     };
     for (LDValue value: values) {
-      assertNotEquals(value.toString(), LDValueType.BOOLEAN, value.getType());
-      assertFalse(value.toString(), value.booleanValue());
+      String desc = value.toString();
+      assertNotEquals(desc, LDValueType.BOOLEAN, value.getType());
+      assertFalse(desc, value.booleanValue());
     }
   }
   
@@ -82,8 +130,9 @@ public class LDValueTest {
         anObjectValue
     };
     for (LDValue value: values) {
-      assertNotEquals(value.toString(), LDValueType.STRING, value.getType());
-      assertNull(value.toString(), value.stringValue());
+      String desc = value.toString();
+      assertNotEquals(desc, LDValueType.STRING, value.getType());
+      assertNull(desc, value.stringValue());
     }
   }
   
@@ -105,9 +154,10 @@ public class LDValueTest {
         LDValue.of(3.75d)
     };
     for (LDValue value: values) {
-      assertEquals(value.toString(), LDValueType.NUMBER, value.getType());
-      assertEquals(value.toString(), 3, value.intValue());
-      assertEquals(value.toString(), 3L, value.longValue());
+      String desc = value.toString();
+      assertEquals(desc, LDValueType.NUMBER, value.getType());
+      assertEquals(desc, 3, value.intValue());
+      assertEquals(desc, 3L, value.longValue());
     }
   }
   
@@ -120,8 +170,9 @@ public class LDValueTest {
         LDValue.of(3.0d),
     };
     for (LDValue value: values) {
-      assertEquals(value.toString(), LDValueType.NUMBER, value.getType());
-      assertEquals(value.toString(), 3.0f, value.floatValue(), 0);
+      String desc = value.toString();
+      assertEquals(desc, LDValueType.NUMBER, value.getType());
+      assertEquals(desc, 3.0f, value.floatValue(), 0);
     }
   }
   
@@ -134,8 +185,9 @@ public class LDValueTest {
         LDValue.of(3.0d),
     };
     for (LDValue value: values) {
-      assertEquals(value.toString(), LDValueType.NUMBER, value.getType());
-      assertEquals(value.toString(), 3.0d, value.doubleValue(), 0);
+      String desc = value.toString();
+      assertEquals(desc, LDValueType.NUMBER, value.getType());
+      assertEquals(desc, 3.0d, value.doubleValue(), 0);
     }
   }
 
@@ -150,146 +202,17 @@ public class LDValueTest {
         anObjectValue
     };
     for (LDValue value: values) {
-      assertNotEquals(value.toString(), LDValueType.NUMBER, value.getType());
-      assertEquals(value.toString(), 0, value.intValue());
-      assertEquals(value.toString(), 0f, value.floatValue(), 0);
-      assertEquals(value.toString(), 0d, value.doubleValue(), 0);
+      String desc = value.toString();
+      assertNotEquals(desc, LDValueType.NUMBER, value.getType());
+      assertEquals(desc, 0, value.intValue());
+      assertEquals(desc, 0, value.longValue());
+      assertEquals(desc, 0f, value.floatValue(), 0);
+      assertEquals(desc, 0d, value.doubleValue(), 0);
     }
   }
   
   @Test
-  public void canGetSizeOfArray() {
-    assertEquals(1, anArrayValue.size());
-  }
-  
-  @Test
-  public void arrayCanGetItemByIndex() {
-    assertEquals(LDValueType.ARRAY, anArrayValue.getType());
-    assertEquals(LDValue.of(3), anArrayValue.get(0));
-    assertEquals(LDValue.ofNull(), anArrayValue.get(-1));
-    assertEquals(LDValue.ofNull(), anArrayValue.get(1));
-  }
-  
-  @Test
-  public void arrayCanBeEnumerated() {
-    LDValue a = LDValue.of("a");
-    LDValue b = LDValue.of("b");
-    List<LDValue> values = new ArrayList<>();
-    for (LDValue v: LDValue.buildArray().add(a).add(b).build().values()) {
-      values.add(v);
-    }
-    List<LDValue> expected = new ArrayList<>();
-    addAll(expected, a, b);
-    assertEquals(expected, values);
-  }
-  
-  @Test
-  public void arrayBuilderCanAddValuesAfterBuilding() {
-    ArrayBuilder builder = LDValue.buildArray();
-    builder.add("a");
-    LDValue firstArray = builder.build();
-    assertEquals(1, firstArray.size());
-    builder.add("b");
-    LDValue secondArray = builder.build();
-    assertEquals(2, secondArray.size());
-    assertEquals(1, firstArray.size());
-  }
-  
-  @Test
-  public void nonArrayValuesBehaveLikeEmptyArray() {
-    LDValue[] values = new LDValue[] {
-        LDValue.ofNull(),
-        aTrueBoolValue,
-        anIntValue,
-        aLongValue,
-        aFloatValue,
-        aDoubleValue,
-        aStringValue,
-        aNumericLookingStringValue,
-    };
-    for (LDValue value: values) {
-      assertEquals(value.toString(), 0, value.size());
-      assertEquals(value.toString(), LDValue.of(null), value.get(-1));
-      assertEquals(value.toString(), LDValue.of(null), value.get(0));
-      for (@SuppressWarnings("unused") LDValue v: value.values()) {
-        fail(value.toString());
-      }
-    }
-  }
-  
-  @Test
-  public void canGetSizeOfObject() {
-    assertEquals(1, anObjectValue.size());
-  }
-  
-  @Test
-  public void objectCanGetValueByName() {
-    assertEquals(LDValueType.OBJECT, anObjectValue.getType());
-    assertEquals(LDValue.of("x"), anObjectValue.get("1"));
-    assertEquals(LDValue.ofNull(), anObjectValue.get(null));
-    assertEquals(LDValue.ofNull(), anObjectValue.get("2"));
-  }
-  
-  @Test
-  public void objectKeysCanBeEnumerated() {
-    List<String> keys = new ArrayList<>();
-    for (String key: LDValue.buildObject().put("1", LDValue.of("x")).put("2", LDValue.of("y")).build().keys()) {
-      keys.add(key);
-    }
-    keys.sort(null);
-    List<String> expected = new ArrayList<>();
-    addAll(expected, "1", "2");
-    assertEquals(expected, keys);
-  }
-
-  @Test
-  public void objectValuesCanBeEnumerated() {
-    List<String> values = new ArrayList<>();
-    for (LDValue value: LDValue.buildObject().put("1", LDValue.of("x")).put("2", LDValue.of("y")).build().values()) {
-      values.add(value.stringValue());
-    }
-    values.sort(null);
-    List<String> expected = new ArrayList<>();
-    addAll(expected, "x", "y");
-    assertEquals(expected, values);
-  }
-  
-  @Test
-  public void objectBuilderCanAddValuesAfterBuilding() {
-    ObjectBuilder builder = LDValue.buildObject();
-    builder.put("a", 1);
-    LDValue firstObject = builder.build();
-    assertEquals(1, firstObject.size());
-    builder.put("b", 2);
-    LDValue secondObject = builder.build();
-    assertEquals(2, secondObject.size());
-    assertEquals(1, firstObject.size());
-  }
-  
-  @Test
-  public void nonObjectValuesBehaveLikeEmptyObject() {
-    LDValue[] values = new LDValue[] {
-        LDValue.ofNull(),
-        aTrueBoolValue,
-        anIntValue,
-        aLongValue,
-        aFloatValue,
-        aDoubleValue,
-        aStringValue,
-        aNumericLookingStringValue,
-    };
-    for (LDValue value: values) {
-      assertEquals(value.toString(), LDValue.of(null), value.get(null));
-      assertEquals(value.toString(), LDValue.of(null), value.get("1"));
-      for (@SuppressWarnings("unused") String key: value.keys()) {
-        fail(value.toString());
-      }
-    }
-  }
-
-  @Test
-  public void equalValuesAreEqual()
-  {
+  public void equalValuesAreEqual() {
     List<List<LDValue>> testValues = asList(
         asList(LDValue.ofNull(), LDValue.ofNull()),
         asList(LDValue.of(true), LDValue.of(true)),
@@ -298,30 +221,17 @@ public class LDValueTest {
         asList(LDValue.of(2), LDValue.of(2)),
         asList(LDValue.of(3), LDValue.of(3.0f)),
         asList(LDValue.of("a"), LDValue.of("a")),
-        asList(LDValue.of("b"), LDValue.of("b")),
-        
-        // arrays use deep equality
-        asList(LDValue.buildArray().build(), LDValue.buildArray().build()),
-        asList(LDValue.buildArray().add("a").build(), LDValue.buildArray().add("a").build()),
-        asList(LDValue.buildArray().add("a").add("b").build(),
-            LDValue.buildArray().add("a").add("b").build()),
-        asList(LDValue.buildArray().add("a").add("c").build(),
-            LDValue.buildArray().add("a").add("c").build()),
-        asList(LDValue.buildArray().add("a").add(LDValue.buildArray().add("b").add("c").build()).build(),
-            LDValue.buildArray().add("a").add(LDValue.buildArray().add("b").add("c").build()).build()),
-        asList(LDValue.buildArray().add("a").add(LDValue.buildArray().add("b").add("d").build()).build(),
-            LDValue.buildArray().add("a").add(LDValue.buildArray().add("b").add("d").build()).build()),
-        
-        // objects use deep equality
-        asList(LDValue.buildObject().build(), LDValue.buildObject().build()),
-        asList(LDValue.buildObject().put("a", LDValue.of(1)).build(),
-            LDValue.buildObject().put("a", LDValue.of(1)).build()),
-        asList(LDValue.buildObject().put("a", LDValue.of(2)).build(),
-            LDValue.buildObject().put("a", LDValue.of(2)).build()),
-        asList(LDValue.buildObject().put("a", LDValue.of(1)).put("b", LDValue.of(2)).build(),
-            LDValue.buildObject().put("b", LDValue.of(2)).put("a", LDValue.of(1)).build())
+        asList(LDValue.of("b"), LDValue.of("b"))
         );
     TestHelpers.doEqualityTests(testValues);
+  }
+  
+  @Test
+  public void commonValuesAreInterned() {
+    assertSame(LDValue.of(true), LDValue.of(true));
+    assertSame(LDValue.of(false), LDValue.of(false));
+    assertSame(LDValue.of(0), LDValue.of(0));
+    assertSame(LDValue.of(""), LDValue.of(""));
   }
   
   @Test
@@ -338,44 +248,6 @@ public class LDValueTest {
     assertEquals(n, LDValue.of(n).doubleValue(), 0);
     assertEquals(n, LDValue.Convert.Double.toType(LDValue.of(n)).doubleValue(), 0);
     assertEquals(n, LDValue.Convert.Double.fromType(n).doubleValue(), 0);
-  }
-
-  @Test
-  public void testTypeConversions() {
-    testTypeConversion(LDValue.Convert.Boolean, new Boolean[] { true, false }, LDValue.of(true), LDValue.of(false));
-    testTypeConversion(LDValue.Convert.Integer, new Integer[] { 1, 2 }, LDValue.of(1), LDValue.of(2));
-    testTypeConversion(LDValue.Convert.Long, new Long[] { 1L, 2L }, LDValue.of(1L), LDValue.of(2L));
-    testTypeConversion(LDValue.Convert.Float, new Float[] { 1.5f, 2.5f }, LDValue.of(1.5f), LDValue.of(2.5f));
-    testTypeConversion(LDValue.Convert.Double, new Double[] { 1.5d, 2.5d }, LDValue.of(1.5d), LDValue.of(2.5d));
-    testTypeConversion(LDValue.Convert.String, new String[] { "a", "b" }, LDValue.of("a"), LDValue.of("b"));
-  }
-  
-  private <T> void testTypeConversion(LDValue.Converter<T> converter, T[] values, LDValue... ldValues) {
-    ArrayBuilder ab = LDValue.buildArray();
-    for (LDValue v: ldValues) {
-      ab.add(v);
-    }
-    LDValue arrayValue = ab.build();
-    assertEquals(arrayValue, converter.arrayOf(values));
-    List<T> list = new ArrayList<>();
-    for (T v: values) {
-      list.add(v);
-    }
-    assertEquals(arrayValue, converter.arrayFrom(list));
-    assertEquals(list, listFromIterable(arrayValue.valuesAs(converter)));
-    
-    ObjectBuilder ob = LDValue.buildObject();
-    int i = 0;
-    for (LDValue v: ldValues) {
-      ob.put(String.valueOf(++i), v);
-    }
-    LDValue objectValue = ob.build();
-    Map<String, T> map = new HashMap<>();
-    i = 0;
-    for (T v: values) {
-      map.put(String.valueOf(++i), v);
-    }
-    assertEquals(objectValue, converter.objectFrom(map));
   }
   
   @Test

@@ -10,6 +10,11 @@ import static org.junit.Assert.assertNotEquals;
 
 @SuppressWarnings("javadoc")
 public class TestHelpers {
+  // Provided only because UserAttribute.BUILTINS isn't public
+  public static Iterable<UserAttribute> builtInAttributes() {
+    return UserAttribute.BUILTINS.values();
+  }
+  
   public static <T> List<T> listFromIterable(Iterable<T> it) {
     List<T> list = new ArrayList<>();
     for (T t: it) {
@@ -33,16 +38,25 @@ public class TestHelpers {
     // Java 7 that would be very verbose.
     for (int i = 0; i < testValues.size(); i++) {
       List<T> equalValues = testValues.get(i);
-      assertEquals(equalValues.get(0), equalValues.get(0));
-      assertEquals(equalValues.get(0), equalValues.get(1));
-      assertEquals(equalValues.get(1), equalValues.get(0));
-      assertEquals(equalValues.get(0).hashCode(), equalValues.get(1).hashCode());
+      T equalValue0 = equalValues.get(0);
+      T equalValue1 = equalValues.get(1);
+      assertEquals(equalValue0, equalValue0);
+      assertEquals(equalValue0, equalValue1);
+      assertEquals(equalValue1, equalValue0);
+      assertEquals(equalValue0.hashCode(), equalValue1.hashCode());
+      assertNotEquals(new ArbitraryClassThatDoesNotEqualOtherClasses(), equalValue0);
+      assertNotEquals(equalValue0, new ArbitraryClassThatDoesNotEqualOtherClasses());
+      assertNotEquals(null, equalValue0);
+      assertNotEquals(equalValue0, null);
       for (int j = 0; j < testValues.size(); j++) {
         if (j != i) {
-          assertNotEquals(testValues.get(j).get(0), equalValues.get(0));
-          assertNotEquals(equalValues.get(0), testValues.get(j).get(0));
+          T unequalValue = testValues.get(j).get(0);
+          assertNotEquals(equalValue0, unequalValue);
+          assertNotEquals(unequalValue, equalValue0);
         }
       }
     }
   }
+  
+  private static final class ArbitraryClassThatDoesNotEqualOtherClasses {}
 }

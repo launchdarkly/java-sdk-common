@@ -17,12 +17,20 @@ public class EvaluationReasonJsonSerializationTest {
     verifySerializeAndDeserialize(EvaluationReason.targetMatch(), "{\"kind\":\"TARGET_MATCH\"}");
     verifySerializeAndDeserialize(EvaluationReason.ruleMatch(1, "id"),
         "{\"kind\":\"RULE_MATCH\",\"ruleIndex\":1,\"ruleId\":\"id\"}");
+    verifySerializeAndDeserialize(EvaluationReason.ruleMatch(1, null),
+        "{\"kind\":\"RULE_MATCH\",\"ruleIndex\":1}");
     verifySerializeAndDeserialize(EvaluationReason.prerequisiteFailed("key"),
         "{\"kind\":\"PREREQUISITE_FAILED\",\"prerequisiteKey\":\"key\"}");
     verifySerializeAndDeserialize(EvaluationReason.error(EvaluationReason.ErrorKind.FLAG_NOT_FOUND),
         "{\"kind\":\"ERROR\",\"errorKind\":\"FLAG_NOT_FOUND\"}");
 
+    // unknown properties are ignored
+    JsonTestHelpers.verifyDeserialize(EvaluationReason.off(), "{\"kind\":\"OFF\",\"other\":true}");
+    
     verifyDeserializeInvalidJson(EvaluationReason.class, "3");
+    verifyDeserializeInvalidJson(EvaluationReason.class, "{}"); // must have "kind"
+    verifyDeserializeInvalidJson(EvaluationReason.class, "{\"kind\":3}");
+    verifyDeserializeInvalidJson(EvaluationReason.class, "{\"kind\":\"other\"}");
   }
 
   @Test

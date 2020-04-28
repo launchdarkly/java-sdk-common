@@ -7,6 +7,8 @@ import com.google.gson.stream.JsonWriter;
 
 import java.io.IOException;
 
+import static com.launchdarkly.sdk.Helpers.readNullableString;
+
 final class LDUserTypeAdapter extends TypeAdapter<LDUser>{
   static final LDUserTypeAdapter INSTANCE = new LDUserTypeAdapter();
   
@@ -16,36 +18,40 @@ final class LDUserTypeAdapter extends TypeAdapter<LDUser>{
     reader.beginObject();
     while (reader.peek() != JsonToken.END_OBJECT) {
       String key = reader.nextName();
-      switch (key) {
+      switch (key) { // COVERAGE: may have spurious "branches missed" warning, see https://stackoverflow.com/questions/28013717/eclemma-branch-coverage-for-switch-7-of-19-missed
       case "key":
-        builder.key(reader.nextString());
+        builder.key(readNullableString(reader));
         break;
       case "secondary":
-        builder.secondary(reader.nextString());
+        builder.secondary(readNullableString(reader));
         break;
       case "ip":
-        builder.ip(reader.nextString());
+        builder.ip(readNullableString(reader));
         break;
       case "email":
-        builder.email(reader.nextString());
+        builder.email(readNullableString(reader));
         break;
       case "name":
-        builder.name(reader.nextString());
+        builder.name(readNullableString(reader));
         break;
       case "avatar":
-        builder.avatar(reader.nextString());
+        builder.avatar(readNullableString(reader));
         break;
       case "firstName":
-        builder.firstName(reader.nextString());
+        builder.firstName(readNullableString(reader));
         break;
       case "lastName":
-        builder.lastName(reader.nextString());
+        builder.lastName(readNullableString(reader));
         break;
       case "country":
-        builder.country(reader.nextString());
+        builder.country(readNullableString(reader));
         break;
       case "anonymous":
-        builder.anonymous(reader.nextBoolean());
+        if (reader.peek() == JsonToken.NULL) {
+          reader.nextNull();
+        } else {
+          builder.anonymous(reader.nextBoolean());
+        }
         break;
       case "custom":
         if (reader.peek() == JsonToken.NULL) {
@@ -73,7 +79,8 @@ final class LDUserTypeAdapter extends TypeAdapter<LDUser>{
         }
         break;
       default:
-        LDValueTypeAdapter.INSTANCE.read(reader);
+        // ignore unknown top-level keys
+        reader.skipValue();
       }
     }
     reader.endObject();
@@ -94,7 +101,7 @@ final class LDUserTypeAdapter extends TypeAdapter<LDUser>{
     writer.beginObject();
     for (UserAttribute attr: UserAttribute.BUILTINS.values()) {
       LDValue value = user.getAttribute(attr);
-      if (value != null && !value.isNull()) {
+      if (!value.isNull()) {
         writer.name(attr.getName());
         LDValueTypeAdapter.INSTANCE.write(writer, value);
       }

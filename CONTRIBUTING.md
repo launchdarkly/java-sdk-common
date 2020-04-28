@@ -53,6 +53,16 @@ To build the project and run all unit tests:
 
 This project is limited to Java 7 because it is used in both the LaunchDarkly server-side Java SDK and the LaunchDarkly Android SDK. Android only supports Java 8 to a limited degree, depending on both the version of the Android developer tools and the Android API version. Since this is a small code base, we have decided to use Java 7 for it despite the minor inconveniences that this causes in terms of syntax.
 
+## Code coverage
+
+It is important to keep unit test coverage as close to 100% as possible in this project, since the SDK projects will not exercise every `java-sdk-common` method in their own unit tests.
+
+Sometimes a gap in coverage is unavoidable, usually because the compiler requires us to provide a code path for some condition that in practice can't happen and can't be tested, or because of a known issue with the code coverage tool. Please handle all such cases as follows:
+
+* Mark the code with an explanatory comment beginning with "COVERAGE:".
+* Run the code coverage task with `./gradlew jacocoTestCoverageVerification`. It should fail and indicate how many lines of missed coverage exist in the method you modified.
+* Add an item in the `knownMissedLinesForMethods` map in `build.gradle` that specifies that number of missed lines for that method signature.
+
 ## Note on dependencies
 
 This project's `build.gradle` contains special logic to exclude dependencies from `pom.xml`. This is because it is meant to be used as part of one of the LaunchDarkly SDKs, and the different SDKs have different strategies for either exposing or embedding these dependencies. Therefore, it is the responsibility of each SDK to provide its own dependency for any module that is actually required in order for `java-sdk-common` to work; currently that is only Gson.

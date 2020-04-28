@@ -1,5 +1,7 @@
 package com.launchdarkly.sdk;
 
+import com.launchdarkly.sdk.json.JsonSerialization;
+
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -16,6 +18,7 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
@@ -194,6 +197,13 @@ public class LDUserTest {
   }
 
   @Test
+  public void customAttributeWithNullNameIsIgnored() {
+    LDUser user1 = new LDUser.Builder("key").custom(null, "1").privateCustom(null, "2").custom("a", "2").build();
+    LDUser user2 = new LDUser.Builder("key").custom("a", "2").build();
+    assertEquals(user2, user1);
+  }
+  
+  @Test
   public void builderSetsPrivateCustomAttributes() {
     LDValue boolValue = LDValue.of(true),
         intValue = LDValue.of(2),
@@ -228,19 +238,23 @@ public class LDUserTest {
   @Test
   public void canCopyUserWithBuilder() {
     LDUser user = new LDUser.Builder("key")
-    .secondary("secondary")
-    .ip("127.0.0.1")
-    .firstName("Bob")
-    .lastName("Loblaw")
-    .email("bob@example.com")
-    .name("Bob Loblaw")
-    .avatar("image")
-    .anonymous(false)
-    .country("US")
-    .custom("org", "LaunchDarkly")
-    .build();
+        .secondary("secondary")
+        .ip("127.0.0.1")
+        .firstName("Bob")
+        .lastName("Loblaw")
+        .email("bob@example.com")
+        .name("Bob Loblaw")
+        .avatar("image")
+        .anonymous(false)
+        .country("US")
+        .build();
+    assertEquals(user, new LDUser.Builder(user).build());
     
-    assert(user.equals(new LDUser.Builder(user).build()));
+    LDUser userWithPrivateAttrs = new LDUser.Builder("key").privateName("x").build();
+    assertEquals(userWithPrivateAttrs, new LDUser.Builder(userWithPrivateAttrs).build());
+    
+    LDUser userWithCustomAttrs = new LDUser.Builder("key").custom("org", "LaunchDarkly").build();
+    assertEquals(userWithCustomAttrs, new LDUser.Builder(userWithCustomAttrs).build());
   }
 
   @Test
@@ -310,5 +324,14 @@ public class LDUserTest {
       testValues.add(equalValues);
     }
     TestHelpers.doEqualityTests(testValues);
+    
+    assertNotEquals(null, new LDUser("userkey"));
+    assertNotEquals("userkey", new LDUser("userkey"));
+  }
+  
+  @Test
+  public void simpleStringRepresentation() {
+    LDUser user = new LDUser.Builder("userkey").name("x").build();
+    assertEquals("LDUser(" + JsonSerialization.serialize(user) + ")", user.toString());
   }
 }

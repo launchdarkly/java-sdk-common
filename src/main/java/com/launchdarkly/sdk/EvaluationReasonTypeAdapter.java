@@ -8,6 +8,9 @@ import com.google.gson.stream.JsonWriter;
 
 import java.io.IOException;
 
+import static com.launchdarkly.sdk.Helpers.readNonNullableString;
+import static com.launchdarkly.sdk.Helpers.readNullableString;
+
 final class EvaluationReasonTypeAdapter extends TypeAdapter<EvaluationReason> {
   @Override
   public EvaluationReason read(JsonReader reader) throws IOException {
@@ -24,26 +27,31 @@ final class EvaluationReasonTypeAdapter extends TypeAdapter<EvaluationReason> {
     reader.beginObject();
     while (reader.peek() != JsonToken.END_OBJECT) {
       String key = reader.nextName();
-      switch (key) {
+      switch (key) { // COVERAGE: may have spurious "branches missed" warning, see https://stackoverflow.com/questions/28013717/eclemma-branch-coverage-for-switch-7-of-19-missed
       case "kind":
-        kind = Enum.valueOf(EvaluationReason.Kind.class, reader.nextString());
+        kind = Enum.valueOf(EvaluationReason.Kind.class, readNonNullableString(reader));
         break;
       case "ruleIndex":
         ruleIndex = reader.nextInt();
         break;
       case "ruleId":
-        ruleId = reader.nextString();
+        ruleId = readNullableString(reader);
         break;
       case "prerequisiteKey":
         prereqKey = reader.nextString();
         break;
       case "errorKind":
-        errorKind = Enum.valueOf(EvaluationReason.ErrorKind.class, reader.nextString());
+        errorKind = Enum.valueOf(EvaluationReason.ErrorKind.class, readNonNullableString(reader));
         break;
+      default:
+        reader.skipValue(); // ignore any unexpected property
       }
     }
     reader.endObject();
     
+    if (kind == null) {
+      throw new JsonParseException("EvaluationReason missing required property \"kind\"");
+    }
     switch (kind) {
     case OFF:
       return EvaluationReason.off();
@@ -57,8 +65,10 @@ final class EvaluationReasonTypeAdapter extends TypeAdapter<EvaluationReason> {
       return EvaluationReason.prerequisiteFailed(prereqKey);
     case ERROR:
       return EvaluationReason.error(errorKind);
+    default:
+      // COVERAGE: compiler requires default but there are no other values
+      return null;
     }
-    throw new JsonParseException("EvaluationReason missing required property \"kind\"");
   }
 
   @Override

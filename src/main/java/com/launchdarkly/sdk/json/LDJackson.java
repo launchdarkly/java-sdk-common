@@ -70,12 +70,9 @@ public class LDJackson {
     @Override
     public void serialize(JsonSerializable value, JsonGenerator gen, SerializerProvider serializers)
         throws IOException {
-      if (value == null) {
-        gen.writeNull();
-      } else {
-        String json = JsonSerialization.serializeInternal(value);
-        gen.writeRawValue(json);
-      }
+      // Jackson will not call this serializer for a null value
+      String json = JsonSerialization.serializeInternal(value);
+      gen.writeRawValue(json);
     }
   }
   

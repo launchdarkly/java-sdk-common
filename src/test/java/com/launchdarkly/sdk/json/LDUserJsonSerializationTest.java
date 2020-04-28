@@ -2,9 +2,12 @@ package com.launchdarkly.sdk.json;
 
 import com.launchdarkly.sdk.LDUser;
 import com.launchdarkly.sdk.LDValue;
+import com.launchdarkly.sdk.UserAttribute;
 
 import org.junit.Test;
 
+import static com.launchdarkly.sdk.TestHelpers.builtInAttributes;
+import static com.launchdarkly.sdk.json.JsonTestHelpers.verifyDeserialize;
 import static com.launchdarkly.sdk.json.JsonTestHelpers.verifyDeserializeInvalidJson;
 import static com.launchdarkly.sdk.json.JsonTestHelpers.verifySerializeAndDeserialize;
 
@@ -32,6 +35,7 @@ public class LDUserJsonSerializationTest {
         .country("c")
         .anonymous(true)
         .custom("c1", "v1")
+        .custom("c2", "v2")
         .build();
     LDValue expectedJson = LDValue.buildObject()
         .put("key", "userkey")
@@ -44,7 +48,7 @@ public class LDUserJsonSerializationTest {
         .put("lastName", "l")
         .put("country", "c")
         .put("anonymous", true)
-        .put("custom", LDValue.buildObject().put("c1", "v1").build())
+        .put("custom", LDValue.buildObject().put("c1", "v1").put("c2", "v2").build())
         .build();
     verifySerializeAndDeserialize(user, expectedJson.toJsonString());
   }
@@ -54,13 +58,34 @@ public class LDUserJsonSerializationTest {
     LDUser user = new LDUser.Builder("userkey")
         .email("e")
         .privateName("n")
+        .privateCountry("c")
         .build();
     LDValue expectedJson = LDValue.buildObject()
         .put("key", "userkey")
         .put("email", "e")
         .put("name", "n")
-        .put("privateAttributeNames", LDValue.buildArray().add("name").build())
+        .put("country", "c")
+        .put("privateAttributeNames", LDValue.buildArray().add("name").add("country").build())
         .build();
     verifySerializeAndDeserialize(user, expectedJson.toJsonString());
+  }
+  
+  @Test
+  public void explicitNullsAreIgnored() throws Exception {
+    LDUser user = new LDUser("userkey");
+    StringBuilder sb = new StringBuilder().append("{\"key\":\"userkey\"");
+    for (UserAttribute a: builtInAttributes()) {
+      if (a != UserAttribute.KEY) {
+        sb.append(",\"").append(a.getName()).append("\":null");
+      }
+    }
+    sb.append(",\"custom\":null,\"privateAttributeNames\":null}");
+    verifyDeserialize(user, sb.toString());
+  }
+  
+  @Test
+  public void unknownKeysAreIgnored() throws Exception {
+    LDUser user = new LDUser.Builder("userkey").name("x").build();
+    verifyDeserialize(user, "{\"key\":\"userkey\",\"other\":true,\"name\":\"x\"}");
   }
 }

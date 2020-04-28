@@ -297,7 +297,7 @@ public final class EvaluationReason implements JsonSerializable {
     case MALFORMED_FLAG: return ERROR_MALFORMED_FLAG;
     case USER_NOT_SPECIFIED: return ERROR_USER_NOT_SPECIFIED;
     case WRONG_TYPE: return ERROR_WRONG_TYPE;
-    default: return new EvaluationReason(errorKind, null);
+    default: return new EvaluationReason(errorKind, null); // COVERAGE: compiler requires default but there are no other ErrorKind values
     }
   }
 

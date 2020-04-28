@@ -5,6 +5,7 @@ import com.launchdarkly.sdk.LDValue;
 import org.junit.Test;
 
 import static com.launchdarkly.sdk.json.JsonTestHelpers.parseElement;
+import static com.launchdarkly.sdk.json.JsonTestHelpers.verifyDeserializeInvalidJson;
 import static com.launchdarkly.sdk.json.JsonTestHelpers.verifySerialize;
 import static com.launchdarkly.sdk.json.JsonTestHelpers.verifySerializeAndDeserialize;
 import static org.junit.Assert.assertEquals;
@@ -27,6 +28,7 @@ public class LDValueJsonSerializationTest {
     verifyValueSerialization(LDValue.of(2.5d), "2.5");
     verifyValueSerialization(LDValue.buildArray().add(2).add("x").build(), "[2,\"x\"]");
     verifyValueSerialization(LDValue.buildObject().put("x", 2).build(), "{\"x\":2}");
+    verifyDeserializeInvalidJson(LDValue.class, "]");
   }
   
   private static void verifyValueSerialization(LDValue value, String expectedJsonString) throws Exception {

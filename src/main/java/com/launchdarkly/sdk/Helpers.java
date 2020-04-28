@@ -1,5 +1,9 @@
 package com.launchdarkly.sdk;
 
+import com.google.gson.JsonParseException;
+import com.google.gson.stream.JsonReader;
+
+import java.io.IOException;
 import java.util.Iterator;
 
 /**
@@ -27,5 +31,27 @@ abstract class Helpers {
         };
       }
     };
+  }
+
+  // Necessary because Gson's nextString() doesn't allow nulls and *does* allow non-string values
+  static String readNullableString(JsonReader reader) throws IOException {
+    switch (reader.peek()) {
+    case STRING:
+      return reader.nextString();
+    case NULL:
+      reader.nextNull();
+      return null;
+    default:
+      throw new JsonParseException("expected string value or null");
+    }
+  }
+  
+  static String readNonNullableString(JsonReader reader) throws IOException {
+    switch (reader.peek()) {
+    case STRING:
+      return reader.nextString();
+    default:
+      throw new JsonParseException("expected string value");
+    }
   }
 }

@@ -328,6 +328,10 @@ public abstract class LDValue implements JsonSerializable {
    *     LDValue anArrayOfInts = LDValue.Convert.Integer.arrayOf(1, 2, 3);
    *     for (int i: anArrayOfInts.valuesAs(LDValue.Convert.Integer)) { println(i); }
    * </code></pre>
+   * <p>
+   * For boolean and numeric types, even though the corresponding Java type is a nullable class like
+   * {@code Boolean} or {@code Integer}, {@code valuesAs} will never return a null element; instead,
+   * it will use the appropriate default value for the primitive type (false or zero).
    * 
    * @param <T> the desired type
    * @param converter the {@link Converter} for the specified type
@@ -411,9 +415,9 @@ public abstract class LDValue implements JsonSerializable {
       LDValue other = (LDValue)o;
       if (getType() == other.getType()) {
         switch (getType()) {
-        case NULL: return other.isNull();
-        case BOOLEAN: return booleanValue() == other.booleanValue();
+        case NULL: return other.isNull(); // COVERAGE: won't hit this case because ofNull() is a singleton, so (o == this) will be true
         case NUMBER: return doubleValue() == other.doubleValue();
+        case BOOLEAN: return false; // boolean true and false are singletons, so if o != this, they're unequal
         case STRING: return stringValue().equals(other.stringValue());
         case ARRAY:
           if (size() != other.size()) {
@@ -435,6 +439,8 @@ public abstract class LDValue implements JsonSerializable {
             }
           }
           return true;
+        default:
+          break;
         }
       }
     }
@@ -444,7 +450,6 @@ public abstract class LDValue implements JsonSerializable {
   @Override
   public int hashCode() {
     switch (getType()) {
-    case NULL: return 0;
     case BOOLEAN: return booleanValue() ? 1 : 0;
     case NUMBER: return intValue();
     case STRING: return stringValue().hashCode();
@@ -460,7 +465,8 @@ public abstract class LDValue implements JsonSerializable {
         oh = (oh * 31 + name.hashCode()) * 31 + get(name).hashCode();
       }
       return oh;
-    default: return 0;
+    default:
+      return 0;
     }
   }
   
