@@ -7,22 +7,6 @@ import java.util.Iterator;
  * library because the Android SDK does not have it.
  */
 abstract class Helpers {
-  static boolean objectsEqual(Object a, Object b) {
-    if (a == null) {
-      return b == null;
-    } else {
-      return b != null && a.equals(b);
-    }
-  }
-  
-  static int hashFrom(Object... values) {
-    int result = 0;
-    for (Object value: values) {
-      result = result * 31 + (value == null ? 0 : value.hashCode());
-    }
-    return result;
-  }
-  
   // This implementation is much simpler than Guava's Iterables.transform() because it does not attempt
   // to support remove().
   static <T, U> Iterable<U> transform(final Iterable<T> source, final Function<T, U> fn) {

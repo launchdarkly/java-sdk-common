@@ -2,6 +2,10 @@ package com.launchdarkly.sdk;
 
 import org.junit.Test;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import static java.util.Arrays.asList;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -66,5 +70,16 @@ public class UserAttributeTest {
   public void customAttribute() {
     assertEquals("things", UserAttribute.forName("things").getName());
     assertFalse(UserAttribute.forName("things").isBuiltIn());
+  }
+  
+  @Test
+  public void equalInstancesAreEqual() {
+    List<List<UserAttribute>> testValues = new ArrayList<>();
+    for (UserAttribute attr: UserAttribute.BUILTINS.values()) {
+      testValues.add(asList(attr, UserAttribute.forName(attr.getName())));
+    }
+    testValues.add(asList(UserAttribute.forName("custom1"), UserAttribute.forName("custom1")));
+    testValues.add(asList(UserAttribute.forName("custom2"), UserAttribute.forName("custom2")));
+    TestHelpers.doEqualityTests(testValues);
   }
 }

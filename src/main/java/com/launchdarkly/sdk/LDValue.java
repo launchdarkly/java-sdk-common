@@ -403,6 +403,9 @@ public abstract class LDValue implements JsonSerializable {
   @Override
   public boolean equals(Object o) {
     if (o instanceof LDValue) {
+      if (o == this) {
+        return true;
+      }
       LDValue other = (LDValue)o;
       if (getType() == other.getType()) {
         switch (getType()) {

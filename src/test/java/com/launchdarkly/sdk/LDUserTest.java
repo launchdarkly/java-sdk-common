@@ -2,11 +2,13 @@ package com.launchdarkly.sdk;
 
 import org.junit.Test;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 import static com.launchdarkly.sdk.Helpers.transform;
 import static com.launchdarkly.sdk.TestHelpers.setFromIterable;
+import static java.util.Arrays.asList;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.emptyIterable;
@@ -259,5 +261,54 @@ public class LDUserTest {
         .custom("name", "Joan")
         .build();
     assertEquals(LDValue.of("Jane"), user.getAttribute(UserAttribute.forName("name")));
+  }
+  
+  @Test
+  public void equalValuesAreEqual() {
+    String key = "key";
+    List<List<LDUser>> testValues = new ArrayList<>();
+    testValues.add(asList(new LDUser(key), new LDUser(key)));
+    testValues.add(asList(new LDUser("key2"), new LDUser("key2")));
+    for (OptionalStringAttributes a: OptionalStringAttributes.values()) {
+      List<LDUser> equalValues = new ArrayList<>();
+      for (int i = 0; i < 2; i++) {
+        LDUser.Builder builder = new LDUser.Builder(key);
+        a.setter.apply(builder, "x");
+        equalValues.add(builder.build());
+      }
+      testValues.add(equalValues);
+      List<LDUser> equalValuesPrivate = new ArrayList<>();
+      for (int i = 0; i < 2; i++) {
+        LDUser.Builder builder = new LDUser.Builder(key);
+        a.privateSetter.apply(builder, "x");
+        equalValuesPrivate.add(builder.build());
+      }
+      testValues.add(equalValuesPrivate);
+    }
+    for (boolean anonValue: new boolean[] { true, false }) {
+      List<LDUser> equalValues = new ArrayList<>();
+      for (int i = 0; i < 2; i++) {
+        equalValues.add(new LDUser.Builder(key).anonymous(anonValue).build());
+      }
+      testValues.add(equalValues);
+    }
+    for (String attrName: new String[] { "custom1", "custom2" }) {
+      LDValue[] values = new LDValue[] { LDValue.of(true), LDValue.of(false) };
+      for (LDValue attrValue: values) {
+        List<LDUser> equalValues = new ArrayList<>();
+        for (int i = 0; i < 2; i++) {
+          LDUser.Builder builder = new LDUser.Builder(key).custom(attrName, attrValue);
+          equalValues.add(builder.build());
+        }
+        testValues.add(equalValues);
+      }
+      List<LDUser> equalValues = new ArrayList<>();
+      for (int i = 0; i < 2; i++) {
+        LDUser.Builder builder = new LDUser.Builder(key).privateCustom(attrName, values[0]);
+        equalValues.add(builder.build());
+      }
+      testValues.add(equalValues);
+    }
+    TestHelpers.doEqualityTests(testValues);
   }
 }

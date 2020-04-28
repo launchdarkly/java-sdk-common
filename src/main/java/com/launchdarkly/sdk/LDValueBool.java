@@ -7,8 +7,8 @@ import java.io.IOException;
 
 @JsonAdapter(LDValueTypeAdapter.class)
 final class LDValueBool extends LDValue {
-  private static final LDValueBool TRUE = new LDValueBool(true);
-  private static final LDValueBool FALSE = new LDValueBool(false);
+  static final LDValueBool TRUE = new LDValueBool(true);
+  static final LDValueBool FALSE = new LDValueBool(false);
   
   private final boolean value;
   
