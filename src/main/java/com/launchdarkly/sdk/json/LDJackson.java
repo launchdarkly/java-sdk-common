@@ -35,6 +35,11 @@ import java.io.IOException;
  * interface, such as {@link LDUser} and {@link LDValue}, regardless of whether they are the
  * top-level object being serialized or are contained in something else such as a collection. It
  * does not affect Jackson's behavior for any other classes.
+ * <p>
+ * The current implementation is limited in its ability to handle generic types. Currently, the only
+ * such type defined by the SDKs is {@link com.launchdarkly.sdk.EvaluationDetail}. You can serialize
+ * any {@code EvaluationDetail<T>} instance and it will represent the {@code T} value correctly, but
+ * when deserializing, you will always get {@code EvaluationDetail<LDValue>}.
  */
 public class LDJackson {
   /**

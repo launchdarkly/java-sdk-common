@@ -11,6 +11,10 @@ import java.io.IOException;
 final class EvaluationReasonTypeAdapter extends TypeAdapter<EvaluationReason> {
   @Override
   public EvaluationReason read(JsonReader reader) throws IOException {
+    return parse(reader);
+  }
+
+  static EvaluationReason parse(JsonReader reader) throws IOException {
     EvaluationReason.Kind kind = null;
     int ruleIndex = -1;
     String ruleId = null;

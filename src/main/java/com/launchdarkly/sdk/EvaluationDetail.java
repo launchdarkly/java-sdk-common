@@ -1,5 +1,6 @@
 package com.launchdarkly.sdk;
 
+import com.google.gson.annotations.JsonAdapter;
 import com.launchdarkly.sdk.json.JsonSerializable;
 
 import java.util.ArrayList;
@@ -19,8 +20,16 @@ import java.util.Objects;
  * {@link com.launchdarkly.sdk.json.LDJackson}.
  * </ol>
  * 
+ * <b>Note:</b> There is currently a limitation regarding deserialization for generic types.
+ * If you use Gson, you must pass a `TypeToken` to specify the runtime type of
+ * {@code EvaluationDetail<T>}, or else it will assume that `T` is `LDValue`. If you use either
+ * {@code JsonSerialization} or Jackson, there is no way to specify the runtime type and you
+ * will always get an {@code EvaluationDetail<LDValue>}. That is only for deserialization;
+ * serialization will always use the correct value type.
+ * 
  * @param <T> the type of the wrapped value
  */
+@JsonAdapter(EvaluationDetailTypeAdapterFactory.class)
 public final class EvaluationDetail<T> implements JsonSerializable {
   /**
    * If {@link #getVariationIndex()} is equal to this constant, it means no variation was chosen

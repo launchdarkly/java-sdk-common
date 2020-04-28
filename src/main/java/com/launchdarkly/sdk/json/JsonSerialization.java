@@ -8,6 +8,7 @@ import com.launchdarkly.sdk.LDValue;
 import com.launchdarkly.sdk.UserAttribute;
 
 import java.lang.reflect.Method;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -58,6 +59,11 @@ public abstract class JsonSerialization {
    * <p>
    * This is only usable for classes that have the {@link JsonSerializable} marker interface,
    * indicating that the SDK knows how to serialize them.
+   * <p>
+   * The current implementation is limited in its ability to handle generic types. Currently, the only
+   * such type defined by the SDKs is {@link com.launchdarkly.sdk.EvaluationDetail}. You can serialize
+   * any {@code EvaluationDetail<T>} instance and it will represent the {@code T} value correctly, but
+   * when deserializing, you will always get {@code EvaluationDetail<LDValue>}.
    * 
    * @param <T> class of the object being deserialized
    * @param json the object's JSON encoding as a string
@@ -73,6 +79,15 @@ public abstract class JsonSerialization {
   static <T> T deserializeInternal(String json, Class<T> objectClass) throws SerializationException {
     try {
       return gson.fromJson(json, objectClass);
+    } catch (Exception e) {
+      throw new SerializationException(e);
+    }
+  }
+
+  // Used internally from LDGson
+  static <T> T deserializeInternalGson(String json, Type objectType) throws SerializationException {
+    try {
+      return gson.fromJson(json, objectType);
     } catch (Exception e) {
       throw new SerializationException(e);
     }

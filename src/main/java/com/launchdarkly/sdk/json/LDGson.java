@@ -12,6 +12,7 @@ import com.launchdarkly.sdk.LDUser;
 import com.launchdarkly.sdk.LDValue;
 
 import java.io.IOException;
+import java.lang.reflect.Type;
 
 /**
  * A helper class for interoperability with application code that uses Gson.
@@ -84,7 +85,7 @@ public abstract class LDGson {
     @Override
     public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
       if (JsonSerializable.class.isAssignableFrom(type.getRawType())) {
-        return new LDTypeAdapter<T>(gson, type);
+        return new LDTypeAdapter<T>(gson, type.getType());
       }
       return null;
     }
@@ -92,12 +93,11 @@ public abstract class LDGson {
 
   private static class LDTypeAdapter<T> extends TypeAdapter<T> {
     private final Gson gson;
-    private final Class<T> objectClass;
+    private final Type objectType;
     
-    @SuppressWarnings("unchecked")
-    LDTypeAdapter(Gson gson, TypeToken<T> type) {
+    LDTypeAdapter(Gson gson, Type objectType) {
       this.gson = gson;
-      this.objectClass = (Class<T>)type.getRawType();
+      this.objectType = objectType;
     }
     
     @Override
@@ -114,7 +114,9 @@ public abstract class LDGson {
       JsonElement jsonTree = gson.fromJson(in, JsonElement.class);
       String jsonString = gson.toJson(jsonTree);
       try {
-        return JsonSerialization.deserializeInternal(jsonString, objectClass);
+        // Calling the Gson overload that takes a Type rather than a Class (even though a Class *is* a
+        // Type) allows it to take generic type parameters into account for EvaluationDetail.
+        return JsonSerialization.deserializeInternalGson(jsonString, objectType);
       } catch (SerializationException e) {
         throw new JsonParseException(e.getCause());
       }
