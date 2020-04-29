@@ -3,6 +3,7 @@ package com.launchdarkly.sdk;
 import org.junit.Test;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -36,7 +37,7 @@ public class LDValueObjectTest {
     for (String key: LDValue.buildObject().put("1", LDValue.of("x")).put("2", LDValue.of("y")).build().keys()) {
       keys.add(key);
     }
-    keys.sort(null);
+    Collections.sort(keys);
     List<String> expected = new ArrayList<>();
     addAll(expected, "1", "2");
     assertEquals(expected, keys);
@@ -48,7 +49,7 @@ public class LDValueObjectTest {
     for (LDValue value: LDValue.buildObject().put("1", LDValue.of("x")).put("2", LDValue.of("y")).build().values()) {
       values.add(value.stringValue());
     }
-    values.sort(null);
+    Collections.sort(values);
     List<String> expected = new ArrayList<>();
     addAll(expected, "x", "y");
     assertEquals(expected, values);

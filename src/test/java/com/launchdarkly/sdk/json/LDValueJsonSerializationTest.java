@@ -1,5 +1,6 @@
 package com.launchdarkly.sdk.json;
 
+import com.launchdarkly.sdk.BaseTest;
 import com.launchdarkly.sdk.LDValue;
 
 import org.junit.Test;
@@ -11,7 +12,7 @@ import static com.launchdarkly.sdk.json.JsonTestHelpers.verifySerializeAndDeseri
 import static org.junit.Assert.assertEquals;
 
 @SuppressWarnings("javadoc")
-public class LDValueJsonSerializationTest {
+public class LDValueJsonSerializationTest extends BaseTest {
   @Test
   public void jsonEncodingForNull() throws Exception {
     verifySerialize(LDValue.ofNull(), "null");

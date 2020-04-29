@@ -1,5 +1,6 @@
 package com.launchdarkly.sdk.json;
 
+import com.launchdarkly.sdk.BaseTest;
 import com.launchdarkly.sdk.EvaluationDetail;
 import com.launchdarkly.sdk.EvaluationReason;
 import com.launchdarkly.sdk.LDValue;
@@ -12,7 +13,7 @@ import static com.launchdarkly.sdk.json.JsonTestHelpers.verifySerialize;
 import static com.launchdarkly.sdk.json.JsonTestHelpers.verifySerializeAndDeserialize;
 
 @SuppressWarnings("javadoc")
-public class EvaluationDetailJsonSerializationTest {
+public class EvaluationDetailJsonSerializationTest extends BaseTest {
   @Test
   public void detailJsonSerializations() throws Exception {
     verifySerializeAndDeserialize(EvaluationDetail.fromValue(LDValue.of("x"), 1, EvaluationReason.off()),

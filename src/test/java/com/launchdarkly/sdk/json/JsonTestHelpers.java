@@ -6,13 +6,14 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParseException;
+import com.launchdarkly.sdk.BaseTest;
 import com.launchdarkly.sdk.LDValue;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
 @SuppressWarnings("javadoc")
-public abstract class JsonTestHelpers {
+public abstract class JsonTestHelpers extends BaseTest {
   // Note that when we verify the behavior of Gson with LDGson in this project's unit tests, that
   // is not an adequate test for whether the adapters will work in the Java SDK where there is the
   // additional issue of Gson types being shaded. The Java SDK project must do its own basic tests

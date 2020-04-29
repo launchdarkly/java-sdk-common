@@ -30,6 +30,8 @@ workflows:
             - build-linux
       - build-test-windows:
           name: Java 11 - Windows - OpenJDK
+      - build-test-android:
+          name: Android
 
 jobs:
   build-linux:
@@ -114,3 +116,51 @@ jobs:
           path: .\junit
       - store_artifacts:
           path: .\junit
+
+  build-test-android:
+    # This is adapted from the CI build for android-client-sdk
+    macos:
+      xcode: "10.3.0"
+    shell: /bin/bash --login -eo pipefail
+    working_directory: ~/launchdarkly/android-client-sdk-private
+    environment:
+      TERM: dumb
+      QEMU_AUDIO_DRV: none
+      _JAVA_OPTIONS: "-XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap -Xms2048m -Xmx4096m"
+      GRADLE_OPTS: "-Dorg.gradle.daemon=false"
+      JVM_OPTS: -Xmx3200m
+      ANDROID_HOME: "/usr/local/share/android-sdk"
+      ANDROID_SDK_HOME: "/usr/local/share/android-sdk"
+      ANDROID_SDK_ROOT: "/usr/local/share/android-sdk"
+    steps:
+      - checkout
+      - run:
+          name: Install Android tools
+          command: ./scripts/install-android-tools.sh
+      - run:
+          name: Start Android environment
+          command: ./scripts/start-android-env.sh
+          background: true
+          timeout: 1200
+          no_output_timeout: 20m
+      - run:
+          name: Wait for Android environment
+          command: ./scripts/started-android-env.sh
+      - run:
+          name: Run tests
+          command: ./scripts/run-android-tests.sh
+          no_output_timeout: 20m
+      - run:
+          name: Save test results
+          command: |
+            mkdir -p ~/test-results
+            cp -r ./build/outputs/androidTest-results/* ~/test-results/
+          when: always
+      - run:
+          name: Stop Android environment
+          command: ./scripts/stop-android-env.sh
+          when: always
+      - store_test_results:
+            path: ~/test-results
+      - store_artifacts:
+            path: ~/artifacts

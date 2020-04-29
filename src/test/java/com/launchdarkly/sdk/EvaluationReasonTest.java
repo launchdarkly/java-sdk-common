@@ -19,7 +19,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
 
 @SuppressWarnings("javadoc")
-public class EvaluationReasonTest {
+public class EvaluationReasonTest extends BaseTest {
   @Test
   public void basicProperties() {
     assertEquals(OFF, EvaluationReason.off().getKind());

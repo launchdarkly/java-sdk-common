@@ -1,5 +1,6 @@
 package com.launchdarkly.sdk.json;
 
+import com.launchdarkly.sdk.BaseTest;
 import com.launchdarkly.sdk.LDUser;
 import com.launchdarkly.sdk.LDValue;
 import com.launchdarkly.sdk.UserAttribute;
@@ -12,7 +13,7 @@ import static com.launchdarkly.sdk.json.JsonTestHelpers.verifyDeserializeInvalid
 import static com.launchdarkly.sdk.json.JsonTestHelpers.verifySerializeAndDeserialize;
 
 @SuppressWarnings("javadoc")
-public class LDUserJsonSerializationTest {
+public class LDUserJsonSerializationTest extends BaseTest {
   @Test
   public void minimalJsonEncoding() throws Exception {
     LDUser user = new LDUser("userkey");

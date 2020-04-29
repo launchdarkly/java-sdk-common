@@ -1,5 +1,6 @@
 package com.launchdarkly.sdk.json;
 
+import com.launchdarkly.sdk.BaseTest;
 import com.launchdarkly.sdk.EvaluationReason;
 
 import org.junit.Test;
@@ -9,7 +10,7 @@ import static com.launchdarkly.sdk.json.JsonTestHelpers.verifySerialize;
 import static com.launchdarkly.sdk.json.JsonTestHelpers.verifySerializeAndDeserialize;
 
 @SuppressWarnings("javadoc")
-public class EvaluationReasonJsonSerializationTest {
+public class EvaluationReasonJsonSerializationTest extends BaseTest {
   @Test
   public void reasonJsonSerializations() throws Exception {
     verifySerializeAndDeserialize(EvaluationReason.off(), "{\"kind\":\"OFF\"}");

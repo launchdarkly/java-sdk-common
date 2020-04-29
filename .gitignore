@@ -16,4 +16,6 @@ bin/
 out/
 classes/
 
-packaging-test/temp/
+# Test code that gets temporarily copied by our Android CI build
+src/androidTest/java/com/launchdarkly/sdk/**/*.java
+!src/androidTest/java/com/launchdarkly/sdk/BaseTest.java

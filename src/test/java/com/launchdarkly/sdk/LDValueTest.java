@@ -17,7 +17,7 @@ import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 
 @SuppressWarnings("javadoc")
-public class LDValueTest {
+public class LDValueTest extends BaseTest {
   private static final int someInt = 3;
   private static final long someLong = 3;
   private static final float someFloat = 3.25f;

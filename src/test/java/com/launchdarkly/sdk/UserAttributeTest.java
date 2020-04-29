@@ -12,7 +12,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 @SuppressWarnings("javadoc")
-public class UserAttributeTest {
+public class UserAttributeTest extends BaseTest {
   @Test
   public void keyAttribute() {
     assertEquals("key", UserAttribute.KEY.getName());

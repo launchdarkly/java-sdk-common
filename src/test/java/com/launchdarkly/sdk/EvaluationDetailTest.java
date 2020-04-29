@@ -13,7 +13,7 @@ import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 
 @SuppressWarnings("javadoc")
-public class EvaluationDetailTest {
+public class EvaluationDetailTest extends BaseTest {
   @Test
   public void getValue() {
     assertEquals("x", EvaluationDetail.fromValue("x", 0, EvaluationReason.off()).getValue());

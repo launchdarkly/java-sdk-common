@@ -2,6 +2,7 @@ package com.launchdarkly.sdk.json;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.launchdarkly.sdk.BaseTest;
 import com.launchdarkly.sdk.EvaluationDetail;
 import com.launchdarkly.sdk.EvaluationReason;
 import com.launchdarkly.sdk.LDValue;
@@ -17,7 +18,7 @@ import static com.launchdarkly.sdk.json.JsonTestHelpers.configureJacksonMapper;
 import static org.junit.Assert.assertEquals;
 
 @SuppressWarnings("javadoc")
-public class ReflectiveFrameworksTest {
+public class ReflectiveFrameworksTest extends BaseTest {
   // Test classes like LDValueJsonSerializationTest already cover using all available JSON
   // frameworks to serialize and deserialize instances of our classes. This one tests the
   // ability of Gson and Jackson, when properly configured, to get the right serialization

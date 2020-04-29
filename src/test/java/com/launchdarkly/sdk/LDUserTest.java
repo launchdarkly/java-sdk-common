@@ -23,7 +23,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 @SuppressWarnings("javadoc")
-public class LDUserTest {
+public class LDUserTest extends BaseTest {
   private static enum OptionalStringAttributes {
     secondary(
         new Function<LDUser, String>() { public String apply(LDUser u) { return u.getSecondary(); } },
