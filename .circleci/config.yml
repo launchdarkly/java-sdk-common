@@ -1,0 +1,166 @@
+version: 2.1
+
+orbs:
+   win: circleci/windows@1.0.0
+
+workflows:
+  test:
+    jobs:
+      - build-linux
+      - test-linux:
+          name: Java 8 - Linux - OpenJDK
+          docker-image: circleci/openjdk:8
+          requires:
+            - build-linux
+      - test-linux:
+          name: Java 9 - Linux - OpenJDK
+          docker-image: circleci/openjdk:9
+          requires:
+            - build-linux
+      - test-linux:
+          name: Java 10 - Linux - OpenJDK
+          docker-image: circleci/openjdk:10
+          requires:
+            - build-linux
+      - test-linux:
+          name: Java 11 - Linux - OpenJDK
+          docker-image: circleci/openjdk:11
+          with-coverage: true
+          requires:
+            - build-linux
+      - build-test-windows:
+          name: Java 11 - Windows - OpenJDK
+      - build-test-android:
+          name: Android
+
+jobs:
+  build-linux:
+    docker:
+      - image: circleci/openjdk:8u131-jdk # To match the version pre-installed in Ubuntu 16 and used by Jenkins for releasing 
+    steps:
+      - checkout
+      - run: cp gradle.properties.example gradle.properties
+      - run: java -version
+      - run: ./gradlew dependencies
+      - run: ./gradlew jar
+      - run: ./gradlew checkstyleMain
+      - persist_to_workspace:
+          root: build
+          paths:
+            - classes
+
+  test-linux:
+    parameters:
+      docker-image:
+        type: string
+      with-coverage:
+        type: boolean
+        default: false
+    docker:
+      - image: <<parameters.docker-image>>
+    steps:
+      - checkout
+      - run: cp gradle.properties.example gradle.properties
+      - attach_workspace:
+          at: build
+      - run: java -version
+      - run: ./gradlew test
+      - when:
+          condition: <<parameters.with-coverage>>
+          steps:
+            - run:
+                name: Generate test coverage report
+                command: ./gradlew jacocoTestReport
+            - run:
+                name: Enforce test coverage
+                command: ./gradlew jacocoTestCoverageVerification
+      - run:
+          name: Save test results
+          command: |
+            mkdir -p ~/junit/;
+            find . -type f -regex ".*/build/test-results/.*xml" -exec cp {} ~/junit/ \;
+          when: always
+      - store_test_results:
+          path: ~/junit
+      - store_artifacts:
+          path: ~/junit
+      - when:
+          condition: <<parameters.with-coverage>>
+          steps:
+            - store_artifacts:
+                path: build/reports/jacoco
+
+  build-test-windows:
+    executor:
+      name: win/vs2019
+      shell: powershell.exe
+    steps:
+      - checkout
+      - run:
+          name: install OpenJDK
+          command: |
+            $ProgressPreference = "SilentlyContinue"  # prevents console errors from CircleCI host
+            iwr -outf openjdk.msi https://developers.redhat.com/download-manager/file/java-11-openjdk-11.0.5.10-2.windows.redhat.x86_64.msi
+            Start-Process msiexec.exe -Wait -ArgumentList '/I openjdk.msi /quiet'
+      - run:
+          name: build and test
+          command: |
+            cp gradle.properties.example gradle.properties
+            .\gradlew.bat --no-daemon test  # must use --no-daemon because CircleCI in Windows will hang if there's a daemon running
+      - run:
+          name: save test results
+          command: |
+            mkdir .\junit
+            cp build/test-results/test/*.xml junit
+      - store_test_results:
+          path: .\junit
+      - store_artifacts:
+          path: .\junit
+
+  build-test-android:
+    # This is adapted from the CI build for android-client-sdk
+    macos:
+      xcode: "10.3.0"
+    shell: /bin/bash --login -eo pipefail
+    working_directory: ~/launchdarkly/android-client-sdk-private
+    environment:
+      TERM: dumb
+      QEMU_AUDIO_DRV: none
+      _JAVA_OPTIONS: "-XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap -Xms2048m -Xmx4096m"
+      GRADLE_OPTS: "-Dorg.gradle.daemon=false"
+      JVM_OPTS: -Xmx3200m
+      ANDROID_HOME: "/usr/local/share/android-sdk"
+      ANDROID_SDK_HOME: "/usr/local/share/android-sdk"
+      ANDROID_SDK_ROOT: "/usr/local/share/android-sdk"
+    steps:
+      - checkout
+      - run:
+          name: Install Android tools
+          command: ./scripts/install-android-tools.sh
+      - run:
+          name: Start Android environment
+          command: ./scripts/start-android-env.sh
+          background: true
+          timeout: 1200
+          no_output_timeout: 20m
+      - run:
+          name: Wait for Android environment
+          command: ./scripts/started-android-env.sh
+      - run:
+          name: Run tests
+          command: ./scripts/run-android-tests.sh
+          no_output_timeout: 20m
+      - run:
+          name: Save test results
+          command: |
+            mkdir -p ~/test-results
+            cp -r ./build/outputs/androidTest-results/* ~/test-results/
+          when: always
+      - run:
+          name: Stop Android environment
+          command: ./scripts/stop-android-env.sh
+          when: always
+      - store_test_results:
+            path: ~/test-results
+      - store_artifacts:
+            path: ~/artifacts
