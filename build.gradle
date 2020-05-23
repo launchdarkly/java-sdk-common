@@ -88,13 +88,9 @@ jacocoTestCoverageVerification {
 			"EvaluationReason.error(com.launchdarkly.sdk.EvaluationReason.ErrorKind)": 1,
 			"EvaluationReasonTypeAdapter.parse(com.google.gson.stream.JsonReader)": 1,
 			"EvaluationDetailTypeAdapterFactory.EvaluationDetailTypeAdapter.read(com.google.gson.stream.JsonReader)": 1,
-			"Helpers.Helpers()": 1, // abstract class constructor - known issue with Jacoco
 			"LDValue.equals(java.lang.Object)": 1,
 			"LDValueTypeAdapter.read(com.google.gson.stream.JsonReader)": 3,
-			"json.JsonSerialization.JsonSerialization()": 1, // abstract class constructor
-			"json.JsonSerialization.getDeserializableClasses()": -1,
-			"json.LDGson.LDGson()": 1, // abstract class constructor
-			"json.LDJackson.LDJackson()": 1 // abstract class constructor
+			"json.JsonSerialization.getDeserializableClasses()": -1
 		]
 		
 		knownMissedLinesForMethods.each { partialSignature, maxMissedLines ->
