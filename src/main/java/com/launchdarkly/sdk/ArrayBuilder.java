@@ -22,7 +22,7 @@ public final class ArrayBuilder {
   	  builder = new ArrayList<>(builder);
   	  copyOnWrite = false;
   	}
-    builder.add(value);
+    builder.add(value == null ? LDValue.ofNull() : value);
     return this;
   }
 

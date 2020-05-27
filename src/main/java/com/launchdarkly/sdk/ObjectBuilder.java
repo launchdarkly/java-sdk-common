@@ -27,7 +27,7 @@ public final class ObjectBuilder {
       builder = new HashMap<>(builder);
       copyOnWrite = false;
     }
-    builder.put(key, value);
+    builder.put(key, value == null ? LDValue.ofNull() : value);
     return this;
   }
 

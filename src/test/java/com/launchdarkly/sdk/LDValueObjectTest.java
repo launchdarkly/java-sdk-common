@@ -13,6 +13,7 @@ import static java.util.Collections.addAll;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.emptyIterable;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 @SuppressWarnings("javadoc")
 public class LDValueObjectTest {
@@ -107,6 +108,19 @@ public class LDValueObjectTest {
     }
   }
 
+  @Test
+  public void nullsInObjectAreAlwaysNullValueInstancesNotJavaNulls() {
+    LDValue o1 = LDValue.buildObject().put("x", (LDValue)null).build();
+    assertEquals(1, o1.size());
+    assertNotNull(o1.get("x"));
+    assertEquals(LDValue.ofNull(), o1.get("x"));
+    
+    LDValue o2 = LDValue.parse("{\"x\":null}");
+    assertEquals(1, o2.size());
+    assertNotNull(o2.get("x"));
+    assertEquals(LDValue.ofNull(), o2.get("x"));
+  }
+  
   @Test
   public void equalValuesAreEqual()
   {

@@ -31,6 +31,8 @@ import java.util.List;
  * </ol>
  */
 public abstract class JsonSerialization {
+  private JsonSerialization() {}
+  
   static final List<Class<? extends JsonSerializable>> knownDeserializableClasses = new ArrayList<>();
   
   static final Gson gson = new Gson();

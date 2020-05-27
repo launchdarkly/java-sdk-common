@@ -50,6 +50,7 @@ import java.lang.reflect.Type;
  * exception if Gson is not in the caller's classpath.
  */
 public abstract class LDGson {
+  private LDGson() {}
   
   // Implementation note:
   // The reason this class exists is the Java server-side SDK's issue with Gson interoperability due

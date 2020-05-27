@@ -12,6 +12,7 @@ import static java.util.Arrays.asList;
 import static java.util.Collections.addAll;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 @SuppressWarnings("javadoc")
 public class LDValueArrayTest {
@@ -95,6 +96,19 @@ public class LDValueArrayTest {
     }
   }
 
+  @Test
+  public void nullsInArrayAreAlwaysNullValueInstancesNotJavaNulls() {
+    LDValue a1 = LDValue.buildArray().add((LDValue)null).build();
+    assertEquals(1, a1.size());
+    assertNotNull(a1.get(0));
+    assertEquals(LDValue.ofNull(), a1.get(0));
+    
+    LDValue a2 = LDValue.parse("[null]");
+    assertEquals(1, a2.size());
+    assertNotNull(a2.get(0));
+    assertEquals(LDValue.ofNull(), a2.get(0));
+  }
+  
   @Test
   public void equalValuesAreEqual()
   {
