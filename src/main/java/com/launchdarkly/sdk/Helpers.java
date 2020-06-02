@@ -11,6 +11,8 @@ import java.util.Iterator;
  * library because the Android SDK does not have it.
  */
 abstract class Helpers {
+  private Helpers() {}
+  
   // This implementation is much simpler than Guava's Iterables.transform() because it does not attempt
   // to support remove().
   static <T, U> Iterable<U> transform(final Iterable<T> source, final Function<T, U> fn) {

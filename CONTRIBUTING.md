@@ -57,6 +57,8 @@ This project is limited to Java 7 because it is used in both the LaunchDarkly se
 
 It is important to keep unit test coverage as close to 100% as possible in this project, since the SDK projects will not exercise every `java-sdk-common` method in their own unit tests.
 
+You can view the latest code coverage report in CircleCI, as `coverage/html/index.html` in the artifacts for the "Java 11 - Linux - OpenJDK" job. You can also run the report locally with `./gradlew jacocoTestCoverage` and view `./build/reports/jacoco/test`.
+
 Sometimes a gap in coverage is unavoidable, usually because the compiler requires us to provide a code path for some condition that in practice can't happen and can't be tested, or because of a known issue with the code coverage tool. Please handle all such cases as follows:
 
 * Mark the code with an explanatory comment beginning with "COVERAGE:".

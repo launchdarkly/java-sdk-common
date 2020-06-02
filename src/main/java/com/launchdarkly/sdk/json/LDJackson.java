@@ -42,6 +42,8 @@ import java.io.IOException;
  * when deserializing, you will always get {@code EvaluationDetail<LDValue>}.
  */
 public class LDJackson {
+  private LDJackson() {}
+  
   /**
    * Returns a Jackson {@code Module} that defines the correct serialization and deserialization
    * behavior for all LaunchDarkly SDK objects that implement {@link JsonSerializable}.
