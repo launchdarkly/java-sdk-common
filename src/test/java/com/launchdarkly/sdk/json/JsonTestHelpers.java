@@ -87,4 +87,21 @@ public abstract class JsonTestHelpers extends BaseTest {
   public static JsonElement parseElement(String jsonString) {
     return JsonSerialization.gson.fromJson(jsonString, JsonElement.class);
   }
+  
+  public static LDValue basicArrayValue() {
+    return LDValue.buildArray().add(2).add("x").build();
+  }
+  
+  public static LDValue basicObjectValue() {
+    return LDValue.buildObject().put("x", 2).build();
+  }
+  
+  public static LDValue nestedArrayValue() {
+    return LDValue.buildArray().add(3).add(basicArrayValue()).add(4).add(basicObjectValue()).add(5).build();
+  }
+  
+  public static LDValue nestedObjectValue() {
+    return LDValue.buildObject().put("a", 1).put("b", basicArrayValue()).put("c", 2)
+          .put("d", basicObjectValue()).put("e", 5).build();
+  }
 }

@@ -35,7 +35,6 @@ final class LDValueTypeAdapter extends TypeAdapter<LDValue>{
     case BOOLEAN:
       return LDValue.of(reader.nextBoolean());
     case NULL:
-      // COVERAGE: this branch won't be reached because Gson does not call the TypeAdapter when there's a null.
       reader.nextNull();
       return LDValue.ofNull();
     case NUMBER:
@@ -43,7 +42,8 @@ final class LDValueTypeAdapter extends TypeAdapter<LDValue>{
     case STRING:
       return LDValue.of(reader.nextString());
     default:
-      // COVERAGE: this branch won't be reached because Gson does not call the TypeAdapter if the next token isn't well-formed JSON.
+      // COVERAGE: this branch won't be reached because Gson does not call the TypeAdapter if the next token
+      // isn't any of the above.
       return null;
     }
   }

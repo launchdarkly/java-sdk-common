@@ -176,7 +176,7 @@ public abstract class LDValue implements JsonSerializable {
    */
   public static LDValue parse(String json) {
     try {
-      return JsonSerialization.deserialize(json, LDValue.class);
+      return LDValue.normalize(JsonSerialization.deserialize(json, LDValue.class));
     } catch (SerializationException e) {
       throw new RuntimeException(e);
     }

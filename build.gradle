@@ -89,8 +89,9 @@ jacocoTestCoverageVerification {
 			"EvaluationReasonTypeAdapter.parse(com.google.gson.stream.JsonReader)": 1,
 			"EvaluationDetailTypeAdapterFactory.EvaluationDetailTypeAdapter.read(com.google.gson.stream.JsonReader)": 1,
 			"LDValue.equals(java.lang.Object)": 1,
-			"LDValueTypeAdapter.read(com.google.gson.stream.JsonReader)": 3,
-			"json.JsonSerialization.getDeserializableClasses()": -1
+			"LDValueTypeAdapter.read(com.google.gson.stream.JsonReader)": 1,
+			"json.JsonSerialization.getDeserializableClasses()": -1,
+			"json.LDGson.LDTypeAdapter.write(com.google.gson.stream.JsonWriter, java.lang.Object)": 1
 		]
 		
 		knownMissedLinesForMethods.each { partialSignature, maxMissedLines ->

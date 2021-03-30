@@ -87,6 +87,5 @@ final class EvaluationDetailTypeAdapterFactory implements TypeAdapterFactory {
 
       return EvaluationDetail.fromValue(value, variation, reason);
     }
-    
   }
 }
