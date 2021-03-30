@@ -1,6 +1,5 @@
 package com.launchdarkly.sdk;
 
-import com.google.gson.JsonParseException;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.MalformedJsonException;
 import com.launchdarkly.sdk.json.SerializationException;

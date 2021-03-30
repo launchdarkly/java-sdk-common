@@ -110,8 +110,7 @@ public class LDValueArrayTest {
   }
   
   @Test
-  public void equalValuesAreEqual()
-  {
+  public void equalValuesAreEqual() {
     List<List<LDValue>> testValues = asList(
         asList(LDValue.buildArray().build(), LDValue.buildArray().build()),
         asList(LDValue.buildArray().add("a").build(), LDValue.buildArray().add("a").build()),
@@ -125,6 +124,16 @@ public class LDValueArrayTest {
             LDValue.buildArray().add("a").add(LDValue.buildArray().add("b").add("d").build()).build())
         );
     TestHelpers.doEqualityTests(testValues);
+  }
+  
+  @Test
+  public void arrayOf() {
+    assertEquals(LDValue.buildArray().add(LDValue.of(2)).add(LDValue.of("three")).build(),
+          LDValue.arrayOf(LDValue.of(2), LDValue.of("three")));
+
+    assertEquals(LDValue.buildArray().build(), LDValue.arrayOf());
+
+    assertEquals(LDValue.buildArray().build(), LDValue.arrayOf((LDValue[])null));
   }
   
   @Test
