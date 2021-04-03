@@ -70,10 +70,14 @@ public class EvaluationReasonTest extends BaseTest {
   @Test
   public void simpleStringRepresentations() {
     assertEquals("OFF", EvaluationReason.off().toString());
-    assertEquals("FALLTHROUGH", EvaluationReason.fallthrough().toString());
+    assertEquals("FALLTHROUGH(inExperiment: false)", EvaluationReason.fallthrough().toString());
+    assertEquals("FALLTHROUGH(inExperiment: false)", EvaluationReason.fallthrough(false).toString());
+    assertEquals("FALLTHROUGH(inExperiment: true)", EvaluationReason.fallthrough(true).toString());
     assertEquals("TARGET_MATCH", EvaluationReason.targetMatch().toString());
-    assertEquals("RULE_MATCH(1)", EvaluationReason.ruleMatch(1, null).toString());
-    assertEquals("RULE_MATCH(1,id)", EvaluationReason.ruleMatch(1, "id").toString());
+    assertEquals("RULE_MATCH(1,inExperiment: false)", EvaluationReason.ruleMatch(1, null).toString());
+    assertEquals("RULE_MATCH(1,id,inExperiment: false)", EvaluationReason.ruleMatch(1, "id").toString());
+    assertEquals("RULE_MATCH(1,id,inExperiment: false)", EvaluationReason.ruleMatch(1, "id", false).toString());
+    assertEquals("RULE_MATCH(1,id,inExperiment: true)", EvaluationReason.ruleMatch(1, "id", true).toString());
     assertEquals("PREREQUISITE_FAILED(key)", EvaluationReason.prerequisiteFailed("key").toString());
     assertEquals("ERROR(FLAG_NOT_FOUND)", EvaluationReason.error(FLAG_NOT_FOUND).toString());
     assertEquals("ERROR(EXCEPTION)", EvaluationReason.exception(null).toString());

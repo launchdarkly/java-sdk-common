@@ -14,12 +14,22 @@ public class EvaluationReasonJsonSerializationTest extends BaseTest {
   @Test
   public void reasonJsonSerializations() throws Exception {
     verifySerializeAndDeserialize(EvaluationReason.off(), "{\"kind\":\"OFF\"}");
-    verifySerializeAndDeserialize(EvaluationReason.fallthrough(), "{\"kind\":\"FALLTHROUGH\"}");
+    verifySerializeAndDeserialize(EvaluationReason.fallthrough(), "{\"kind\":\"FALLTHROUGH\",\"inExperiment\":false}");
+    verifySerializeAndDeserialize(EvaluationReason.fallthrough(false), "{\"kind\":\"FALLTHROUGH\",\"inExperiment\":false}");
+    verifySerializeAndDeserialize(EvaluationReason.fallthrough(true), "{\"kind\":\"FALLTHROUGH\",\"inExperiment\":true}");
     verifySerializeAndDeserialize(EvaluationReason.targetMatch(), "{\"kind\":\"TARGET_MATCH\"}");
     verifySerializeAndDeserialize(EvaluationReason.ruleMatch(1, "id"),
-        "{\"kind\":\"RULE_MATCH\",\"ruleIndex\":1,\"ruleId\":\"id\"}");
+        "{\"kind\":\"RULE_MATCH\",\"ruleIndex\":1,\"ruleId\":\"id\",\"inExperiment\":false}");
+    verifySerializeAndDeserialize(EvaluationReason.ruleMatch(1, "id", false),
+        "{\"kind\":\"RULE_MATCH\",\"ruleIndex\":1,\"ruleId\":\"id\",\"inExperiment\":false}");
+    verifySerializeAndDeserialize(EvaluationReason.ruleMatch(1, "id", true),
+        "{\"kind\":\"RULE_MATCH\",\"ruleIndex\":1,\"ruleId\":\"id\",\"inExperiment\":true}");
     verifySerializeAndDeserialize(EvaluationReason.ruleMatch(1, null),
-        "{\"kind\":\"RULE_MATCH\",\"ruleIndex\":1}");
+        "{\"kind\":\"RULE_MATCH\",\"ruleIndex\":1,\"inExperiment\":false}");
+    verifySerializeAndDeserialize(EvaluationReason.ruleMatch(1, null, false),
+        "{\"kind\":\"RULE_MATCH\",\"ruleIndex\":1,\"inExperiment\":false}");
+    verifySerializeAndDeserialize(EvaluationReason.ruleMatch(1, null, true),
+        "{\"kind\":\"RULE_MATCH\",\"ruleIndex\":1,\"inExperiment\":true}");
     verifySerializeAndDeserialize(EvaluationReason.prerequisiteFailed("key"),
         "{\"kind\":\"PREREQUISITE_FAILED\",\"prerequisiteKey\":\"key\"}");
     verifySerializeAndDeserialize(EvaluationReason.error(EvaluationReason.ErrorKind.FLAG_NOT_FOUND),

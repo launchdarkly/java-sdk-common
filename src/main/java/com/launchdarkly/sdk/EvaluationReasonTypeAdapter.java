@@ -22,6 +22,7 @@ final class EvaluationReasonTypeAdapter extends TypeAdapter<EvaluationReason> {
     int ruleIndex = -1;
     String ruleId = null;
     String prereqKey = null;
+    boolean inExperiment = false;
     EvaluationReason.ErrorKind errorKind = null;
     
     reader.beginObject();
@@ -40,6 +41,9 @@ final class EvaluationReasonTypeAdapter extends TypeAdapter<EvaluationReason> {
       case "prerequisiteKey":
         prereqKey = reader.nextString();
         break;
+      case "inExperiment":
+        inExperiment = reader.nextBoolean();
+        break;
       case "errorKind":
         errorKind = readEnum(EvaluationReason.ErrorKind.class, reader);
         break;
@@ -56,11 +60,11 @@ final class EvaluationReasonTypeAdapter extends TypeAdapter<EvaluationReason> {
     case OFF:
       return EvaluationReason.off();
     case FALLTHROUGH:
-      return EvaluationReason.fallthrough();
+      return EvaluationReason.fallthrough(inExperiment);
     case TARGET_MATCH:
       return EvaluationReason.targetMatch();
     case RULE_MATCH:
-      return EvaluationReason.ruleMatch(ruleIndex, ruleId);
+      return EvaluationReason.ruleMatch(ruleIndex, ruleId, inExperiment);
     case PREREQUISITE_FAILED:
       return EvaluationReason.prerequisiteFailed(prereqKey);
     case ERROR:
@@ -85,6 +89,12 @@ final class EvaluationReasonTypeAdapter extends TypeAdapter<EvaluationReason> {
         writer.name("ruleId");
         writer.value(reason.getRuleId());
       }
+      writer.name("inExperiment");
+      writer.value(reason.isInExperiment());
+      break;
+    case FALLTHROUGH:
+      writer.name("inExperiment");
+      writer.value(reason.isInExperiment());
       break;
     case PREREQUISITE_FAILED:
       writer.name("prerequisiteKey");
