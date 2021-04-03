@@ -282,6 +282,7 @@ public final class EvaluationReason implements JsonSerializable {
    * where the inExperiment parameter represents whether the evaluation was
    * part of an experiment.
    * 
+   * @param inExperiment whether it evaluates as an experiment
    * @return a reason object
    */
   public static EvaluationReason fallthrough(boolean inExperiment) {
