@@ -186,7 +186,7 @@ public final class EvaluationReason implements JsonSerializable {
    * resulted in an experiment rollout *and* served one of the variations in the 
    * experiment.  Otherwise it returns false.
    * 
-   * @return whether the evaluation is in an experiment 
+   * @return whether the evaluation was part of an experiment
    */
   public boolean isInExperiment() {
     return inExperiment;
