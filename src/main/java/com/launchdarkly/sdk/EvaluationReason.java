@@ -312,7 +312,7 @@ public final class EvaluationReason implements JsonSerializable {
   /**
    * Returns an instance whose {@code kind} is {@link Kind#RULE_MATCH} and 
    * where the inExperiment parameter represents whether the evaluation was
-   * part of an experiment..
+   * part of an experiment.
    * 
    * @param ruleIndex the rule index
    * @param ruleId the rule identifier
