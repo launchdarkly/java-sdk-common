@@ -316,7 +316,7 @@ public final class EvaluationReason implements JsonSerializable {
    * 
    * @param ruleIndex the rule index
    * @param ruleId the rule identifier
-   * @param inExperiment whether it evaluates as an experiment
+   * @param inExperiment whether the evaluation was part of an experiment
    * @return a reason object
    */
   public static EvaluationReason ruleMatch(int ruleIndex, String ruleId, boolean inExperiment) {
