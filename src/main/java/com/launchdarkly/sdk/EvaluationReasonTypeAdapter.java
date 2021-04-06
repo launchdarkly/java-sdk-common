@@ -89,12 +89,16 @@ final class EvaluationReasonTypeAdapter extends TypeAdapter<EvaluationReason> {
         writer.name("ruleId");
         writer.value(reason.getRuleId());
       }
-      writer.name("inExperiment");
-      writer.value(reason.isInExperiment());
+      if (reason.isInExperiment()) {
+        writer.name("inExperiment");
+        writer.value(reason.isInExperiment());
+      }
       break;
     case FALLTHROUGH:
+    if (reason.isInExperiment()) {
       writer.name("inExperiment");
       writer.value(reason.isInExperiment());
+    }
       break;
     case PREREQUISITE_FAILED:
       writer.name("prerequisiteKey");

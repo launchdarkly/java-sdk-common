@@ -6,6 +6,7 @@ import com.launchdarkly.sdk.EvaluationReason;
 import org.junit.Test;
 
 import static com.launchdarkly.sdk.json.JsonTestHelpers.verifyDeserializeInvalidJson;
+import static com.launchdarkly.sdk.json.JsonTestHelpers.verifyDeserialize;
 import static com.launchdarkly.sdk.json.JsonTestHelpers.verifySerialize;
 import static com.launchdarkly.sdk.json.JsonTestHelpers.verifySerializeAndDeserialize;
 
@@ -14,26 +15,31 @@ public class EvaluationReasonJsonSerializationTest extends BaseTest {
   @Test
   public void reasonJsonSerializations() throws Exception {
     verifySerializeAndDeserialize(EvaluationReason.off(), "{\"kind\":\"OFF\"}");
-    verifySerializeAndDeserialize(EvaluationReason.fallthrough(), "{\"kind\":\"FALLTHROUGH\",\"inExperiment\":false}");
-    verifySerializeAndDeserialize(EvaluationReason.fallthrough(false), "{\"kind\":\"FALLTHROUGH\",\"inExperiment\":false}");
+    verifySerializeAndDeserialize(EvaluationReason.fallthrough(), "{\"kind\":\"FALLTHROUGH\"}");
+    verifySerializeAndDeserialize(EvaluationReason.fallthrough(false), "{\"kind\":\"FALLTHROUGH\"}");
     verifySerializeAndDeserialize(EvaluationReason.fallthrough(true), "{\"kind\":\"FALLTHROUGH\",\"inExperiment\":true}");
     verifySerializeAndDeserialize(EvaluationReason.targetMatch(), "{\"kind\":\"TARGET_MATCH\"}");
     verifySerializeAndDeserialize(EvaluationReason.ruleMatch(1, "id"),
-        "{\"kind\":\"RULE_MATCH\",\"ruleIndex\":1,\"ruleId\":\"id\",\"inExperiment\":false}");
+        "{\"kind\":\"RULE_MATCH\",\"ruleIndex\":1,\"ruleId\":\"id\"}");
     verifySerializeAndDeserialize(EvaluationReason.ruleMatch(1, "id", false),
-        "{\"kind\":\"RULE_MATCH\",\"ruleIndex\":1,\"ruleId\":\"id\",\"inExperiment\":false}");
+        "{\"kind\":\"RULE_MATCH\",\"ruleIndex\":1,\"ruleId\":\"id\"}");
     verifySerializeAndDeserialize(EvaluationReason.ruleMatch(1, "id", true),
         "{\"kind\":\"RULE_MATCH\",\"ruleIndex\":1,\"ruleId\":\"id\",\"inExperiment\":true}");
     verifySerializeAndDeserialize(EvaluationReason.ruleMatch(1, null),
-        "{\"kind\":\"RULE_MATCH\",\"ruleIndex\":1,\"inExperiment\":false}");
+        "{\"kind\":\"RULE_MATCH\",\"ruleIndex\":1}");
     verifySerializeAndDeserialize(EvaluationReason.ruleMatch(1, null, false),
-        "{\"kind\":\"RULE_MATCH\",\"ruleIndex\":1,\"inExperiment\":false}");
+        "{\"kind\":\"RULE_MATCH\",\"ruleIndex\":1}");
     verifySerializeAndDeserialize(EvaluationReason.ruleMatch(1, null, true),
         "{\"kind\":\"RULE_MATCH\",\"ruleIndex\":1,\"inExperiment\":true}");
     verifySerializeAndDeserialize(EvaluationReason.prerequisiteFailed("key"),
         "{\"kind\":\"PREREQUISITE_FAILED\",\"prerequisiteKey\":\"key\"}");
     verifySerializeAndDeserialize(EvaluationReason.error(EvaluationReason.ErrorKind.FLAG_NOT_FOUND),
         "{\"kind\":\"ERROR\",\"errorKind\":\"FLAG_NOT_FOUND\"}");
+
+    // properties with defaults can be included
+    verifyDeserialize(EvaluationReason.fallthrough(false), "{\"kind\":\"FALLTHROUGH\",\"inExperiment\":false}");
+    verifyDeserialize(EvaluationReason.ruleMatch(1, "id", false),
+        "{\"kind\":\"RULE_MATCH\",\"ruleIndex\":1,\"ruleId\":\"id\",\"inExperiment\":false}");
 
     // unknown properties are ignored
     JsonTestHelpers.verifyDeserialize(EvaluationReason.off(), "{\"kind\":\"OFF\",\"other\":true}");

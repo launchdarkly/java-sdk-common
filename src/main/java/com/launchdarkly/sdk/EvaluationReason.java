@@ -227,9 +227,7 @@ public final class EvaluationReason implements JsonSerializable {
   public String toString() {
     switch (kind) {
     case RULE_MATCH:
-      return kind + "(" + ruleIndex + (ruleId == null ? "" : ("," + ruleId)) + ",inExperiment: " + inExperiment + ")";
-    case FALLTHROUGH:
-      return kind + "(inExperiment: " + inExperiment + ")";
+      return kind + "(" + ruleIndex + (ruleId == null ? "" : ("," + ruleId)) + ")";
     case PREREQUISITE_FAILED:
       return kind + "(" + prerequisiteKey + ")";
     case ERROR:
@@ -246,10 +244,13 @@ public final class EvaluationReason implements JsonSerializable {
     }
     if (other instanceof EvaluationReason) {
       EvaluationReason o = (EvaluationReason)other;
-      return kind == o.kind && ruleIndex == o.ruleIndex && Objects.equals(ruleId, o.ruleId) &&
-          Objects.equals(prerequisiteKey, o.prerequisiteKey) && Objects.equals(inExperiment, o.inExperiment) &&
-          Objects.equals(errorKind, o.errorKind) &&
-          Objects.equals(exception, o.exception);
+      return kind == o.kind && 
+        ruleIndex == o.ruleIndex && 
+        Objects.equals(ruleId, o.ruleId) &&
+        Objects.equals(prerequisiteKey, o.prerequisiteKey) && 
+        inExperiment == o.inExperiment &&
+        Objects.equals(errorKind, o.errorKind) &&
+        Objects.equals(exception, o.exception);
     }
     return false;
   }
