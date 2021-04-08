@@ -124,7 +124,7 @@ public abstract class LDGson {
   }
   
   /**
-   * Convenience method for converting a map of {@link LDValue} values to a map of Gson {@codeJsonElement}s.
+   * Convenience method for converting a map of {@link LDValue} values to a map of Gson {@code JsonElement}s.
    * 
    * @param <T> type of the map's keys
    * @param valueMap a map containing {@link LDValue} values
