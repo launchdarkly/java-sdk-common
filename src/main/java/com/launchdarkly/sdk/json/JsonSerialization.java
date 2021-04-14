@@ -8,6 +8,7 @@ import com.launchdarkly.sdk.LDValue;
 import com.launchdarkly.sdk.UserAttribute;
 
 import java.lang.reflect.Method;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -85,6 +86,15 @@ public abstract class JsonSerialization {
     }
   }
 
+  // Used internally from LDGson
+  static <T> T deserializeInternalGson(String json, Type objectType) throws SerializationException {
+    try {
+      return gson.fromJson(json, objectType);
+    } catch (Exception e) {
+      throw new SerializationException(e);
+    }
+  }
+  
   /**
    * Internal method to return all of the classes that we should have a custom deserializer for.
    * <p>

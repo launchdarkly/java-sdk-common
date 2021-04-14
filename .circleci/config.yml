@@ -44,6 +44,7 @@ jobs:
       - run: java -version
       - run: ./gradlew dependencies
       - run: ./gradlew jar
+      - run: ./gradlew javadoc
       - run: ./gradlew checkstyleMain
       - persist_to_workspace:
           root: build
