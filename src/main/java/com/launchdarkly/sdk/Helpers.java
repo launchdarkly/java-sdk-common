@@ -56,4 +56,13 @@ abstract class Helpers {
       throw new JsonParseException("expected string value");
     }
   }
+  
+  static <T extends Enum<T>> T readEnum(Class<T> enumClass, JsonReader reader) throws IOException {
+    String s = readNonNullableString(reader);
+    try {
+      return Enum.valueOf(enumClass, s);
+    } catch (IllegalArgumentException e) {
+      throw new JsonParseException(String.format("unsupported value \"{}\" for {}", s, enumClass));
+    }
+  }
 }
