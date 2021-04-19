@@ -1,9 +1,12 @@
 package com.launchdarkly.sdk;
 
+import com.google.gson.stream.JsonReader;
+import com.google.gson.stream.MalformedJsonException;
 import com.launchdarkly.sdk.json.SerializationException;
 
 import org.junit.Test;
 
+import java.io.StringReader;
 import java.util.List;
 
 import static java.util.Arrays.asList;
@@ -256,6 +259,30 @@ public class LDValueTest extends BaseTest {
       LDValue.parse("{");
     } catch (RuntimeException e) {
       assertThat(e.getCause(), instanceOf(SerializationException.class));
+    }
+  }
+
+  @Test
+  public void testLowLevelTypeAdapter() throws Exception {
+    // This test ensures full test coverage of LDValueTypeAdapter code paths that might not
+    // be exercised indirectly by other tests.
+    verifyTypeAdapterRead("null", LDValue.ofNull());
+    verifyTypeAdapterRead("true", LDValue.of(true));
+    verifyTypeAdapterRead("1", LDValue.of(1));
+    verifyTypeAdapterRead("\"x\"", LDValue.of("x"));
+    verifyTypeAdapterRead("[1,2]", LDValue.buildArray().add(1).add(2).build());
+    verifyTypeAdapterRead("{\"a\":1}", LDValue.buildObject().put("a", 1).build());
+
+    try (JsonReader r = new JsonReader(new StringReader("]"))) {
+      try {
+        LDValueTypeAdapter.INSTANCE.read(r);
+      } catch (MalformedJsonException e) {}
+    }
+  }
+
+  private static void verifyTypeAdapterRead(String jsonString, LDValue expectedValue) throws Exception {
+    try (JsonReader r = new JsonReader(new StringReader(jsonString))) {
+      assertEquals(expectedValue, LDValueTypeAdapter.INSTANCE.read(r));
     }
   }
 }
