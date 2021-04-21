@@ -2,9 +2,12 @@ package com.launchdarkly.sdk.json;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
+import com.google.gson.JsonParseException;
+import com.google.gson.JsonSyntaxException;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
+import com.launchdarkly.sdk.EvaluationReason;
 import com.launchdarkly.sdk.LDUser;
 import com.launchdarkly.sdk.LDValue;
 
@@ -16,6 +19,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 @SuppressWarnings("javadoc")
 public class LDGsonTest {  
@@ -77,7 +82,7 @@ public class LDGsonTest {
     // This and testInternalWriterAdapter verify that all of our reader/writer delegation
     // methods work as expected, regardless of whether or not they are exercised indirectly
     // by our other unit tests.
-    String json = "[null,false,true,1,2,3,\"x\",{\"a\":false}]";
+    String json = "[null,false,true,1.5,2,3,\"x\",{\"a\":false}]";
     try (StringReader sr = new StringReader(json)) {
       try (JsonReader jr0 = new JsonReader(sr)) {
         try (JsonReader jr = new LDGson.DelegatingJsonReaderAdapter(jr0)) {
@@ -87,15 +92,19 @@ public class LDGsonTest {
           assertEquals(JsonToken.BOOLEAN, jr.peek());
           jr.skipValue();
           assertEquals(true, jr.nextBoolean());
-          assertEquals(1d, jr.nextDouble(), 0);
+          assertEquals(1.5d, jr.nextDouble(), 0);
           assertEquals(2, jr.nextInt());
           assertEquals(3, jr.nextLong());
           assertEquals("x", jr.nextString());
           jr.beginObject();
+          assertEquals(true, jr.hasNext());
           assertEquals("a", jr.nextName());
           assertEquals(false, jr.nextBoolean());
+          assertEquals(false, jr.hasNext());
           jr.endObject();
+          assertEquals(false, jr.hasNext());
           jr.endArray();
+          assertEquals(JsonToken.END_DOCUMENT, jr.peek());
         }
       }
     }
@@ -114,6 +123,7 @@ public class LDGsonTest {
           jw.value((double)1);
           jw.value((long)2);
           jw.value(Float.valueOf(3));
+          jw.value((Float)null);
           jw.value("x");
           jw.beginObject();
           jw.name("a");
@@ -124,8 +134,23 @@ public class LDGsonTest {
           jw.flush();
         }
       }
-      String expected = "[null,true,true,null,1,2,3,\"x\",{\"a\":false},123]";
+      String expected = "[null,true,true,null,1,2,3,null,\"x\",{\"a\":false},123]";
       JsonTestHelpers.assertJsonEquals(expected, sw.toString());
+    }
+  }
+  
+  @Test(expected=JsonSyntaxException.class)
+  public void parseExceptionIsThrownForMalformedJson() throws Exception {
+    JsonTestHelpers.configureGson().fromJson("[1:,2]", LDValue.class);
+  }
+  
+  @Test
+  public void parseExceptionIsThrownForIllegalValue() throws Exception {
+    try {
+      JsonTestHelpers.configureGson().fromJson("{\"kind\":\"NOTGOOD\"}", EvaluationReason.class);
+      fail("expected exception");
+    } catch (JsonParseException e) {
+      assertTrue(e.getMessage(), e.getMessage().contains("unsupported value \"NOTGOOD\""));
     }
   }
   

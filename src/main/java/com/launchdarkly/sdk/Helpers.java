@@ -62,7 +62,7 @@ abstract class Helpers {
     try {
       return Enum.valueOf(enumClass, s);
     } catch (IllegalArgumentException e) {
-      throw new JsonParseException(String.format("unsupported value \"{}\" for {}", s, enumClass));
+      throw new JsonParseException(String.format("unsupported value \"%s\" for %s", s, enumClass));
     }
   }
 }
