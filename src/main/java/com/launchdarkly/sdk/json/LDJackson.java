@@ -185,7 +185,7 @@ public class LDJackson {
         return com.google.gson.stream.JsonToken.END_DOCUMENT.ordinal();
       }
       com.google.gson.stream.JsonToken gt;
-      switch (peekToken()) {
+      switch (t) {
       case END_ARRAY:
         gt = com.google.gson.stream.JsonToken.END_ARRAY;
         break;
