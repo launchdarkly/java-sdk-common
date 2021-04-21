@@ -5,7 +5,6 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonParseException;
 import com.google.gson.JsonPrimitive;
 import com.google.gson.TypeAdapter;
 import com.google.gson.TypeAdapterFactory;
@@ -146,41 +145,181 @@ public abstract class LDGson {
     @Override
     public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
       if (JsonSerializable.class.isAssignableFrom(type.getRawType())) {
-        return new LDTypeAdapter<T>(gson, type.getType());
+        return new LDTypeAdapter<T>(type.getType());
       }
       return null;
     }
   }
 
   private static class LDTypeAdapter<T> extends TypeAdapter<T> {
-    private final Gson gson;
     private final Type objectType;
     
-    LDTypeAdapter(Gson gson, Type objectType) {
-      this.gson = gson;
+    LDTypeAdapter(Type objectType) {
       this.objectType = objectType;
     }
     
     @Override
     public void write(JsonWriter out, T value) throws IOException {
-      String json = JsonSerialization.serializeInternal(value);
-      out.jsonValue(json);
+      if (value == null) {
+        // COVERAGE: we don't expect this to ever happen, since Gson normally doesn't bother to call
+        // the type adapter for any null value; it's just a sanity check.
+        out.nullValue();
+      } else {
+        JsonSerialization.serializeToGsonInternal(value, value.getClass(), new DelegatingJsonWriterAdapter(out));
+      }
     }
   
     @Override
     public T read(JsonReader in) throws IOException {
-      // This implementation is inefficient because we can't assume our internal Gson instance can
-      // use this JsonReader directly; instead we have to read the next JSON value, convert it to a
-      // string, and then ask our JsonSerialization to parse it back from a string.
-      JsonElement jsonTree = gson.fromJson(in, JsonElement.class);
-      String jsonString = gson.toJson(jsonTree);
-      try {
-        // Calling the Gson overload that takes a Type rather than a Class (even though a Class *is* a
-        // Type) allows it to take generic type parameters into account for EvaluationDetail.
-        return JsonSerialization.deserializeInternalGson(jsonString, objectType);
-      } catch (SerializationException e) {
-        throw new JsonParseException(e.getCause());
-      }
+      return JsonSerialization.<T>deserializeFromGsonInternal(new DelegatingJsonReaderAdapter(in), objectType);
+    }
+  }
+  
+  // See comments on GsonReaderAdapter for the reason this type exists.
+  static class DelegatingJsonReaderAdapter extends GsonReaderAdapter {
+    private final JsonReader reader;
+    
+    DelegatingJsonReaderAdapter(JsonReader reader) {
+      this.reader = reader;
+    }
+
+    @Override
+    public void beginArray() throws IOException {
+      reader.beginArray();
+    }
+
+    @Override
+    public void beginObject() throws IOException {
+      reader.beginObject();
+    }
+
+    @Override
+    public void endArray() throws IOException {
+      reader.endArray();
+    }
+
+    @Override
+    public void endObject() throws IOException {
+      reader.endObject();
+    }
+
+    @Override
+    public boolean hasNext() throws IOException {
+      return reader.hasNext();
+    }
+
+    @Override
+    public boolean nextBoolean() throws IOException {
+      return reader.nextBoolean();
+    }
+
+    @Override
+    public double nextDouble() throws IOException {
+      return reader.nextDouble();
+    }
+
+    @Override
+    public int nextInt() throws IOException {
+      return reader.nextInt();
+    }
+
+    @Override
+    public long nextLong() throws IOException {
+      return reader.nextLong();
+    }
+
+    @Override
+    public String nextName() throws IOException {
+      return reader.nextName();
+    }
+
+    @Override
+    public void nextNull() throws IOException {
+      reader.nextNull();
+    }
+
+    @Override
+    public String nextString() throws IOException {
+      return reader.nextString();
+    }
+
+    @Override
+    public void skipValue() throws IOException {
+      reader.skipValue();
+    }
+    
+    @Override
+    protected int peekInternal() throws IOException {
+      return reader.peek().ordinal();
+    }
+  }
+  
+  // See comments on GsonWriterAdapter for the reason this type exists.
+  static class DelegatingJsonWriterAdapter extends GsonWriterAdapter {
+    private final JsonWriter writer;
+    
+    DelegatingJsonWriterAdapter(JsonWriter writer) {
+      this.writer = writer;
+    }
+
+    @Override
+    protected void beginArrayInternal() throws IOException {
+      writer.beginArray();
+    }
+
+    @Override
+    protected void beginObjectInternal() throws IOException {
+      writer.beginObject();
+    }
+
+    @Override
+    protected void endArrayInternal() throws IOException {
+      writer.endArray();
+    }
+
+    @Override
+    protected void endObjectInternal() throws IOException {
+      writer.endObject();
+    }
+
+    @Override
+    protected void jsonValueInternal(String value) throws IOException {
+      writer.jsonValue(value);
+    }
+
+    @Override
+    protected void nameInternal(String name) throws IOException {
+      writer.name(name);
+    }
+
+    @Override
+    protected void valueInternalNull() throws IOException {
+      writer.nullValue();
+    }
+
+    @Override
+    protected void valueInternalBool(boolean value) throws IOException {
+      writer.value(value);
+    }
+
+    @Override
+    protected void valueInternalDouble(double value) throws IOException {
+      writer.value(value);
+    }
+
+    @Override
+    protected void valueInternalLong(long value) throws IOException {
+      writer.value(value);
+    }
+
+    @Override
+    protected void valueInternalNumber(Number value) throws IOException {
+      writer.value(value);
+    }
+
+    @Override
+    protected void valueInternalString(String value) throws IOException {
+      writer.value(value);
     }
   }
 }
