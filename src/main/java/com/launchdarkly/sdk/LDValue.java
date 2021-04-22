@@ -8,6 +8,7 @@ import com.launchdarkly.sdk.json.JsonSerialization;
 import com.launchdarkly.sdk.json.SerializationException;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Map;
 
 import static com.launchdarkly.sdk.Helpers.transform;
@@ -133,9 +134,9 @@ public abstract class LDValue implements JsonSerializable {
   }
 
   /**
-   * Starts building an array value.
+   * Starts building an array value. The elements can be of any type supported by LDValue.
    * <pre><code>
-   *     LDValue arrayOfInts = LDValue.buildArray().add(LDValue.int(1), LDValue.int(2)).build():
+   *     LDValue arrayOfInts = LDValue.buildArray().add(2).add("three").build():
    * </code></pre>
    * If the values are all of the same type, you may also use {@link LDValue.Converter#arrayFrom(Iterable)}
    * or {@link LDValue.Converter#arrayOf(Object...)}.
@@ -146,6 +147,21 @@ public abstract class LDValue implements JsonSerializable {
     return new ArrayBuilder();
   }
 
+  /**
+   * Creates an array value from the specified values. The elements can be of any type supported by LDValue.
+   * <pre><code>
+   *     LDValue arrayOfMixedValues = LDValue.arrayOf(LDValue.of(2), LDValue.of("three"));
+   * </code></pre>
+   * If the values are all of the same type, you may also use {@link LDValue.Converter#arrayFrom(Iterable)}
+   * or {@link LDValue.Converter#arrayOf(Object...)}.
+   * 
+   * @param values any number of values
+   * @return an immutable array value
+   */
+  public static LDValue arrayOf(LDValue... values) {
+    return LDValueArray.fromList(values == null ? null : Arrays.asList(values));
+  }
+  
   /**
    * Starts building an object value.
    * <pre><code>
@@ -176,7 +192,7 @@ public abstract class LDValue implements JsonSerializable {
    */
   public static LDValue parse(String json) {
     try {
-      return JsonSerialization.deserialize(json, LDValue.class);
+      return LDValue.normalize(JsonSerialization.deserialize(json, LDValue.class));
     } catch (SerializationException e) {
       throw new RuntimeException(e);
     }

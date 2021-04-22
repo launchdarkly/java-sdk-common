@@ -8,7 +8,7 @@ import com.google.gson.stream.JsonWriter;
 
 import java.io.IOException;
 
-import static com.launchdarkly.sdk.Helpers.readNonNullableString;
+import static com.launchdarkly.sdk.Helpers.readEnum;
 import static com.launchdarkly.sdk.Helpers.readNullableString;
 
 final class EvaluationReasonTypeAdapter extends TypeAdapter<EvaluationReason> {
@@ -29,7 +29,7 @@ final class EvaluationReasonTypeAdapter extends TypeAdapter<EvaluationReason> {
       String key = reader.nextName();
       switch (key) { // COVERAGE: may have spurious "branches missed" warning, see https://stackoverflow.com/questions/28013717/eclemma-branch-coverage-for-switch-7-of-19-missed
       case "kind":
-        kind = Enum.valueOf(EvaluationReason.Kind.class, readNonNullableString(reader));
+        kind = readEnum(EvaluationReason.Kind.class, reader);
         break;
       case "ruleIndex":
         ruleIndex = reader.nextInt();
@@ -41,7 +41,7 @@ final class EvaluationReasonTypeAdapter extends TypeAdapter<EvaluationReason> {
         prereqKey = reader.nextString();
         break;
       case "errorKind":
-        errorKind = Enum.valueOf(EvaluationReason.ErrorKind.class, readNonNullableString(reader));
+        errorKind = readEnum(EvaluationReason.ErrorKind.class, reader);
         break;
       default:
         reader.skipValue(); // ignore any unexpected property

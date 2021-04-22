@@ -13,10 +13,9 @@ import static java.util.Collections.unmodifiableList;
 final class LDValueArray extends LDValue {
   private static final LDValueArray EMPTY = new LDValueArray(Collections.<LDValue>emptyList());
   private final List<LDValue> list;
-  // Note that this is not  
 
   static LDValueArray fromList(List<LDValue> list) {
-    return list.isEmpty() ? EMPTY : new LDValueArray(list);
+    return list == null || list.isEmpty() ? EMPTY : new LDValueArray(list);
   }
 
   private LDValueArray(List<LDValue> list) {

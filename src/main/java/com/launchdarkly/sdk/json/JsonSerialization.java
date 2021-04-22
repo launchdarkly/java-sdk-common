@@ -35,7 +35,7 @@ public abstract class JsonSerialization {
   
   static final List<Class<? extends JsonSerializable>> knownDeserializableClasses = new ArrayList<>();
   
-  static final Gson gson = new Gson();
+  private static final Gson gson = new Gson();
   
   /**
    * Converts an object to its JSON representation.
@@ -86,13 +86,31 @@ public abstract class JsonSerialization {
     }
   }
 
-  // Used internally from LDGson
-  static <T> T deserializeInternalGson(String json, Type objectType) throws SerializationException {
-    try {
-      return gson.fromJson(json, objectType);
-    } catch (Exception e) {
-      throw new SerializationException(e);
-    }
+  // Used internally to delegate to gson.toJson() in a way that will work correctly regardless of
+  // whether we're shading the Gson types or not.
+  //
+  // The issue is this. In the Java SDK, all references to Gson types anywhere in the SDK *except*
+  // in the LDGson class will have their packages rewritten from com.google.gson to
+  // com.launchdarkly.shaded.com.google.gson. That's the whole reason GsonWriterAdapter exists.
+  // However, the shading logic is not quite smart enough to adjust method signatures that have
+  // already been copied into non-shaded classes, so if the LDGson code (which is immune from
+  // shading) tries to call any methods on JsonSerialization.gson (which was originally an
+  // instance of c.g.gson.Gson, but now is an instance of c.l.s.c.g.gson.Gson)-- or tries to call
+  // any method that took a parameter of type c.g.gson.stream.JsonWriter, but has since been
+  // rewritten to take a parameter of type c.l.s.c.g.gson.stream.JsonWriter-- the call will fail
+  // because the actual method signature doesn't match what the caller expected.
+  //
+  // The solution is to add this delegating method whose external surface doesn't contain any
+  // references to classes whose package names will be rewritten; while JsonSerialization and
+  // GsonWriterAdapter will have code *inside* them modified by shading, their own signatures
+  // won't change.
+  static void serializeToGsonInternal(Object value, Class<?> type, GsonWriterAdapter writer) {
+    gson.toJson(value, type, writer);
+  }
+  
+  // See comment on serializeToGsonInternal.
+  static <T> T deserializeFromGsonInternal(GsonReaderAdapter adapter, Type type) {
+    return gson.fromJson(adapter, type);
   }
   
   /**

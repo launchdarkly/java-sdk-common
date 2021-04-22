@@ -2,6 +2,7 @@ version: 2.1
 
 orbs:
    win: circleci/windows@1.0.0
+   android: circleci/android@1.0
 
 workflows:
   test:
@@ -43,6 +44,7 @@ jobs:
       - run: java -version
       - run: ./gradlew dependencies
       - run: ./gradlew jar
+      - run: ./gradlew javadoc
       - run: ./gradlew checkstyleMain
       - persist_to_workspace:
           root: build
@@ -121,49 +123,31 @@ jobs:
           path: .\junit
 
   build-test-android:
-    # This is adapted from the CI build for android-client-sdk
-    macos:
-      xcode: "10.3.0"
-    shell: /bin/bash --login -eo pipefail
-    working_directory: ~/launchdarkly/android-client-sdk-private
-    environment:
-      TERM: dumb
-      QEMU_AUDIO_DRV: none
-      _JAVA_OPTIONS: "-XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap -Xms2048m -Xmx4096m"
-      GRADLE_OPTS: "-Dorg.gradle.daemon=false"
-      JVM_OPTS: -Xmx3200m
-      ANDROID_HOME: "/usr/local/share/android-sdk"
-      ANDROID_SDK_HOME: "/usr/local/share/android-sdk"
-      ANDROID_SDK_ROOT: "/usr/local/share/android-sdk"
+    executor:
+      name: android/android-machine
+      resource-class: large
+
     steps:
       - checkout
+
+      # What we want to do here is somewhat unusual: we want Android to run all of our tests from
+      # src/test/java, but run them in the Android emulator (to prove that we're only using Java
+      # APIs that our minimum Android API version supports). Normally, only tests in
+      # src/androidTest/java would be run that way. Also, Android needs a different JUnit test
+      # runner annotation on all of the test classes. So we can't just run the test code as-is.
+      #
+      # This step copies all the code from src/test/java into src/androidTest/java, except for the
+      # base class BaseTest.java, which is already defined in src/androidTest/java to provide the
+      # necessary test runner annotation.
       - run:
-          name: Install Android tools
-          command: ./scripts/install-android-tools.sh
-      - run:
-          name: Start Android environment
-          command: ./scripts/start-android-env.sh
-          background: true
-          timeout: 1200
-          no_output_timeout: 20m
-      - run:
-          name: Wait for Android environment
-          command: ./scripts/started-android-env.sh
-      - run:
-          name: Run tests
-          command: ./scripts/run-android-tests.sh
-          no_output_timeout: 20m
-      - run:
-          name: Save test results
-          command: |
-            mkdir -p ~/test-results
-            cp -r ./build/outputs/androidTest-results/* ~/test-results/
-          when: always
-      - run:
-          name: Stop Android environment
-          command: ./scripts/stop-android-env.sh
-          when: always
+          name: Copy tests
+          command: rsync -r ./src/test/java/ ./src/androidTest/java/ --exclude='BaseTest.java'
+
+      - android/start-emulator-and-run-tests:
+          system-image: system-images;android-21;default;x86
+          max-tries: 1
+          post-emulator-launch-assemble-command: ./gradlew -b build-android.gradle :assembleAndroidTest
+          test-command: ./gradlew -b build-android.gradle :connectedAndroidTest
+
       - store_test_results:
-            path: ~/test-results
-      - store_artifacts:
-            path: ~/artifacts
+          path: ./build/outputs/androidTest-results

@@ -16,6 +16,8 @@ public class LDValueJsonSerializationTest extends BaseTest {
   @Test
   public void jsonEncodingForNull() throws Exception {
     verifySerialize(LDValue.ofNull(), "null");
+    verifySerialize((LDValue)null, "null");
+    assertEquals(LDValue.ofNull(), LDValue.parse("null"));
   }
   
   @Test
@@ -27,8 +29,8 @@ public class LDValueJsonSerializationTest extends BaseTest {
     verifyValueSerialization(LDValue.of(2), "2");
     verifyValueSerialization(LDValue.of(2.5f), "2.5");
     verifyValueSerialization(LDValue.of(2.5d), "2.5");
-    verifyValueSerialization(LDValue.buildArray().add(2).add("x").build(), "[2,\"x\"]");
-    verifyValueSerialization(LDValue.buildObject().put("x", 2).build(), "{\"x\":2}");
+    verifyValueSerialization(JsonTestHelpers.basicArrayValue(), "[2,\"x\"]");
+    verifyValueSerialization(JsonTestHelpers.basicObjectValue(), "{\"x\":2}");
     verifyDeserializeInvalidJson(LDValue.class, "]");
   }
   

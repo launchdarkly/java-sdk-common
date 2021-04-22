@@ -6,6 +6,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParseException;
+import com.google.gson.JsonSyntaxException;
 import com.launchdarkly.sdk.BaseTest;
 import com.launchdarkly.sdk.LDValue;
 
@@ -14,6 +15,8 @@ import static org.junit.Assert.fail;
 
 @SuppressWarnings("javadoc")
 public abstract class JsonTestHelpers extends BaseTest {
+  static final Gson gson = new Gson();
+
   // Note that when we verify the behavior of Gson with LDGson in this project's unit tests, that
   // is not an adequate test for whether the adapters will work in the Java SDK where there is the
   // additional issue of Gson types being shaded. The Java SDK project must do its own basic tests
@@ -45,6 +48,17 @@ public abstract class JsonTestHelpers extends BaseTest {
     assertJsonEquals(expectedJsonString, configureJacksonMapper().writeValueAsString(instance));
   }
 
+  public static <T extends JsonSerializable> void verifySerializationDeserializesTo(T instance, T resultInstance) throws Exception {
+    assertEquals(resultInstance,
+        JsonSerialization.deserialize(JsonSerialization.serialize(instance), resultInstance.getClass()));
+    
+    assertEquals(resultInstance,
+        configureGson().fromJson(configureGson().toJson(instance), resultInstance.getClass()));
+    
+    assertEquals(resultInstance,
+        configureJacksonMapper().readValue(configureJacksonMapper().writeValueAsString(instance), resultInstance.getClass()));
+  }
+  
   @SuppressWarnings("unchecked")
   public static <T extends JsonSerializable> void verifyDeserialize(T instance, String expectedJsonString) throws Exception {
     // Special handling here because in real life you wouldn't be trying to deserialize something as for
@@ -81,10 +95,32 @@ public abstract class JsonTestHelpers extends BaseTest {
   }
   
   public static void assertJsonEquals(String expectedJsonString, String actualJsonString) {
-    assertEquals(parseElement(expectedJsonString), parseElement(actualJsonString));
+    try {
+      JsonElement actualParsed = parseElement(actualJsonString);
+      assertEquals(parseElement(expectedJsonString), actualParsed);
+    } catch (JsonSyntaxException e) {
+      fail("expected JSON: " + expectedJsonString + ", but got malformed JSON: " + actualJsonString);
+    }
   }
   
   public static JsonElement parseElement(String jsonString) {
-    return JsonSerialization.gson.fromJson(jsonString, JsonElement.class);
+    return gson.fromJson(jsonString, JsonElement.class);
+  }
+  
+  public static LDValue basicArrayValue() {
+    return LDValue.buildArray().add(2).add("x").build();
+  }
+  
+  public static LDValue basicObjectValue() {
+    return LDValue.buildObject().put("x", 2).build();
+  }
+  
+  public static LDValue nestedArrayValue() {
+    return LDValue.buildArray().add(3).add(basicArrayValue()).add(4).add(basicObjectValue()).add(5).build();
+  }
+  
+  public static LDValue nestedObjectValue() {
+    return LDValue.buildObject().put("a", 1).put("b", basicArrayValue()).put("c", 2)
+          .put("d", basicObjectValue()).put("e", 5).build();
   }
 }

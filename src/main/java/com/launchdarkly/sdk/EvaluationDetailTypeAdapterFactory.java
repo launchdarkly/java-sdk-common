@@ -59,6 +59,7 @@ final class EvaluationDetailTypeAdapterFactory implements TypeAdapterFactory {
       out.endObject();
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public EvaluationDetail<T> read(JsonReader in) throws IOException {
       T value = null;
@@ -85,8 +86,10 @@ final class EvaluationDetailTypeAdapterFactory implements TypeAdapterFactory {
       }
       in.endObject();
 
+      if (value == null && valueType == LDValue.class) {
+        value = (T)LDValue.ofNull(); // normalize to get around gson's habit of skipping the TypeAdapter for nulls 
+      }
       return EvaluationDetail.fromValue(value, variation, reason);
     }
-    
   }
 }
