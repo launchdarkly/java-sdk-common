@@ -121,8 +121,10 @@ public class LDGsonTest {
           jw.value(Boolean.valueOf(true));
           jw.value((Boolean)null);
           jw.value((double)1);
+          jw.value((double)1.5);
           jw.value((long)2);
           jw.value(Float.valueOf(3));
+          jw.value(Float.valueOf(3.5f));
           jw.value((Float)null);
           jw.value("x");
           jw.beginObject();
@@ -134,8 +136,8 @@ public class LDGsonTest {
           jw.flush();
         }
       }
-      String expected = "[null,true,true,null,1,2,3,null,\"x\",{\"a\":false},123]";
-      JsonTestHelpers.assertJsonEquals(expected, sw.toString());
+      String expected = "[null,true,true,null,1,1.5,2,3,3.5,null,\"x\",{\"a\":false},123]";
+      assertEquals(expected, sw.toString().replace(" ", ""));
     }
   }
   

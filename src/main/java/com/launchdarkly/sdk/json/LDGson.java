@@ -313,11 +313,6 @@ public abstract class LDGson {
     }
 
     @Override
-    protected void valueInternalNumber(Number value) throws IOException {
-      writer.value(value);
-    }
-
-    @Override
     protected void valueInternalString(String value) throws IOException {
       writer.value(value);
     }

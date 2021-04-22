@@ -310,15 +310,6 @@ public class LDJackson {
     }
 
     @Override
-    protected void valueInternalNumber(Number value) throws IOException {
-      if (value == null) {
-        gen.writeNull();
-      } else {
-        gen.writeNumber(value.doubleValue());
-      }
-    }
-
-    @Override
     protected void valueInternalString(String value) throws IOException {
       gen.writeString(value);
     }
