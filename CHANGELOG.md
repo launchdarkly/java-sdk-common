@@ -2,6 +2,10 @@
 
 All notable changes to the project will be documented in this file. This project adheres to [Semantic Versioning](http://semver.org).
 
+## [1.1.1] - 2021-04-22
+### Fixed:
+- Fixed an issue in the Jackson integration that could cause `.0` to be added unnecessarily to integer numeric values when serializing objects with Jackson.
+
 ## [1.1.0] - 2021-04-22
 This release makes improvements to the helper methods for using Gson and Jackson for JSON conversion.
 
