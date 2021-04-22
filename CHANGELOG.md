@@ -15,7 +15,7 @@ This release makes improvements to the helper methods for using Gson and Jackson
 ### Fixed:
 - `Gson.toJsonTree` now works with LaunchDarkly types, as long as you have configured it as described in `com.launchdarkly.sdk.json.LDGson`. Previously, Gson was able to convert these types to and from JSON string data, but `toJsonTree` did not work due to a [known issue](https://github.com/google/gson/issues/1289) with the `JsonWriter.jsonValue` method; the SDK code no longer uses that method.
 - `LDValue.parse()` now returns `LDValue.ofNull()` instead of an actual null reference if the JSON string is `null`.
-- Similarly, when deserializing an `EvaluationDetail&lt;LDValue&gt;` from JSON, if the `value` property is `null`, it will now translate this into `LDValue.ofNull()` rather than an actual null reference.
+- Similarly, when deserializing an `EvaluationDetail<LDValue>` from JSON, if the `value` property is `null`, it will now translate this into `LDValue.ofNull()` rather than an actual null reference.
 
 ## [1.0.0] - 2020-06-01
 Initial release, corresponding to version 5.0.0 of the server-side Java SDK.
