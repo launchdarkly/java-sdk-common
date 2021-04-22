@@ -100,7 +100,14 @@ abstract class GsonWriterAdapter extends JsonWriter {
   
   @Override
   public JsonWriter value(double value) throws IOException {
-    valueInternalDouble(value);
+    // The following logic avoids inconsistent output by not letting the underlying framework
+    // decide to append .0 to integer values
+    long asLong = (long)value;
+    if (value == (double)asLong) {
+      valueInternalLong(asLong);
+    } else {
+      valueInternalDouble(value);
+    }
     return this;
   }
 
@@ -112,7 +119,11 @@ abstract class GsonWriterAdapter extends JsonWriter {
 
   @Override
   public JsonWriter value(Number value) throws IOException {
-    valueInternalNumber(value);
+    if (value == null) {
+      valueInternalNull();
+    } else {
+      value(value.doubleValue());
+    }
     return this;
   }
   
@@ -135,6 +146,5 @@ abstract class GsonWriterAdapter extends JsonWriter {
   protected abstract void valueInternalBool(boolean value) throws IOException;
   protected abstract void valueInternalDouble(double value) throws IOException;
   protected abstract void valueInternalLong(long value) throws IOException;
-  protected abstract void valueInternalNumber(Number value) throws IOException;
   protected abstract void valueInternalString(String value) throws IOException;
 }
