@@ -13,7 +13,7 @@ buildscript {
     }
 }
 
-plugins {  // see Dependencies.kt in buildSrc
+plugins {
     java
     "java-library"
     checkstyle
@@ -38,12 +38,6 @@ java {
     withJavadocJar()
     withSourcesJar()
 }
-
-// dependencies {  // see Dependencies.kt in buildSrc
-//     // Dependencies will not be exposed in the pom - see below in pom.withXml block
-//     Libs.implementation.forEach(::implementation)
-//     Libs.testImplementation.forEach(::testImplementation)
-// }
 
 checkstyle {
     configFile = file("${project.rootDir}/checkstyle.xml")
