@@ -60,6 +60,14 @@ android {
 }
 
 dependencies {
+    // See note in build-shared.gradle on the purpose of "privateImplementation". The
+    // Android Gradle plugin doesn't seem to have a good way to customize the classpath
+    // of the compile and test tasks, but since we're not actually publishing any
+    // Android artifacts from this project (we use this build only for CI testing), we
+    // can simply copy the dependencies from "privateImplementation" into the standard
+    // "implementation" for the Android build.
+    implementation configurations.privateImplementation
+
     androidTestImplementation "junit:junit:4.12"
     androidTestImplementation "org.hamcrest:hamcrest-library:1.3"
     androidTestImplementation "com.android.support.test:runner:1.0.2"

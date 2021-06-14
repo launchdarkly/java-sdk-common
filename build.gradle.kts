@@ -43,11 +43,19 @@ checkstyle {
     configFile = file("${project.rootDir}/checkstyle.xml")
 }
 
+tasks.compileJava {
+    // See note in build-shared.gradle on the purpose of "privateImplementation"
+    classpath = configurations["privateImplementation"]
+}
+
 tasks.javadoc.configure {
     // Force the Javadoc build to fail if there are any Javadoc warnings. See: https://discuss.gradle.org/t/javadoc-fail-on-warning/18141/3
     // See JDK-8200363 (https://bugs.openjdk.java.net/browse/JDK-8200363)
     // for information about the -Xwerror option.
     (options as CoreJavadocOptions).addStringOption("Xwerror")
+
+    // See note in build-shared.gradle on the purpose of "privateImplementation"
+    classpath = configurations["privateImplementation"]
 }
 
 tasks.test.configure {
@@ -149,21 +157,6 @@ publishing {
                     developerConnection.set("scm:git:ssh:git@github.com:launchdarkly/java-sdk-common.git")
                     url.set("https://github.com/launchdarkly/java-sdk-common")
                 }
-            }
-                     
-            // We are deliberately hiding our dependencies in the pom, for the following reasons:
-            //
-            // 1. Gson: While java-sdk-common does need Gson in order to work, the LaunchDarkly SDKs that use
-            // java-sdk-common have different strategies for packaging Gson. The Android SDK exposes it as a
-            // regular dependency; the Java server-side SDK embeds and shades Gson and does not expose it as
-            // a dependency. So we are leaving it up to the SDK to provide Gson in some way.
-            //
-            // 2. Jackson: The SDKs do not use, require, or embed Jackson; we provide the LDJackson class as
-            // a convenience for applications that do use Jackson. So we do not want it to be a transitive
-            // dependency.
-            pom.withXml {
-                val root = asElement()
-                root.removeChild(root.getElementsByTagName("dependencies").item(0))
             }
         }
     }
