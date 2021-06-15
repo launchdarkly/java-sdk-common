@@ -2,6 +2,11 @@
 
 All notable changes to the project will be documented in this file. This project adheres to [Semantic Versioning](http://semver.org).
 
+## [1.1.2] - 2021-06-14
+### Changed:
+- Increased the compile-time dependency on `jackson-databind` to 2.10.5.1, due to [CVE-2020-25649](https://nvd.nist.gov/vuln/detail/CVE-2020-25649).
+- Stopped including Gson and Jackson in the published runtime dependency list in Gradle module metadata. These artifacts were already being excluded from `pom.xml`, but were still showing up as transitive dependencies in any tools that used the module metadata. For the rationale behind excluding these dependencies, see `build-shared.gradle`.
+
 ## [1.1.1] - 2021-04-22
 ### Fixed:
 - Fixed an issue in the Jackson integration that could cause `.0` to be added unnecessarily to integer numeric values when serializing objects with Jackson.
