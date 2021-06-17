@@ -27,6 +27,9 @@ import java.util.Objects;
  */
 @JsonAdapter(EvaluationReasonTypeAdapter.class)
 public final class EvaluationReason implements JsonSerializable {
+  private static boolean IN_EXPERIMENT = true;
+  private static boolean NOT_IN_EXPERIMENT = false;
+
   /**
    * Enumerated type defining the possible values of {@link EvaluationReason#getKind()}.
    */
@@ -96,6 +99,7 @@ public final class EvaluationReason implements JsonSerializable {
   // static instances to avoid repeatedly allocating reasons for the same parameters
   private static final EvaluationReason OFF_INSTANCE = new EvaluationReason(Kind.OFF);
   private static final EvaluationReason FALLTHROUGH_INSTANCE = new EvaluationReason(Kind.FALLTHROUGH);
+  private static final EvaluationReason FALLTHROUGH_INSTANCE_IN_EXPERIMENT = new EvaluationReason(Kind.FALLTHROUGH, IN_EXPERIMENT);
   private static final EvaluationReason TARGET_MATCH_INSTANCE = new EvaluationReason(Kind.TARGET_MATCH);
   private static final EvaluationReason ERROR_CLIENT_NOT_READY = new EvaluationReason(ErrorKind.CLIENT_NOT_READY, null);
   private static final EvaluationReason ERROR_FLAG_NOT_FOUND = new EvaluationReason(ErrorKind.FLAG_NOT_FOUND, null);
@@ -108,25 +112,31 @@ public final class EvaluationReason implements JsonSerializable {
   private final int ruleIndex;
   private final String ruleId;
   private final String prerequisiteKey;
+  private final boolean inExperiment;
   private final ErrorKind errorKind;
   private final Exception exception;
   
-  private EvaluationReason(Kind kind, int ruleIndex, String ruleId, String prerequisiteKey,
+  private EvaluationReason(Kind kind, int ruleIndex, String ruleId, String prerequisiteKey, boolean inExperiment,
       ErrorKind errorKind, Exception exception) {
     this.kind = kind;
     this.ruleIndex = ruleIndex;
     this.ruleId = ruleId;
     this.prerequisiteKey = prerequisiteKey;
+    this.inExperiment = inExperiment;
     this.errorKind = errorKind;
     this.exception = exception;
   }
   
   private EvaluationReason(Kind kind) {
-    this(kind, -1, null, null, null, null);
+    this(kind, -1, null, null, NOT_IN_EXPERIMENT, null, null);
+  }
+  
+  private EvaluationReason(Kind kind, boolean inExperiment) {
+    this(kind, -1, null, null, inExperiment, null, null);
   }
   
   private EvaluationReason(ErrorKind errorKind, Exception exception) {
-    this(Kind.ERROR, -1, null, null, errorKind, exception);
+    this(Kind.ERROR, -1, null, null, NOT_IN_EXPERIMENT, errorKind, exception);
   }
   
   /**
@@ -169,6 +179,17 @@ public final class EvaluationReason implements JsonSerializable {
    */
   public String getPrerequisiteKey() {
     return prerequisiteKey;
+  }
+
+  /**
+   * Whether the evaluation was part of an experiment. Returns true if the evaluation 
+   * resulted in an experiment rollout *and* served one of the variations in the 
+   * experiment.  Otherwise it returns false.
+   * 
+   * @return whether the evaluation was part of an experiment
+   */
+  public boolean isInExperiment() {
+    return inExperiment;
   }
 
   /**
@@ -223,16 +244,20 @@ public final class EvaluationReason implements JsonSerializable {
     }
     if (other instanceof EvaluationReason) {
       EvaluationReason o = (EvaluationReason)other;
-      return kind == o.kind && ruleIndex == o.ruleIndex && Objects.equals(ruleId, o.ruleId)&&
-          Objects.equals(prerequisiteKey, o.prerequisiteKey) && Objects.equals(errorKind, o.errorKind) &&
-          Objects.equals(exception, o.exception);
+      return kind == o.kind && 
+        ruleIndex == o.ruleIndex && 
+        Objects.equals(ruleId, o.ruleId) &&
+        Objects.equals(prerequisiteKey, o.prerequisiteKey) && 
+        inExperiment == o.inExperiment &&
+        Objects.equals(errorKind, o.errorKind) &&
+        Objects.equals(exception, o.exception);
     }
     return false;
   }
   
   @Override
   public int hashCode() {
-    return Objects.hash(kind, ruleIndex, ruleId, prerequisiteKey, errorKind, exception);
+    return Objects.hash(kind, ruleIndex, ruleId, prerequisiteKey, inExperiment, errorKind, exception);
   }
   
   /**
@@ -254,6 +279,18 @@ public final class EvaluationReason implements JsonSerializable {
   }
   
   /**
+   * Returns an instance whose {@code kind} is {@link Kind#FALLTHROUGH} and 
+   * where the inExperiment parameter represents whether the evaluation was
+   * part of an experiment.
+   * 
+   * @param inExperiment whether the evaluation was part of an experiment
+   * @return a reason object
+   */
+  public static EvaluationReason fallthrough(boolean inExperiment) {
+    return inExperiment ? FALLTHROUGH_INSTANCE_IN_EXPERIMENT : FALLTHROUGH_INSTANCE;
+  }
+  
+  /**
    * Returns an instance whose {@code kind} is {@link Kind#TARGET_MATCH}.
    * 
    * @return a reason object
@@ -270,7 +307,21 @@ public final class EvaluationReason implements JsonSerializable {
    * @return a reason object
    */
   public static EvaluationReason ruleMatch(int ruleIndex, String ruleId) {
-    return new EvaluationReason(Kind.RULE_MATCH, ruleIndex, ruleId, null, null, null);
+    return ruleMatch(ruleIndex, ruleId, NOT_IN_EXPERIMENT);
+  }
+  
+  /**
+   * Returns an instance whose {@code kind} is {@link Kind#RULE_MATCH} and 
+   * where the inExperiment parameter represents whether the evaluation was
+   * part of an experiment.
+   * 
+   * @param ruleIndex the rule index
+   * @param ruleId the rule identifier
+   * @param inExperiment whether the evaluation was part of an experiment
+   * @return a reason object
+   */
+  public static EvaluationReason ruleMatch(int ruleIndex, String ruleId, boolean inExperiment) {
+    return new EvaluationReason(Kind.RULE_MATCH, ruleIndex, ruleId, null, inExperiment, null, null);
   }
   
   /**
@@ -280,7 +331,7 @@ public final class EvaluationReason implements JsonSerializable {
    * @return a reason object
    */
   public static EvaluationReason prerequisiteFailed(String prerequisiteKey) {
-    return new EvaluationReason(Kind.PREREQUISITE_FAILED, -1, null, prerequisiteKey, null, null);
+    return new EvaluationReason(Kind.PREREQUISITE_FAILED, -1, null, prerequisiteKey, NOT_IN_EXPERIMENT, null, null);
   }
   
   /**
