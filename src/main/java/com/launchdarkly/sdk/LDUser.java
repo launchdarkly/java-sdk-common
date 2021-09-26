@@ -23,8 +23,8 @@ import static java.util.Collections.unmodifiableSet;
  * optional. You may also define custom properties with arbitrary names and values.
  * <p>
  * For a fuller description of user attributes and how they can be referenced in feature flag rules, see the reference
- * guides on <a href="https://docs.launchdarkly.com/home/managing-users/user-attributes">Setting user attributes</a>
- * and <a href="https://docs.launchdarkly.com/home/managing-flags/targeting-users">Targeting users</a>.
+ * guides on <a href="https://docs.launchdarkly.com/home/users/attributes">Setting user attributes</a>
+ * and <a href="https://docs.launchdarkly.com/home/flags/targeting-users">Targeting users</a>.
  * <p>
  * LaunchDarkly defines a standard JSON encoding for user objects, used by the JavaScript SDK and also in analytics
  * events. {@link LDUser} can be converted to and from JSON in any of these ways:
@@ -340,7 +340,7 @@ public class LDUser implements JsonSerializable {
 
     /**
      * Sets the secondary key for a user. This affects
-     * <a href="https://docs.launchdarkly.com/docs/targeting-users#section-targeting-rules-based-on-user-attributes">feature flag targeting</a>
+     * <a href="https://docs.launchdarkly.com/home/flags/targeting-users#targeting-rules-based-on-user-attributes">feature flag targeting</a>
      * as follows: if you have chosen to bucket users by a specific attribute, the secondary key (if set)
      * is used to further distinguish between users who are otherwise identical according to that attribute.
      * @param s the secondary key for the user
@@ -516,7 +516,7 @@ public class LDUser implements JsonSerializable {
 
     /**
      * Adds a {@link java.lang.String}-valued custom attribute. When set to one of the
-     * <a href="http://docs.launchdarkly.com/docs/targeting-users#targeting-based-on-user-attributes">built-in
+     * <a href="https://docs.launchdarkly.com/home/flags/targeting-users#targeting-rules-based-on-user-attributes">built-in
      * user attribute keys</a>, this custom attribute will be ignored.
      *
      * @param k the key for the custom attribute
@@ -529,7 +529,7 @@ public class LDUser implements JsonSerializable {
 
     /**
      * Adds an integer-valued custom attribute. When set to one of the
-     * <a href="http://docs.launchdarkly.com/docs/targeting-users#targeting-based-on-user-attributes">built-in
+     * <a href="https://docs.launchdarkly.com/home/flags/targeting-users#targeting-rules-based-on-user-attributes">built-in
      * user attribute keys</a>, this custom attribute will be ignored.
      *
      * @param k the key for the custom attribute
@@ -542,7 +542,7 @@ public class LDUser implements JsonSerializable {
 
     /**
      * Adds a double-precision numeric custom attribute. When set to one of the
-     * <a href="http://docs.launchdarkly.com/docs/targeting-users#targeting-based-on-user-attributes">built-in
+     * <a href="https://docs.launchdarkly.com/home/flags/targeting-users#targeting-rules-based-on-user-attributes">built-in
      * user attribute keys</a>, this custom attribute will be ignored.
      *
      * @param k the key for the custom attribute
@@ -555,7 +555,7 @@ public class LDUser implements JsonSerializable {
 
     /**
      * Add a boolean-valued custom attribute. When set to one of the
-     * <a href="http://docs.launchdarkly.com/docs/targeting-users#targeting-based-on-user-attributes">built-in
+     * <a href="https://docs.launchdarkly.com/home/flags/targeting-users#targeting-rules-based-on-user-attributes">built-in
      * user attribute keys</a>, this custom attribute will be ignored.
      *
      * @param k the key for the custom attribute
@@ -568,7 +568,7 @@ public class LDUser implements JsonSerializable {
 
     /**
      * Add a custom attribute whose value can be any JSON type, using {@link LDValue}. When set to one of the
-     * <a href="http://docs.launchdarkly.com/docs/targeting-users#targeting-based-on-user-attributes">built-in
+     * <a href="https://docs.launchdarkly.com/home/flags/targeting-users#targeting-rules-based-on-user-attributes">built-in
      * user attribute keys</a>, this custom attribute will be ignored.
      *
      * @param k the key for the custom attribute
@@ -593,7 +593,7 @@ public class LDUser implements JsonSerializable {
     /**
      * Add a {@link java.lang.String}-valued custom attribute that will not be sent back to LaunchDarkly.
      * When set to one of the
-     * <a href="http://docs.launchdarkly.com/docs/targeting-users#targeting-based-on-user-attributes">built-in
+     * <a href="https://docs.launchdarkly.com/home/flags/targeting-users#targeting-rules-based-on-user-attributes">built-in
      * user attribute keys</a>, this custom attribute will be ignored.
      *
      * @param k the key for the custom attribute
@@ -607,7 +607,7 @@ public class LDUser implements JsonSerializable {
     /**
      * Add an int-valued custom attribute that will not be sent back to LaunchDarkly.
      * When set to one of the
-     * <a href="http://docs.launchdarkly.com/docs/targeting-users#targeting-based-on-user-attributes">built-in
+     * <a href="https://docs.launchdarkly.com/home/flags/targeting-users#targeting-rules-based-on-user-attributes">built-in
      * user attribute keys</a>, this custom attribute will be ignored.
      *
      * @param k the key for the custom attribute
@@ -621,7 +621,7 @@ public class LDUser implements JsonSerializable {
     /**
      * Add a double-precision numeric custom attribute that will not be sent back to LaunchDarkly.
      * When set to one of the
-     * <a href="http://docs.launchdarkly.com/docs/targeting-users#targeting-based-on-user-attributes">built-in
+     * <a href="https://docs.launchdarkly.com/home/flags/targeting-users#targeting-rules-based-on-user-attributes">built-in
      * user attribute keys</a>, this custom attribute will be ignored.
      *
      * @param k the key for the custom attribute
@@ -635,7 +635,7 @@ public class LDUser implements JsonSerializable {
     /**
      * Add a boolean-valued custom attribute that will not be sent back to LaunchDarkly.
      * When set to one of the
-     * <a href="http://docs.launchdarkly.com/docs/targeting-users#targeting-based-on-user-attributes">built-in
+     * <a href="https://docs.launchdarkly.com/home/flags/targeting-users#targeting-rules-based-on-user-attributes">built-in
      * user attribute keys</a>, this custom attribute will be ignored.
      *
      * @param k the key for the custom attribute
@@ -649,7 +649,7 @@ public class LDUser implements JsonSerializable {
     /**
      * Add a custom attribute of any JSON type, that will not be sent back to LaunchDarkly.
      * When set to one of the
-     * <a href="http://docs.launchdarkly.com/docs/targeting-users#targeting-based-on-user-attributes">built-in
+     * <a href="https://docs.launchdarkly.com/home/flags/targeting-users#targeting-rules-based-on-user-attributes">built-in
      * user attribute keys</a>, this custom attribute will be ignored.
      *
      * @param k the key for the custom attribute
