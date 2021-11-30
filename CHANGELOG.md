@@ -2,6 +2,10 @@
 
 All notable changes to the project will be documented in this file. This project adheres to [Semantic Versioning](http://semver.org).
 
+## [1.2.1] - 2021-11-30
+### Fixed:
+- Updated Gson to 2.8.9 for a [security bugfix](https://github.com/google/gson/pull/1991). This dependency change will also be made in the Java SDK; the version of Gson that is referenced in `java-sdk-common` is used only at compile time.
+
 ## [1.2.0] - 2021-06-17
 ### Added:
 - The SDK now supports the ability to control the proportion of traffic allocation to an experiment. This works in conjunction with a new platform feature now available to early access customers.
