@@ -3,7 +3,7 @@
 // build script(s).
 
 object Versions {
-    const val gson = "2.7"
+    const val gson = "2.8.9"
     const val jacksonCore = "2.10.5"
     const val jacksonDatabind = "2.10.5.1"
 }
