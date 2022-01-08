@@ -16,6 +16,11 @@ workflows:
       - test-linux:
           name: Java 11 - Linux - OpenJDK
           docker-image: cimg/openjdk:11.0
+          requires:
+            - build-linux
+      - test-linux:
+          name: Java 17 - Linux - OpenJDK
+          docker-image: cimg/openjdk:17.0
           with-coverage: true
           requires:
             - build-linux
