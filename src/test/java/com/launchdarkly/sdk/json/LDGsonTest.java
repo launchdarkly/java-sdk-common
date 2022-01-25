@@ -63,7 +63,7 @@ public class LDGsonTest {
   public void complexObjectToJsonTree() {
     LDUser user = new LDUser.Builder("userkey").name("name")
         .custom("attr1", LDValue.ofNull())
-        .custom("atrt2", LDValue.of(true))
+        .custom("attr2", LDValue.of(true))
         .custom("attr3", LDValue.of(false))
         .custom("attr4", LDValue.of(0))
         .custom("attr5", LDValue.of(1))

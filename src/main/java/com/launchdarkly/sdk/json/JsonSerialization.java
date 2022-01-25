@@ -1,6 +1,7 @@
 package com.launchdarkly.sdk.json;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.launchdarkly.sdk.EvaluationDetail;
 import com.launchdarkly.sdk.EvaluationReason;
 import com.launchdarkly.sdk.LDUser;
@@ -35,7 +36,10 @@ public abstract class JsonSerialization {
   
   static final List<Class<? extends JsonSerializable>> knownDeserializableClasses = new ArrayList<>();
   
-  private static final Gson gson = new Gson();
+  // This Gson instance has serializeNulls enabled because we want the decision of whether to include
+  // a null property value to be left up to our own serializers. The default behavior would mean that
+  // the GsonWriter would not allow us to write a null property value ever. 
+  private static final Gson gson = new GsonBuilder().serializeNulls().create();
   
   /**
    * Converts an object to its JSON representation.

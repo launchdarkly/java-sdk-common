@@ -31,6 +31,7 @@ public class LDValueJsonSerializationTest extends BaseTest {
     verifyValueSerialization(LDValue.of(2.5d), "2.5");
     verifyValueSerialization(JsonTestHelpers.basicArrayValue(), "[2,\"x\"]");
     verifyValueSerialization(JsonTestHelpers.basicObjectValue(), "{\"x\":2}");
+    verifyValueSerialization(LDValue.buildObject().put("x",  LDValue.ofNull()).build(), "{\"x\":null}");
     verifyDeserializeInvalidJson(LDValue.class, "]");
   }
   
