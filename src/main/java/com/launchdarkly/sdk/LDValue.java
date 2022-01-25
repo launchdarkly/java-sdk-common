@@ -45,8 +45,6 @@ import static java.util.Collections.emptyList;
  */
 @JsonAdapter(LDValueTypeAdapter.class)
 public abstract class LDValue implements JsonSerializable {
-  static final Gson gson = new Gson();
-  
   /**
    * Returns the same value if non-null, or {@link #ofNull()} if null.
    * 
@@ -393,7 +391,7 @@ public abstract class LDValue implements JsonSerializable {
    * @return a JSON string
    */
   public String toJsonString() {
-    return gson.toJson(this);
+    return JsonSerialization.serialize(this);
   }
   
   abstract void write(JsonWriter writer) throws IOException;

@@ -15,7 +15,7 @@ import static org.junit.Assert.fail;
 
 @SuppressWarnings("javadoc")
 public abstract class JsonTestHelpers extends BaseTest {
-  static final Gson gson = new Gson();
+  static final Gson gson = new GsonBuilder().serializeNulls().create();
 
   // Note that when we verify the behavior of Gson with LDGson in this project's unit tests, that
   // is not an adequate test for whether the adapters will work in the Java SDK where there is the
@@ -24,7 +24,7 @@ public abstract class JsonTestHelpers extends BaseTest {
   // that the adapters work correctly if Gson actually uses them.
   
   public static Gson configureGson() {
-    return new GsonBuilder().registerTypeAdapterFactory(LDGson.typeAdapters()).create();
+    return new GsonBuilder().serializeNulls().registerTypeAdapterFactory(LDGson.typeAdapters()).create();
   }
   
   public static ObjectMapper configureJacksonMapper() {
