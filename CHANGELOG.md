@@ -2,6 +2,10 @@
 
 All notable changes to the project will be documented in this file. This project adheres to [Semantic Versioning](http://semver.org).
 
+## [1.2.2] - 2022-01-24
+### Fixed:
+- The `com.launchdarkly.sdk.json` serialization methods were dropping any object property whose value was `null` (due to the internal use of Gson, and Gson's default behavior of always omitting null properties). This has been changed to always respect whatever properties are written by the serializer for a given type, since in some cases (such as a map of feature flag keys to values) the presence of a key with a null value might have a subtly different meaning than the absence of the key.
+
 ## [1.2.1] - 2021-11-30
 ### Fixed:
 - Updated Gson to 2.8.9 for a [security bugfix](https://github.com/google/gson/pull/1991). This dependency change will also be made in the Java SDK; the version of Gson that is referenced in `java-sdk-common` is used only at compile time.
