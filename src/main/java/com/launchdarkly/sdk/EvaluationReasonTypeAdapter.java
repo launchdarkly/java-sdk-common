@@ -24,6 +24,7 @@ final class EvaluationReasonTypeAdapter extends TypeAdapter<EvaluationReason> {
     String prereqKey = null;
     boolean inExperiment = false;
     EvaluationReason.ErrorKind errorKind = null;
+    EvaluationReason.BigSegmentsStatus bigSegmentsStatus = null;
     
     reader.beginObject();
     while (reader.peek() != JsonToken.END_OBJECT) {
@@ -47,6 +48,9 @@ final class EvaluationReasonTypeAdapter extends TypeAdapter<EvaluationReason> {
       case "errorKind":
         errorKind = readEnum(EvaluationReason.ErrorKind.class, reader);
         break;
+      case "bigSegmentsStatus":
+        bigSegmentsStatus = readEnum(EvaluationReason.BigSegmentsStatus.class, reader);
+        break;
       default:
         reader.skipValue(); // ignore any unexpected property
       }
@@ -56,23 +60,34 @@ final class EvaluationReasonTypeAdapter extends TypeAdapter<EvaluationReason> {
     if (kind == null) {
       throw new JsonParseException("EvaluationReason missing required property \"kind\"");
     }
+    EvaluationReason reason;
     switch (kind) {
     case OFF:
-      return EvaluationReason.off();
+      reason = EvaluationReason.off();
+      break;
     case FALLTHROUGH:
-      return EvaluationReason.fallthrough(inExperiment);
+      reason = EvaluationReason.fallthrough(inExperiment);
+      break;
     case TARGET_MATCH:
-      return EvaluationReason.targetMatch();
+      reason = EvaluationReason.targetMatch();
+      break;
     case RULE_MATCH:
-      return EvaluationReason.ruleMatch(ruleIndex, ruleId, inExperiment);
+      reason = EvaluationReason.ruleMatch(ruleIndex, ruleId, inExperiment);
+      break;
     case PREREQUISITE_FAILED:
-      return EvaluationReason.prerequisiteFailed(prereqKey);
+      reason = EvaluationReason.prerequisiteFailed(prereqKey);
+      break;
     case ERROR:
-      return EvaluationReason.error(errorKind);
+      reason = EvaluationReason.error(errorKind);
+      break;
     default:
       // COVERAGE: compiler requires default but there are no other values
       return null;
     }
+    if (bigSegmentsStatus != null) {
+      return reason.withBigSegmentsStatus(bigSegmentsStatus);
+    }
+    return reason;
   }
 
   @Override
@@ -113,6 +128,11 @@ final class EvaluationReasonTypeAdapter extends TypeAdapter<EvaluationReason> {
       break;
     default:
       break;
+    }
+
+    if (reason.getBigSegmentsStatus() != null) {
+      writer.name("bigSegmentsStatus");
+      writer.value(reason.getBigSegmentsStatus().name());
     }
     
     writer.endObject();

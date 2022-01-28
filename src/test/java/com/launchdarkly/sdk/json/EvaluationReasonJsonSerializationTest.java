@@ -1,14 +1,16 @@
 package com.launchdarkly.sdk.json;
 
+import static com.launchdarkly.sdk.EvaluationReason.BigSegmentsStatus.HEALTHY;
+import static com.launchdarkly.sdk.EvaluationReason.BigSegmentsStatus.STORE_ERROR;
+import static com.launchdarkly.sdk.json.JsonTestHelpers.verifyDeserialize;
+import static com.launchdarkly.sdk.json.JsonTestHelpers.verifyDeserializeInvalidJson;
+import static com.launchdarkly.sdk.json.JsonTestHelpers.verifySerialize;
+import static com.launchdarkly.sdk.json.JsonTestHelpers.verifySerializeAndDeserialize;
+
 import com.launchdarkly.sdk.BaseTest;
 import com.launchdarkly.sdk.EvaluationReason;
 
 import org.junit.Test;
-
-import static com.launchdarkly.sdk.json.JsonTestHelpers.verifyDeserializeInvalidJson;
-import static com.launchdarkly.sdk.json.JsonTestHelpers.verifyDeserialize;
-import static com.launchdarkly.sdk.json.JsonTestHelpers.verifySerialize;
-import static com.launchdarkly.sdk.json.JsonTestHelpers.verifySerializeAndDeserialize;
 
 @SuppressWarnings("javadoc")
 public class EvaluationReasonJsonSerializationTest extends BaseTest {
@@ -18,6 +20,8 @@ public class EvaluationReasonJsonSerializationTest extends BaseTest {
     verifySerializeAndDeserialize(EvaluationReason.fallthrough(), "{\"kind\":\"FALLTHROUGH\"}");
     verifySerializeAndDeserialize(EvaluationReason.fallthrough(false), "{\"kind\":\"FALLTHROUGH\"}");
     verifySerializeAndDeserialize(EvaluationReason.fallthrough(true), "{\"kind\":\"FALLTHROUGH\",\"inExperiment\":true}");
+    verifySerializeAndDeserialize(EvaluationReason.fallthrough().withBigSegmentsStatus(HEALTHY),
+        "{\"kind\":\"FALLTHROUGH\",\"bigSegmentsStatus\":\"HEALTHY\"}");
     verifySerializeAndDeserialize(EvaluationReason.targetMatch(), "{\"kind\":\"TARGET_MATCH\"}");
     verifySerializeAndDeserialize(EvaluationReason.ruleMatch(1, "id"),
         "{\"kind\":\"RULE_MATCH\",\"ruleIndex\":1,\"ruleId\":\"id\"}");
@@ -25,6 +29,8 @@ public class EvaluationReasonJsonSerializationTest extends BaseTest {
         "{\"kind\":\"RULE_MATCH\",\"ruleIndex\":1,\"ruleId\":\"id\"}");
     verifySerializeAndDeserialize(EvaluationReason.ruleMatch(1, "id", true),
         "{\"kind\":\"RULE_MATCH\",\"ruleIndex\":1,\"ruleId\":\"id\",\"inExperiment\":true}");
+    verifySerializeAndDeserialize(EvaluationReason.ruleMatch(1, null).withBigSegmentsStatus(STORE_ERROR),
+        "{\"kind\":\"RULE_MATCH\",\"ruleIndex\":1,\"bigSegmentsStatus\":\"STORE_ERROR\"}");
     verifySerializeAndDeserialize(EvaluationReason.ruleMatch(1, null),
         "{\"kind\":\"RULE_MATCH\",\"ruleIndex\":1}");
     verifySerializeAndDeserialize(EvaluationReason.ruleMatch(1, null, false),

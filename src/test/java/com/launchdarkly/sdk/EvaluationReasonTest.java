@@ -1,9 +1,7 @@
 package com.launchdarkly.sdk;
 
-import org.junit.Test;
-
-import java.util.List;
-
+import static com.launchdarkly.sdk.EvaluationReason.BigSegmentsStatus.HEALTHY;
+import static com.launchdarkly.sdk.EvaluationReason.BigSegmentsStatus.STALE;
 import static com.launchdarkly.sdk.EvaluationReason.ErrorKind.CLIENT_NOT_READY;
 import static com.launchdarkly.sdk.EvaluationReason.ErrorKind.FLAG_NOT_FOUND;
 import static com.launchdarkly.sdk.EvaluationReason.ErrorKind.WRONG_TYPE;
@@ -13,10 +11,14 @@ import static com.launchdarkly.sdk.EvaluationReason.Kind.OFF;
 import static com.launchdarkly.sdk.EvaluationReason.Kind.PREREQUISITE_FAILED;
 import static com.launchdarkly.sdk.EvaluationReason.Kind.RULE_MATCH;
 import static com.launchdarkly.sdk.EvaluationReason.Kind.TARGET_MATCH;
-import static java.util.Arrays.asList;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
+import static java.util.Arrays.asList;
+
+import org.junit.Test;
+
+import java.util.List;
 
 @SuppressWarnings("javadoc")
 public class EvaluationReasonTest extends BaseTest {
@@ -66,10 +68,27 @@ public class EvaluationReasonTest extends BaseTest {
     assertNull(EvaluationReason.prerequisiteFailed("key").getException());
     assertNull(EvaluationReason.error(FLAG_NOT_FOUND).getException());
   }
+
+  @Test
+  public void bigSegmentsStatus() {
+    assertNull(EvaluationReason.off().getBigSegmentsStatus());
+    assertNull(EvaluationReason.fallthrough().getBigSegmentsStatus());
+    assertNull(EvaluationReason.targetMatch().getBigSegmentsStatus());
+    assertNull(EvaluationReason.ruleMatch(1, "id").getBigSegmentsStatus());
+    assertNull(EvaluationReason.prerequisiteFailed("key").getBigSegmentsStatus());
+    assertNull(EvaluationReason.error(FLAG_NOT_FOUND).getBigSegmentsStatus());
+
+    EvaluationReason reason = EvaluationReason.fallthrough();
+    EvaluationReason withStatus = reason.withBigSegmentsStatus(STALE);
+    assertEquals(STALE, withStatus.getBigSegmentsStatus());
+    assertNull(reason.getBigSegmentsStatus());
+  }
   
   @Test
   public void simpleStringRepresentations() {
     assertEquals("OFF", EvaluationReason.off().toString());
+    assertEquals("FALLTHROUGH", EvaluationReason.fallthrough().toString());
+    assertEquals("FALLTHROUGH", EvaluationReason.fallthrough().withBigSegmentsStatus(HEALTHY).toString());
     assertEquals("TARGET_MATCH", EvaluationReason.targetMatch().toString());
     assertEquals("RULE_MATCH(1)", EvaluationReason.ruleMatch(1, null).toString());
     assertEquals("RULE_MATCH(1,id)", EvaluationReason.ruleMatch(1, "id").toString());
@@ -101,8 +120,11 @@ public class EvaluationReasonTest extends BaseTest {
     List<List<EvaluationReason>> testValues = asList(
         asList(EvaluationReason.off(), EvaluationReason.off()),
         asList(EvaluationReason.fallthrough(), EvaluationReason.fallthrough()),
+        asList(EvaluationReason.fallthrough().withBigSegmentsStatus(HEALTHY),
+               EvaluationReason.fallthrough().withBigSegmentsStatus(HEALTHY)),
         asList(EvaluationReason.targetMatch(), EvaluationReason.targetMatch()),
         asList(EvaluationReason.ruleMatch(1, "id1"), EvaluationReason.ruleMatch(1, "id1")),
+        asList(EvaluationReason.ruleMatch(1, "id1", true), EvaluationReason.ruleMatch(1, "id1", true)),
         asList(EvaluationReason.ruleMatch(1, "id2"), EvaluationReason.ruleMatch(1, "id2")),
         asList(EvaluationReason.ruleMatch(2, "id1"), EvaluationReason.ruleMatch(2, "id1")),
         asList(EvaluationReason.prerequisiteFailed("a"), EvaluationReason.prerequisiteFailed("a")),
