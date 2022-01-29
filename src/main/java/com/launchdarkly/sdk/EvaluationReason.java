@@ -95,6 +95,32 @@ public final class EvaluationReason implements JsonSerializable {
      */
     EXCEPTION
   }
+
+  /**
+   * Enumerated type defining the possible values of {@link #getBigSegmentsStatus()}.
+   */
+  public static enum BigSegmentsStatus {
+    /**
+     * Indicates that the Big Segment query involved in the flag evaluation was successful, and that
+     * the segment state is considered up to date.
+     */
+    HEALTHY,
+    /**
+     * Indicates that the Big Segment query involved in the flag evaluation was successful, but that
+     * the segment state may not be up to date.
+     */
+    STALE,
+    /**
+     * Indicates that Big Segments could not be queried for the flag evaluation because the SDK
+     * configuration did not include a Big Segment store.
+     */
+    NOT_CONFIGURED,
+    /**
+     * Indicates that the Big Segment query involved in the flag evaluation failed, for instance due
+     * to a database error.
+     */
+    STORE_ERROR
+  }
   
   // static instances to avoid repeatedly allocating reasons for the same parameters
   private static final EvaluationReason OFF_INSTANCE = new EvaluationReason(Kind.OFF);
@@ -115,9 +141,10 @@ public final class EvaluationReason implements JsonSerializable {
   private final boolean inExperiment;
   private final ErrorKind errorKind;
   private final Exception exception;
+  private final BigSegmentsStatus bigSegmentsStatus;
   
   private EvaluationReason(Kind kind, int ruleIndex, String ruleId, String prerequisiteKey, boolean inExperiment,
-      ErrorKind errorKind, Exception exception) {
+      ErrorKind errorKind, Exception exception, BigSegmentsStatus bigSegmentsStatus) {
     this.kind = kind;
     this.ruleIndex = ruleIndex;
     this.ruleId = ruleId;
@@ -125,18 +152,19 @@ public final class EvaluationReason implements JsonSerializable {
     this.inExperiment = inExperiment;
     this.errorKind = errorKind;
     this.exception = exception;
+    this.bigSegmentsStatus = bigSegmentsStatus;
   }
   
   private EvaluationReason(Kind kind) {
-    this(kind, -1, null, null, NOT_IN_EXPERIMENT, null, null);
+    this(kind, -1, null, null, NOT_IN_EXPERIMENT, null, null, null);
   }
   
   private EvaluationReason(Kind kind, boolean inExperiment) {
-    this(kind, -1, null, null, inExperiment, null, null);
+    this(kind, -1, null, null, inExperiment, null, null, null);
   }
   
   private EvaluationReason(ErrorKind errorKind, Exception exception) {
-    this(Kind.ERROR, -1, null, null, NOT_IN_EXPERIMENT, errorKind, exception);
+    this(Kind.ERROR, -1, null, null, NOT_IN_EXPERIMENT, errorKind, exception, null);
   }
   
   /**
@@ -215,7 +243,33 @@ public final class EvaluationReason implements JsonSerializable {
   public Exception getException() {
     return exception;
   }
-  
+
+  /**
+   * Describes the validity of Big Segment information, if and only if the flag evaluation required
+   * querying at least one Big Segment. Otherwise it returns {@code null}.
+   * <p>
+   * Big Segments are a specific type of user segments. For more information, read the
+   * <a href="https://docs.launchdarkly.com/home/users/big-segments">LaunchDarkly documentation
+   * </a>.
+   *
+   * @return the {@link BigSegmentsStatus} from the evaluation or {@code null}
+   */
+  public BigSegmentsStatus getBigSegmentsStatus() {
+    return bigSegmentsStatus;
+  }
+
+  /**
+   * Returns a copy of this {@link EvaluationReason} with a specific {@link BigSegmentsStatus}
+   * value.
+   *
+   * @param bigSegmentsStatus the new property value
+   * @return a new reason object
+   */
+  public EvaluationReason withBigSegmentsStatus(BigSegmentsStatus bigSegmentsStatus) {
+    return new EvaluationReason(kind, ruleIndex, ruleId, prerequisiteKey, inExperiment, errorKind,
+        exception, bigSegmentsStatus);
+  }
+
   /**
    * Returns a simple string representation of the reason.
    * <p>
@@ -250,14 +304,16 @@ public final class EvaluationReason implements JsonSerializable {
         Objects.equals(prerequisiteKey, o.prerequisiteKey) && 
         inExperiment == o.inExperiment &&
         Objects.equals(errorKind, o.errorKind) &&
-        Objects.equals(exception, o.exception);
+        Objects.equals(exception, o.exception) &&
+        Objects.equals(bigSegmentsStatus, o.bigSegmentsStatus);
     }
     return false;
   }
   
   @Override
   public int hashCode() {
-    return Objects.hash(kind, ruleIndex, ruleId, prerequisiteKey, inExperiment, errorKind, exception);
+    return Objects.hash(kind, ruleIndex, ruleId, prerequisiteKey, inExperiment, errorKind,
+        exception, bigSegmentsStatus);
   }
   
   /**
@@ -321,7 +377,7 @@ public final class EvaluationReason implements JsonSerializable {
    * @return a reason object
    */
   public static EvaluationReason ruleMatch(int ruleIndex, String ruleId, boolean inExperiment) {
-    return new EvaluationReason(Kind.RULE_MATCH, ruleIndex, ruleId, null, inExperiment, null, null);
+    return new EvaluationReason(Kind.RULE_MATCH, ruleIndex, ruleId, null, inExperiment, null, null, null);
   }
   
   /**
@@ -331,7 +387,7 @@ public final class EvaluationReason implements JsonSerializable {
    * @return a reason object
    */
   public static EvaluationReason prerequisiteFailed(String prerequisiteKey) {
-    return new EvaluationReason(Kind.PREREQUISITE_FAILED, -1, null, prerequisiteKey, NOT_IN_EXPERIMENT, null, null);
+    return new EvaluationReason(Kind.PREREQUISITE_FAILED, -1, null, prerequisiteKey, NOT_IN_EXPERIMENT, null, null, null);
   }
   
   /**
