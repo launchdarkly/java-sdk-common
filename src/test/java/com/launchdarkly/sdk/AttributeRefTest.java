@@ -15,6 +15,7 @@ import static org.hamcrest.Matchers.nullValue;
 public class AttributeRefTest extends BaseTest {
   @Test
   public void invalidRef() {
+    testInvalidRef(null, Errors.ATTR_EMPTY);
     testInvalidRef("", Errors.ATTR_EMPTY);
     testInvalidRef("/", Errors.ATTR_EMPTY);
     testInvalidRef("//", Errors.ATTR_EXTRA_SLASH);
@@ -29,7 +30,21 @@ public class AttributeRefTest extends BaseTest {
     AttributeRef a = AttributeRef.fromPath(s);
     assertThat(a.isValid(), is(false));
     assertThat(a.getError(), equalTo(expectedError));
-    assertThat(a.toString(), equalTo(s));
+    assertThat(a.toString(), equalTo(s == null ? "" : s));
+    assertThat(a.getDepth(), equalTo(0));
+  }
+  
+  @Test
+  public void invalidLiteral() {
+    testInvalidLiteral(null, Errors.ATTR_EMPTY);
+    testInvalidLiteral("", Errors.ATTR_EMPTY);
+  }
+  
+  private void testInvalidLiteral(String s, String expectedError) {
+    AttributeRef a = AttributeRef.fromLiteral(s);
+    assertThat(a.isValid(), is(false));
+    assertThat(a.getError(), equalTo(expectedError));
+    assertThat(a.toString(), equalTo(s == null ? "" : s));
     assertThat(a.getDepth(), equalTo(0));
   }
   
