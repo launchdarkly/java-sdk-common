@@ -122,7 +122,7 @@ public final class ContextBuilder {
    * <p>
    * This attribute is optional. It has the following special rules:
    * <ul>
-   * <li> Unlike most other attributes, it is always a string if it is specified. </ul>
+   * <li> Unlike most other attributes, it is always a string if it is specified. </li>
    * <li> The LaunchDarkly dashboard treats this attribute as the preferred display name
    * for contexts. </li>
    * </ul>

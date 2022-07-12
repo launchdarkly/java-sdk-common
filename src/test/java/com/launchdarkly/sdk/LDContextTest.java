@@ -2,7 +2,6 @@ package com.launchdarkly.sdk;
 
 import com.launchdarkly.sdk.json.JsonSerialization;
 
-import org.hamcrest.Matchers;
 import org.junit.Test;
 
 import java.util.ArrayList;
