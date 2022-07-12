@@ -15,6 +15,7 @@ object TestCoverageOverrides {
     val methodsWithMissedLineCount = mapOf(
         "EvaluationReason.error(com.launchdarkly.sdk.EvaluationReason.ErrorKind)" to 1,
         "EvaluationReasonTypeAdapter.parse(com.google.gson.stream.JsonReader)" to 1,
+        "LDContext.urlEncodeKey(java.lang.String)" to 2,
         "LDValue.equals(java.lang.Object)" to 1,
         "LDValueTypeAdapter.read(com.google.gson.stream.JsonReader)" to 1,
         "json.LDGson.LDTypeAdapter.write(com.google.gson.stream.JsonWriter, java.lang.Object)" to 1,

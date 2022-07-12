@@ -1,6 +1,5 @@
 package com.launchdarkly.sdk;
 
-import com.google.gson.Gson;
 import com.google.gson.annotations.JsonAdapter;
 import com.google.gson.stream.JsonWriter;
 import com.launchdarkly.sdk.json.JsonSerializable;
