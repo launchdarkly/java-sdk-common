@@ -32,7 +32,6 @@ import java.util.List;
  */
 public final class ContextMultiBuilder {
   private List<LDContext> contexts;
-  private boolean copyOnWrite;
   
   ContextMultiBuilder() {}
   
@@ -62,8 +61,8 @@ public final class ContextMultiBuilder {
       return contexts.get(0);
     }
     
-    copyOnWrite = contexts != null;
-    return LDContext.createMulti(contexts);
+    LDContext[] contextsArray = contexts.toArray(new LDContext[contexts.size()]);
+    return LDContext.createMultiInternal(contextsArray);
   }
   
   /**
@@ -77,10 +76,7 @@ public final class ContextMultiBuilder {
    */
   public ContextMultiBuilder add(LDContext context) {
     if (context != null) {
-      if (copyOnWrite) {
-        contexts = new ArrayList<>(contexts);
-        copyOnWrite = false;
-      } else if (contexts == null) {
+      if (contexts == null) {
         contexts = new ArrayList<>();
       }
       contexts.add(context);

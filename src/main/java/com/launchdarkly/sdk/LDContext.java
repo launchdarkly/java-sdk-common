@@ -37,7 +37,7 @@ public final class LDContext implements JsonSerializable {
   
   final String error;
   final ContextKind kind;
-  final List<LDContext> multiContexts;
+  final LDContext[] multiContexts;
   final String key;
   final String fullyQualifiedKey;
   final String name;
@@ -48,7 +48,7 @@ public final class LDContext implements JsonSerializable {
   
   private LDContext(
       ContextKind kind,
-      List<LDContext> multiContexts,
+      LDContext[] multiContexts,
       String key,
       String fullyQualifiedKey,
       String name,
@@ -110,11 +110,11 @@ public final class LDContext implements JsonSerializable {
   // except for validating that there is more than one context. We take ownership of the list
   // that is passed in, so it is effectively immutable afterward; ContextMultiBuilder has
   // copy-on-write logic to manage that.
-  static LDContext createMulti(List<LDContext> multiContexts) {
+  static LDContext createMultiInternal(LDContext[] multiContexts) {
     List<String> errors = null;
     boolean nestedMulti = false, duplicates = false;
-    for (int i = 0; i < multiContexts.size(); i++) {
-      LDContext c = multiContexts.get(i);
+    for (int i = 0; i < multiContexts.length; i++) {
+      LDContext c = multiContexts[i];
       if (!c.isValid()) {
         if (errors == null) {
           errors = new ArrayList<String>();
@@ -124,7 +124,7 @@ public final class LDContext implements JsonSerializable {
         nestedMulti = true;
       } else {
         for (int j = 0; j < i; j++) {
-          if (multiContexts.get(j).getKind().equals(c.getKind())) {
+          if (multiContexts[j].getKind().equals(c.getKind())) {
             duplicates = true;
             break;
           }
@@ -155,7 +155,7 @@ public final class LDContext implements JsonSerializable {
       return failed(s.toString());
     }
     
-    multiContexts.sort(ByKindComparator.INSTNACE);
+    Arrays.sort(multiContexts, ByKindComparator.INSTNACE);
     StringBuilder fullKey = new StringBuilder();
     for (LDContext c: multiContexts) {
       if (fullKey.length() != 0) {
@@ -228,7 +228,9 @@ public final class LDContext implements JsonSerializable {
     if (contexts.length == 1) {
       return contexts[0]; // just return a single-kind context
     }
-    return createMulti(Arrays.asList(contexts));
+    // copy the array because the caller could've passed in an array that they will later mutate 
+    LDContext[] copied = Arrays.copyOf(contexts, contexts.length);
+    return createMultiInternal(copied);
   }
   
   /**
@@ -598,7 +600,7 @@ public final class LDContext implements JsonSerializable {
     if (error != null) {
       return 0;
     }
-    return multiContexts == null ? 1 : multiContexts.size();
+    return multiContexts == null ? 1 : multiContexts.length;
   }
   
   /**
@@ -618,7 +620,7 @@ public final class LDContext implements JsonSerializable {
     if (multiContexts == null) {
       return index == 0 ? this : null;
     }
-    return index < 0 || index >= multiContexts.size() ? null : multiContexts.get(index);
+    return index < 0 || index >= multiContexts.length ? null : multiContexts[index];
   }
 
   /**
@@ -744,11 +746,11 @@ public final class LDContext implements JsonSerializable {
       return false;
     }
     if (isMultiple()) {
-      if (multiContexts.size() != o.multiContexts.size()) {
+      if (multiContexts.length != o.multiContexts.length) {
         return false;
       }
-      for (int i = 0; i < multiContexts.size(); i++) {
-        if (!multiContexts.get(i).equals(o.multiContexts.get(i))) {
+      for (int i = 0; i < multiContexts.length; i++) {
+        if (!multiContexts[i].equals(o.multiContexts[i])) {
           return false;
         }
       }
