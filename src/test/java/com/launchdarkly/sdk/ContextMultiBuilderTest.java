@@ -58,7 +58,7 @@ public class ContextMultiBuilderTest {
   }
   
   @Test
-  public void copyOnWrite() {
+  public void modifyingBuilderDoesNotAffectPreviouslyCreatedInstances() {
     LDContext c1 = LDContext.create(kind1, "key1"),
         c2 = LDContext.create(kind2, "key2"),
         c3 = LDContext.create(kind3, "key3");
