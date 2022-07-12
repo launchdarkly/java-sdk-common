@@ -45,7 +45,6 @@ java {
 val privateImplementation by configurations.creating
 
 dependencies {  // see Dependencies.kt in buildSrc
-    Libs.privateImplementation.forEach { implementation(it)}
     Libs.privateImplementation.forEach { privateImplementation(it)}
     Libs.javaTestImplementation.forEach { testImplementation(it) }
 }
