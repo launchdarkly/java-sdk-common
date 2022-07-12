@@ -5,6 +5,7 @@ import com.google.gson.GsonBuilder;
 import com.launchdarkly.sdk.AttributeRef;
 import com.launchdarkly.sdk.EvaluationDetail;
 import com.launchdarkly.sdk.EvaluationReason;
+import com.launchdarkly.sdk.LDContext;
 import com.launchdarkly.sdk.LDUser;
 import com.launchdarkly.sdk.LDValue;
 import com.launchdarkly.sdk.UserAttribute;
@@ -147,6 +148,7 @@ public abstract class JsonSerialization {
         knownDeserializableClasses.add(AttributeRef.class);
         knownDeserializableClasses.add(EvaluationReason.class);
         knownDeserializableClasses.add(EvaluationDetail.class);
+        knownDeserializableClasses.add(LDContext.class);
         knownDeserializableClasses.add(LDUser.class);
         knownDeserializableClasses.add(LDValue.class);
         knownDeserializableClasses.add(UserAttribute.class);

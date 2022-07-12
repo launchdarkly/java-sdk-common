@@ -1,5 +1,9 @@
 package com.launchdarkly.sdk;
 
+import com.google.gson.annotations.JsonAdapter;
+import com.launchdarkly.sdk.json.JsonSerializable;
+import com.launchdarkly.sdk.json.JsonSerialization;
+
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
@@ -23,7 +27,14 @@ import java.util.Objects;
  * An LDContext can be in an error state if it was built with invalid attributes. See
  * {@link #isValid()} and {@link #getError()}.
  */
-public final class LDContext {
+@JsonAdapter(LDContextTypeAdapter.class)
+public final class LDContext implements JsonSerializable {
+  static final String ATTR_KIND = "kind";
+  static final String ATTR_KEY = "key";
+  static final String ATTR_NAME = "name";
+  static final String ATTR_ANONYMOUS = "anonymous";
+  
+  
   final String error;
   final ContextKind kind;
   final List<LDContext> multiContexts;
@@ -694,6 +705,24 @@ public final class LDContext {
    */
   public String getFullyQualifiedKey() {
     return fullyQualifiedKey;
+  }
+  
+  /**
+   * Returns a string representation of the context.
+   * <p>
+   * For a valid context, this is currently defined as being the same as the JSON representation,
+   * since that is the simplest way to represent all of the LDContext properties. However,
+   * application code should not rely on {@link #toString()} always being the same as the JSON
+   * representation. If you specifically want the latter, use {@link JsonSerialization#serialize(JsonSerializable)}.
+   * <p>
+   * For an invalid context, {@link #toString()} returns a description of why it is invalid.
+   */
+  @Override
+  public String toString() {
+    if (!isValid()) {
+      return ("(invalid LDContext: " + getError() + ")");
+    }
+    return JsonSerialization.serialize(this);
   }
   
   @Override
