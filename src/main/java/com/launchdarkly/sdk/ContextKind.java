@@ -1,5 +1,8 @@
 package com.launchdarkly.sdk;
 
+import com.google.gson.annotations.JsonAdapter;
+import com.launchdarkly.sdk.json.JsonSerializable;
+
 /**
  * A string identifier provided by the application to describe what kind of entity an
  * {@link LDContext} represents.
@@ -23,7 +26,8 @@ package com.launchdarkly.sdk;
  * the top-level LDContext is always "multi" (the constant {@link #MULTI}); there is a 
  * specific Kind for each of the contexts contained within it.
  */
-public final class ContextKind {
+@JsonAdapter(ContextKindTypeAdapter.class)
+public final class ContextKind implements JsonSerializable {
   /**
    * A constant for the default kind of "user".
    */
