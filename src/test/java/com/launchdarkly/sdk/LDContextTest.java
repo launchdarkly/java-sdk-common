@@ -326,6 +326,7 @@ public class LDContextTest {
     LDContext uc1 = LDContext.create("key1");
     LDContext multi2 = LDContext.createMulti(uc1, c2);
     assertThat(multi2.getIndividualContext(ContextKind.DEFAULT), sameInstance(uc1));
+    assertThat(multi2.getIndividualContext((ContextKind)null), sameInstance(uc1));
     assertThat(multi2.getIndividualContext(""), sameInstance(uc1));
     
     LDContext invalid = LDContext.create("");
