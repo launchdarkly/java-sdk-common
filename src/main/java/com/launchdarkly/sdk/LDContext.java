@@ -622,10 +622,13 @@ public final class LDContext {
    * {@link #createMulti(LDContext...)} or {@link #multiBuilder()}, and the return value on
    * success is the corresponding individual LDContext within.
    * 
-   * @param kind the context kind to get
+   * @param kind the context kind to get; if null, defaults to {@link ContextKind#DEFAULT}
    * @return an {@link LDContext}, or null if that kind was not found
    */
   public LDContext getIndividualContext(ContextKind kind) {
+    if (kind == null) {
+      kind = ContextKind.DEFAULT;
+    }
     if (multiContexts == null) {
       return this.kind.equals(kind) ? this : null;
     }
