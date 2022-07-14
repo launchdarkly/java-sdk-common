@@ -40,6 +40,7 @@ public final class ContextBuilder {
   private List<AttributeRef> privateAttributes;
   private boolean copyOnWriteAttributes;
   private boolean copyOnWritePrivateAttributes;
+  private boolean allowEmptyKey;
   
   ContextBuilder() {}
   
@@ -67,7 +68,7 @@ public final class ContextBuilder {
     this.copyOnWriteAttributes = attributes != null;
     this.copyOnWritePrivateAttributes = privateAttributes != null;
     
-    return LDContext.createSingle(kind, key, name, attributes, secondary, anonymous, privateAttributes);
+    return LDContext.createSingle(kind, key, name, attributes, secondary, anonymous, privateAttributes, allowEmptyKey);
   }
   
   /**
@@ -389,6 +390,13 @@ public final class ContextBuilder {
       privateAttributes.add(a);
     }
     return this;
+  }
+  
+  // Deliberately not public - this is how we make it possible to deserialize an old-style user
+  // from JSON where the key is an empty string, because that was allowed in the old schema,
+  // whereas in all other cases a context key must not be an empty string.
+  void setAllowEmptyKey(boolean allowEmptyKey) {
+    this.allowEmptyKey = allowEmptyKey;
   }
   
   ContextBuilder copyFrom(LDContext context) {

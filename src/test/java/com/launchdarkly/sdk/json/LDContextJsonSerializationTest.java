@@ -1,7 +1,6 @@
 package com.launchdarkly.sdk.json;
 
 import com.google.gson.JsonIOException;
-import com.google.gson.JsonParseException;
 import com.launchdarkly.sdk.ContextKind;
 import com.launchdarkly.sdk.LDContext;
 import com.launchdarkly.sdk.LDValue;
@@ -11,6 +10,9 @@ import org.junit.Test;
 import static com.launchdarkly.sdk.json.JsonTestHelpers.verifyDeserialize;
 import static com.launchdarkly.sdk.json.JsonTestHelpers.verifySerialize;
 import static com.launchdarkly.sdk.json.JsonTestHelpers.verifySerializeAndDeserialize;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 @SuppressWarnings("javadoc")
 public class LDContextJsonSerializationTest {
@@ -107,6 +109,11 @@ public class LDContextJsonSerializationTest {
     
     verifyDeserialize(LDContext.builder("a").privateAttributes("b").build(),
         "{\"key\":\"a\",\"privateAttributeNames\":[\"b\"]}");
+    
+    // For old user JSON only, an empty key is allowed; an LDContext can't be constructed in this state.
+    LDContext contextWithEmptyKey = JsonSerialization.deserialize("{\"key\":\"\"}", LDContext.class);
+    assertTrue(contextWithEmptyKey.isValid());
+    assertEquals("", contextWithEmptyKey.getKey());
   }
   
   @Test(expected=JsonIOException.class)
@@ -114,9 +121,24 @@ public class LDContextJsonSerializationTest {
     JsonSerialization.serialize(LDContext.create(""));
   }
   
-  @Test(expected=SerializationException.class)
+  @Test
   public void deserializeContextWithValidationError() throws Exception {
-    JsonSerialization.deserialize("{\"kind\":\"a\",\"key\":\"\"}", LDContext.class);
+    for (String json: new String[] {
+        "{\"kind\":\"\",\"key\":\"a\"}",
+        "{\"kind\":\"a\",\"key\":\"\"}",
+        "{\"kind\":\"kind\",\"key\":\"a\"}",
+        "{\"kind\":\"ørg\",\"key\":\"a\"}",
+        "{\"kind\":\"a\",\"key\":\"b\",\"name\":3}",
+        "{\"kind\":\"a\",\"key\":\"b\",\"anonymous\":\"x\"}",
+        "{\"kind\":\"a\",\"key\":\"b\",\"_meta\":\"x\"}",
+        "{\"key\":null}",
+        "{}",
+    }) {
+      try {
+        JsonSerialization.deserialize(json, LDContext.class);
+        fail("expected deserialization to fail, but it passed, for JSON: " + json);
+      } catch (SerializationException e) {}
+    }
   }
   
   @Test(expected=SerializationException.class)

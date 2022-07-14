@@ -9,6 +9,7 @@ abstract class Errors {
       "attribute reference contained an escape character (~) that was not followed by 0 or 1";
 
   static final String CONTEXT_NO_KEY = "context key must not be null or empty";
+  static final String CONTEXT_KIND_CANNOT_BE_EMPTY = "context kind must not be empty in JSON";
   static final String CONTEXT_KIND_CANNOT_BE_KIND = "\"kind\" is not a valid context kind";
   static final String CONTEXT_KIND_INVALID_CHARS = "context kind contains disallowed characters";
   static final String CONTEXT_KIND_MULTI_FOR_SINGLE = "context of kind \"multi\" must be created with NewMulti or NewMultiBuilder";

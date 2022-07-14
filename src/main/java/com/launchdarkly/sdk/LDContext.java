@@ -90,7 +90,8 @@ public final class LDContext implements JsonSerializable {
       Map<String, LDValue> attributes,
       String secondary,
       boolean anonymous,
-      List<AttributeRef> privateAttributes
+      List<AttributeRef> privateAttributes,
+      boolean allowEmptyKey // allowEmptyKey is true only when deserializing old-style user JSON
       ) {
     if (kind != null) {
       String error = kind.validateAsSingleKind();
@@ -98,7 +99,7 @@ public final class LDContext implements JsonSerializable {
         return failed(error);
       }
     }
-    if (key == null || key.isEmpty()) {
+    if (key == null || (key.isEmpty() && !allowEmptyKey)) {
       return failed(Errors.CONTEXT_NO_KEY);
     }
     String fullyQualifiedKey = kind.isDefault() ? key :
@@ -201,7 +202,7 @@ public final class LDContext implements JsonSerializable {
    * @see #builder(ContextKind, String)
    */
   public static LDContext create(ContextKind kind, String key) {
-    return createSingle(kind, key, null, null, null, false, null);
+    return createSingle(kind, key, null, null, null, false, null, false);
   }
   
   /**

@@ -115,7 +115,8 @@ final class LDContextTypeAdapter extends TypeAdapter<LDContext> {
   
   private static LDContext readOldUser(LDValue obj) throws JsonParseException {
     requireValueType(obj, LDValueType.OBJECT, false, null);
-    ContextBuilder cb = LDContext.builder("");
+    ContextBuilder cb = LDContext.builder(null);
+    cb.setAllowEmptyKey(true);
     for (String key: obj.keys()) {
       LDValue v = obj.get(key);
       switch (key) {
@@ -161,11 +162,19 @@ final class LDContextTypeAdapter extends TypeAdapter<LDContext> {
   private static LDContext readSingleKind(LDValue obj, ContextKind kind) throws JsonParseException {
     requireValueType(obj, LDValueType.OBJECT, false, kind == null ? null : kind.toString());
     ContextBuilder cb = LDContext.builder("").kind(kind);
+    boolean hasNonEmptyKind = kind != null;
     for (String key: obj.keys()) {
       LDValue v = obj.get(key);
       switch (key) {
       case ATTR_KIND:
-        cb.kind(requireValueType(v, LDValueType.STRING, false, key).stringValue());
+        String s = requireValueType(v, LDValueType.STRING, false, key).stringValue();
+        if (!s.isEmpty()) {
+          // We need this extra check because the builder, when used programmatically, treats an
+          // unset/emty kind the same as ContextKind.DEFAULT-- but that's not the behavior we
+          // want for JSON.
+          hasNonEmptyKind = true;
+          cb.kind(s);
+        }
         break;
       case ATTR_KEY:
         cb.key(requireValueType(v, LDValueType.STRING, false, key).stringValue());
@@ -190,6 +199,9 @@ final class LDContextTypeAdapter extends TypeAdapter<LDContext> {
       default:
         cb.set(key, v); 
       }
+    }
+    if (!hasNonEmptyKind) {
+      return LDContext.failed(Errors.CONTEXT_KIND_CANNOT_BE_EMPTY);
     }
     return cb.build();
   }
