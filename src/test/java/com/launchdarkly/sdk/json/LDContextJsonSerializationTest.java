@@ -133,6 +133,7 @@ public class LDContextJsonSerializationTest {
         "{\"kind\":\"a\",\"key\":\"b\",\"_meta\":\"x\"}",
         "{\"key\":null}",
         "{}",
+        ""
     }) {
       try {
         JsonSerialization.deserialize(json, LDContext.class);
