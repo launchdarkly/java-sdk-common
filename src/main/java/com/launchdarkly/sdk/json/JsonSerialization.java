@@ -86,10 +86,10 @@ public abstract class JsonSerialization {
   
   // We use this internally in situations where generic type checking isn't desirable
   static <T> T deserializeInternal(String json, Class<T> objectClass) throws SerializationException {
-    if (json == null || json.isBlank()) {
+    if (json == null || json.isEmpty()) {
       // Annoyingly, Gson tolerates a totally empty input string and considers it equivalent to null,
       // but that isn't a valid JSON document.
-      throw new SerializationException("input string was null/blank");
+      throw new SerializationException("input string was null/empty");
     }
     try {
       return gson.fromJson(json, objectClass);
