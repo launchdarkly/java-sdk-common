@@ -23,7 +23,7 @@ package com.launchdarkly.sdk;
  * the top-level LDContext is always "multi" (the constant {@link #MULTI}); there is a 
  * specific Kind for each of the contexts contained within it.
  */
-public final class ContextKind {
+public final class ContextKind implements Comparable<ContextKind> {
   /**
    * A constant for the default kind of "user".
    */
@@ -104,5 +104,10 @@ public final class ContextKind {
       }
     }
     return null;
+  }
+
+  @Override
+  public int compareTo(ContextKind o) {
+    return kindName.compareTo(o.kindName);
   }
 }
