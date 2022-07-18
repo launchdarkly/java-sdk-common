@@ -156,7 +156,7 @@ public final class LDContext implements JsonSerializable {
       return failed(s.toString());
     }
     
-    Arrays.sort(multiContexts, ByKindComparator.INSTNACE);
+    Arrays.sort(multiContexts, ByKindComparator.INSTANCE);
     StringBuilder fullKey = new StringBuilder();
     for (LDContext c: multiContexts) {
       if (fullKey.length() != 0) {
@@ -852,10 +852,10 @@ public final class LDContext implements JsonSerializable {
   }
   
   private static class ByKindComparator implements Comparator<LDContext> {
-    static final ByKindComparator INSTNACE = new ByKindComparator();
+    static final ByKindComparator INSTANCE = new ByKindComparator();
     
     public int compare(LDContext c1, LDContext c2) {
-      return c1.getKind().toString().compareTo(c2.getKind().toString());
+      return c1.getKind().compareTo(c2.getKind());
     }
   }
 }

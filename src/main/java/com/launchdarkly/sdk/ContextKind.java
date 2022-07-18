@@ -27,7 +27,7 @@ import com.launchdarkly.sdk.json.JsonSerializable;
  * specific Kind for each of the contexts contained within it.
  */
 @JsonAdapter(ContextKindTypeAdapter.class)
-public final class ContextKind implements JsonSerializable {
+public final class ContextKind implements Comparable<ContextKind>, JsonSerializable {
   /**
    * A constant for the default kind of "user".
    */
@@ -108,5 +108,10 @@ public final class ContextKind implements JsonSerializable {
       }
     }
     return null;
+  }
+
+  @Override
+  public int compareTo(ContextKind o) {
+    return kindName.compareTo(o.kindName);
   }
 }
