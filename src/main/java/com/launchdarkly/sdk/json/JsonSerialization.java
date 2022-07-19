@@ -2,6 +2,7 @@ package com.launchdarkly.sdk.json;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.launchdarkly.sdk.AttributeRef;
 import com.launchdarkly.sdk.EvaluationDetail;
 import com.launchdarkly.sdk.EvaluationReason;
 import com.launchdarkly.sdk.LDUser;
@@ -143,6 +144,7 @@ public abstract class JsonSerialization {
     // default case where it *doesn't* exist. This functionality is tested in the Java SDK.
     synchronized (knownDeserializableClasses) {
       if (knownDeserializableClasses.isEmpty()) {
+        knownDeserializableClasses.add(AttributeRef.class);
         knownDeserializableClasses.add(EvaluationReason.class);
         knownDeserializableClasses.add(EvaluationDetail.class);
         knownDeserializableClasses.add(LDUser.class);
