@@ -7,10 +7,11 @@ import com.google.gson.annotations.JsonAdapter;
 import com.launchdarkly.sdk.json.JsonSerializable;
 
 /**
- * An attribute name or path expression identifying a value within an {@code LDContext}.
+ * An attribute name or path expression identifying a value within an {@link LDContext}.
  * <p>
  * Applications are unlikely to need to use the AttributeRef type directly, but see below
- * for details of the string attribute reference syntax.
+ * for details of the string attribute reference syntax used by methods like
+ * {@link ContextBuilder#privateAttributes(String...)}.
  * <p>
  * The reason to use this type directly is to avoid repetitive string parsing in code where
  * efficiency is a priority; AttributeRef parses its contents once when it is created, and
@@ -32,7 +33,7 @@ import com.launchdarkly.sdk.json.JsonSerializable;
  * </ul>
  */
 @JsonAdapter(AttributeRefTypeAdapter.class)
-public final class AttributeRef implements JsonSerializable {
+public final class AttributeRef implements JsonSerializable, Comparable<AttributeRef> {
   private static final Map<String, AttributeRef> COMMON_LITERALS = makeLiteralsMap(
       "kind", "key", "name", "anonymous", // built-ins
       "email", "firstName", "lastName", "country", "ip", "avatar" // frequently used custom attributes
@@ -168,8 +169,8 @@ public final class AttributeRef implements JsonSerializable {
    * </ul>
    * <p>
    * Otherwise, the AttributeRef is valid, but that does not guarantee that such an attribute exists
-   * in any given {code LDContext}. For instance, {@code fromLiteral("name")} is a valid AttributeRef,
-   * but a specific {@code LDContext} might or might not have a name.
+   * in any given {@link LDContext}. For instance, {@code fromLiteral("name")} is a valid AttributeRef,
+   * but a specific {@link LDContext} might or might not have a name.
    * <p>
    * See comments on the {@link AttributeRef} type for more details of the attribute reference synax.
    *
@@ -275,6 +276,11 @@ public final class AttributeRef implements JsonSerializable {
   @Override
   public int hashCode() {
     return rawPath.hashCode();
+  }
+  
+  @Override
+  public int compareTo(AttributeRef o) {
+    return rawPath.compareTo(o.rawPath);
   }
   
   private static String unescapePath(String path) {
