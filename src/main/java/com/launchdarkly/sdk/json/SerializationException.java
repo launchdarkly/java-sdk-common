@@ -16,4 +16,12 @@ public class SerializationException extends Exception {
   public SerializationException(Throwable cause) {
     super(cause);
   }
+  
+  /**
+   * Creates an instance.
+   * @param message a description of the error
+   */
+  public SerializationException(String message) {
+    super(message);
+  }
 }
