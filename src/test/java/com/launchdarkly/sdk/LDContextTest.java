@@ -1,5 +1,7 @@
 package com.launchdarkly.sdk;
 
+import com.launchdarkly.sdk.json.JsonSerialization;
+
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -8,6 +10,7 @@ import java.util.List;
 import static java.util.Arrays.asList;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.emptyIterable;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
@@ -328,6 +331,14 @@ public class LDContextTest {
     
     LDContext invalid = LDContext.create("");
     assertThat(invalid.getIndividualContextCount(), equalTo(0));
+  }
+  
+  @Test
+  public void stringRepresentation() {
+    LDContext c = LDContext.create(kind1, "a");
+    assertThat(c.toString(), equalTo(JsonSerialization.serialize(c)));
+    
+    assertThat(LDContext.create("").toString(), containsString(Errors.CONTEXT_NO_KEY));
   }
   
   @Test
