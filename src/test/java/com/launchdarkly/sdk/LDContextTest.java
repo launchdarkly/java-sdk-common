@@ -113,7 +113,7 @@ public class LDContextTest {
     assertThat(LDContext.create("abc").getFullyQualifiedKey(), equalTo("abc"));
     assertThat(LDContext.create("abc:d").getFullyQualifiedKey(), equalTo("abc:d"));
     assertThat(LDContext.create(kind1, "key1").getFullyQualifiedKey(), equalTo("kind1:key1"));
-    assertThat(LDContext.create(kind1, "key:2").getFullyQualifiedKey(), equalTo("kind1:key%3A2"));
+    assertThat(LDContext.create(kind1, "my:key%x/y").getFullyQualifiedKey(), equalTo("kind1:my%3Akey%25x/y"));
     assertThat(
         LDContext.createMulti(LDContext.create(kind1, "key1"), LDContext.create(kind2, "key:2")).getFullyQualifiedKey(),
         equalTo("kind1:key1:kind2:key%3A2"));

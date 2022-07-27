@@ -103,7 +103,7 @@ public final class LDContext implements JsonSerializable {
       return failed(Errors.CONTEXT_NO_KEY);
     }
     String fullyQualifiedKey = kind.isDefault() ? key :
-      (kind.toString() + ":" + urlEncodeKey(key));
+      (kind.toString() + ":" + escapeKeyForFullyQualifiedKey(key));
     return new LDContext(kind, null, key, fullyQualifiedKey, name, attributes, secondary, anonymous, privateAttributes);
   }
   
@@ -162,7 +162,7 @@ public final class LDContext implements JsonSerializable {
       if (fullKey.length() != 0) {
         fullKey.append(':');
       }
-      fullKey.append(c.getKind().toString()).append(':').append(urlEncodeKey(c.getKey()));
+      fullKey.append(c.getKind().toString()).append(':').append(escapeKeyForFullyQualifiedKey(c.getKey()));
     }
     return new LDContext(ContextKind.MULTI, multiContexts, "", fullKey.toString(),
         null, null, null, false, null);
@@ -843,12 +843,10 @@ public final class LDContext implements JsonSerializable {
     }
   }
   
-  private static String urlEncodeKey(String key) {
-    try {
-      return URLEncoder.encode(key, "UTF-8");
-    } catch (UnsupportedEncodingException e) {
-      return ""; // COVERAGE: not a reachable condition
-    }
+  private static String escapeKeyForFullyQualifiedKey(String key) {
+    // When building a FullyQualifiedKey, ':' and '%' are percent-escaped; we do not use a full
+    // URL-encoding function because implementations of this are inconsistent across platforms.
+    return key.replace("%", "%25").replace(":", "%3A");
   }
   
   private static class ByKindComparator implements Comparator<LDContext> {
