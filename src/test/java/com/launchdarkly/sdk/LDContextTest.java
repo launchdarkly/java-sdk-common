@@ -73,13 +73,6 @@ public class LDContextTest {
     
     shouldBeInvalid(
         LDContext.createMulti(
-            LDContext.create("key1"),
-            LDContext.createMulti(LDContext.create(kind1, "key2"), LDContext.create(kind2, "key3"))
-            ),
-        Errors.CONTEXT_KIND_MULTI_WITHIN_MULTI);
-    
-    shouldBeInvalid(
-        LDContext.createMulti(
             LDContext.create(kind1, "key1"),
             LDContext.create(kind1, "key2")
             ),
@@ -331,6 +324,11 @@ public class LDContextTest {
     
     LDContext invalid = LDContext.create("");
     assertThat(invalid.getIndividualContextCount(), equalTo(0));
+    
+    LDContext c3 = LDContext.create(kind3, "key3");
+    LDContext c1plus2 = LDContext.multiBuilder().add(c1).add(c2).build();
+    
+    assertThat(LDContext.createMulti(c1plus2, c3), equalTo(LDContext.createMulti(c1, c2, c3)));
   }
   
   @Test

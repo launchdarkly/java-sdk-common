@@ -68,8 +68,22 @@ public final class ContextMultiBuilder {
   /**
    * Adds an individual LDContext for a specific kind to the builer.
    * <p>
-   * It is invalid to add more than one LDContext for the same kind, or to add a nested
-   * multi-kind LDContext. This error is detected when you call {@link #build()}.
+   * It is invalid to add more than one LDContext for the same kind, or to add an LDContext
+   * that is itself invalid. This error is detected when you call {@link #build()}.
+   * <p>
+   * If the nested context is multi-kind, this is exactly equivalent to adding each of the
+   * individual kinds from it separately. For instance, in the following example, "multi1" and
+   * "multi2" end up being exactly the same:
+   * <pre><code>
+   *     LDContext c1 = LDContext.create(ContextKind.of("kind1"), "key1");
+   *     LDContext c2 = LDContext.create(ContextKind.of("kind2"), "key2");
+   *     LDContext c3 = LDContext.create(ContextKind.of("kind3"), "key3");
+   *
+   *     LDContext multi1 = LDContext.multiBuilder().add(c1).add(c2).add(c3).build();
+   *
+   *     LDContext c1plus2 = LDContext.multiBuilder().add(c1).add(c2).build();
+   *     LDContext multi2 = LDContext.multiBuilder().add(c1plus2).add(c3).build();
+   * </code></pre>
    *  
    * @param context the context to add
    * @return the builder
@@ -79,7 +93,13 @@ public final class ContextMultiBuilder {
       if (contexts == null) {
         contexts = new ArrayList<>();
       }
-      contexts.add(context);
+      if (context.isMultiple()) {
+        for (LDContext c: context.multiContexts) {
+          contexts.add(c);
+        }
+      } else {
+        contexts.add(context);
+      }
     }
     return this;
   }

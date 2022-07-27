@@ -14,6 +14,5 @@ abstract class Errors {
   static final String CONTEXT_KIND_INVALID_CHARS = "context kind contains disallowed characters";
   static final String CONTEXT_KIND_MULTI_FOR_SINGLE = "context of kind \"multi\" must be created with NewMulti or NewMultiBuilder";
   static final String CONTEXT_KIND_MULTI_WITH_NO_KINDS = "multi-kind context must contain at least one kind";
-  static final String CONTEXT_KIND_MULTI_WITHIN_MULTI = "multi-kind context cannot contain other multi-kind contexts";
   static final String CONTEXT_KIND_MULTI_DUPLICATES = "multi-kind context cannot have same kind more than once";
 }
