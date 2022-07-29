@@ -140,7 +140,7 @@ final class LDContextTypeAdapter extends TypeAdapter<LDContext> {
         }
         break;
       case JSON_PROP_OLD_CUSTOM:
-        for (String customKey: v.keys()) {
+        for (String customKey: requireValueType(v, LDValueType.OBJECT, true, JSON_PROP_OLD_CUSTOM).keys()) {
           cb.set(customKey, v.get(customKey));
         }
         break;
