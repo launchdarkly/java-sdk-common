@@ -113,7 +113,7 @@ public final class LDContext implements JsonSerializable {
   // copy-on-write logic to manage that.
   static LDContext createMultiInternal(LDContext[] multiContexts) {
     List<String> errors = null;
-    boolean nestedMulti = false, duplicates = false;
+    boolean duplicates = false;
     for (int i = 0; i < multiContexts.length; i++) {
       LDContext c = multiContexts[i];
       if (!c.isValid()) {
@@ -121,8 +121,6 @@ public final class LDContext implements JsonSerializable {
           errors = new ArrayList<String>();
         }
         errors.add(c.getError());
-      } else if (c.isMultiple()) {
-        nestedMulti = true;
       } else {
         for (int j = 0; j < i; j++) {
           if (multiContexts[j].getKind().equals(c.getKind())) {
@@ -131,12 +129,6 @@ public final class LDContext implements JsonSerializable {
           }
         }
       }
-    }
-    if (nestedMulti) {
-      if (errors == null) {
-        errors = new ArrayList<String>();
-      }
-      errors.add(Errors.CONTEXT_KIND_MULTI_WITHIN_MULTI);
     }
     if (duplicates) {
       if (errors == null) {
@@ -212,11 +204,24 @@ public final class LDContext implements JsonSerializable {
    * or {@link #builder(String)}.
    * <p>
    * For the returned LDContext to be valid, the contexts list must not be empty, and all of its
-   * elements must be single-kind LDContexts. Otherwise, the returned LDContext will be invalid as
+   * elements must be valid LDContexts. Otherwise, the returned LDContext will be invalid as
    * reported by {@link #getError()}.
    * <p>
-   * If only one context parameter is given, the method returns a single-kind context (that is,
-   * just that same context) rather than a multi-kind context.
+   * If only one context parameter is given, the method returns that same context.
+   * <p>
+   * If the nested context is multi-kind, this is exactly equivalent to adding each of the
+   * individual kinds from it separately. For instance, in the following example, "multi1" and
+   * "multi2" end up being exactly the same:
+   * <pre><code>
+   *     LDContext c1 = LDContext.create(ContextKind.of("kind1"), "key1");
+   *     LDContext c2 = LDContext.create(ContextKind.of("kind2"), "key2");
+   *     LDContext c3 = LDContext.create(ContextKind.of("kind3"), "key3");
+   *
+   *     LDContext multi1 = LDContext.createMulti(c1, c2, c3);
+   *
+   *     LDContext c1plus2 = LDContext.createMulti(c1, c2);
+   *     LDContext multi2 = LDContext.createMulti(c1plus2, c3);
+   * </code></pre>
    * 
    * @param contexts a list of contexts
    * @return an LDContext
@@ -228,6 +233,15 @@ public final class LDContext implements JsonSerializable {
     }
     if (contexts.length == 1) {
       return contexts[0]; // just return a single-kind context
+    }
+    for (LDContext c: contexts) {
+      if (c.isMultiple()) {
+        ContextMultiBuilder b = multiBuilder();
+        for (LDContext c1: contexts) {
+          b.add(c1);
+        }
+        return b.build();
+      }
     }
     // copy the array because the caller could've passed in an array that they will later mutate 
     LDContext[] copied = Arrays.copyOf(contexts, contexts.length);

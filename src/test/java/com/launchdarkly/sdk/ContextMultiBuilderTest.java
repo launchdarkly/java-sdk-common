@@ -30,18 +30,22 @@ public class ContextMultiBuilderTest {
   }
   
   @Test
+  public void nestedMultiKindContextIsFlattened() {
+    LDContext c1 = LDContext.create(kind1, "key1");
+    LDContext c2 = LDContext.create(kind2, "key2");
+    LDContext c3 = LDContext.create(kind3, "key3");
+    LDContext c1plus2 = LDContext.multiBuilder().add(c1).add(c2).build();
+    
+    assertThat(LDContext.multiBuilder().add(c1plus2).add(c3).build(),
+        equalTo(LDContext.multiBuilder().add(c1).add(c2).add(c3).build()));
+  }
+  
+  @Test
   public void builderValidationErrors() {
     shouldBeInvalid(
       LDContext.multiBuilder().build(),
       Errors.CONTEXT_KIND_MULTI_WITH_NO_KINDS);
 
-    shouldBeInvalid(
-        LDContext.multiBuilder()
-            .add(LDContext.create("key1"))
-            .add(LDContext.createMulti(LDContext.create(kind1, "key2"), LDContext.create(kind2, "key3")))
-            .build(),
-        Errors.CONTEXT_KIND_MULTI_WITHIN_MULTI);
-    
     shouldBeInvalid(
         LDContext.multiBuilder()
           .add(LDContext.create(kind1, "key1"))
