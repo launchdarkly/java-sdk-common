@@ -131,7 +131,14 @@ public class LDContextJsonSerializationTest {
         "{\"kind\":\"a\",\"key\":\"b\",\"name\":3}",
         "{\"kind\":\"a\",\"key\":\"b\",\"anonymous\":\"x\"}",
         "{\"kind\":\"a\",\"key\":\"b\",\"_meta\":\"x\"}",
+        
+        // invalid old-style user JSON
         "{\"key\":null}",
+        "{\"key\":\"a\",\"name\":3}",
+        "{\"key\":\"a\",\"anonymous\":\"x\"}",
+        "{\"key\":\"a\",\"custom\":\"x\"}",
+        "{\"key\":\"a\",\"privateAttributeNames\":3}",
+        
         "{}",
         ""
     }) {
