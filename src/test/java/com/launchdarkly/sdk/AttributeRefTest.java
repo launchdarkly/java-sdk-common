@@ -62,7 +62,6 @@ public class AttributeRefTest extends BaseTest {
     assertThat(a.toString(), equalTo(s));
     assertThat(a.getDepth(), equalTo(1));
     assertThat(a.getComponent(0), equalTo(s));
-    assertThat(a.getComponentAsInteger(0), nullValue());
   }
   
   @Test
@@ -79,7 +78,6 @@ public class AttributeRefTest extends BaseTest {
     assertThat(a.toString(), equalTo(s));
     assertThat(a.getDepth(), equalTo(1));
     assertThat(a.getComponent(0), equalTo(unescaped));
-    assertThat(a.getComponentAsInteger(0), nullValue());
   }
   
   @Test
@@ -97,36 +95,34 @@ public class AttributeRefTest extends BaseTest {
     assertThat(a.toString(), equalTo(escaped));
     assertThat(a.getDepth(), equalTo(1));
     assertThat(a.getComponent(0), equalTo(s));
-    assertThat(a.getComponentAsInteger(0), nullValue());
   }
   
   @Test
   public void getComponent() {
-    testGetComponent("", 0, 0, null, null);
-    testGetComponent("key", 1, 0, "key", null);
-    testGetComponent("/key", 1, 0, "key", null);
-    testGetComponent("/a/b", 2, 0, "a", null);
-    testGetComponent("/a/b", 2, 1, "b", null);
-    testGetComponent("/a~1b/c", 2, 0, "a/b", null);
-    testGetComponent("/a~0b/c", 2, 0, "a~b", null);
-    testGetComponent("/a/10/20/30x", 4, 1, "10", 10);
-    testGetComponent("/a/10/20/30x", 4, 2, "20", 20);
-    testGetComponent("/a/10/20/30x", 4, 3, "30x", null);
-    testGetComponent("", 0, -1, null, null);
-    testGetComponent("key", 1, -1, null, null);
-    testGetComponent("key", 1, 1, null, null);
-    testGetComponent("/key", 1, -1, null, null);
-    testGetComponent("/key", 1, 1, null, null);
-    testGetComponent("/a/b", 2, -1, null, null);
-    testGetComponent("/a/b", 2, 2, null, null);
+    testGetComponent("", 0, 0, null);
+    testGetComponent("key", 1, 0, "key");
+    testGetComponent("/key", 1, 0, "key");
+    testGetComponent("/a/b", 2, 0, "a");
+    testGetComponent("/a/b", 2, 1, "b");
+    testGetComponent("/a~1b/c", 2, 0, "a/b");
+    testGetComponent("/a~0b/c", 2, 0, "a~b");
+    testGetComponent("/a/10/20/30x", 4, 1, "10");
+    testGetComponent("/a/10/20/30x", 4, 2, "20");
+    testGetComponent("/a/10/20/30x", 4, 3, "30x");
+    testGetComponent("", 0, -1, null);
+    testGetComponent("key", 1, -1, null);
+    testGetComponent("key", 1, 1, null);
+    testGetComponent("/key", 1, -1, null);
+    testGetComponent("/key", 1, 1, null);
+    testGetComponent("/a/b", 2, -1, null);
+    testGetComponent("/a/b", 2, 2, null);
   }
   
-  private void testGetComponent(String input, int depth, int index, String expectedName, Integer expectedAsInt) {
+  private void testGetComponent(String input, int depth, int index, String expectedName) {
     AttributeRef a = AttributeRef.fromPath(input);
     assertThat(a.toString(), equalTo(input));
     assertThat(a.getDepth(), equalTo(depth));
     assertThat(a.getComponent(index), equalTo(expectedName));
-    assertThat(a.getComponentAsInteger(index), equalTo(expectedAsInt));
   }
   
   @Test
