@@ -25,9 +25,8 @@ import com.launchdarkly.sdk.json.JsonSerializable;
  * attribute name. An attribute name can contain any characters, but must not be empty. </li>
  * <li> If the first character is a slash, the string is interpreted as a slash-delimited
  * path where the first path component is an attribute name, and each subsequent path
- * component is either the name of a property in a JSON object, or a decimal numeric string
- * that is the index of an element in a JSON array. Any instances of the characters "/" or
- * "~" in a path component are escaped as "~1" or "~0" respectively. This syntax
+ * component is the name of a property in a JSON object. Any instances of the characters "/"
+ * or "~" in a path component are escaped as "~1" or "~0" respectively. This syntax
  * deliberately resembles JSON Pointer, but no JSON Pointer behaviors other than those
  * mentioned here are supported. </li>
  * </ul>
@@ -42,19 +41,9 @@ public final class AttributeRef implements JsonSerializable, Comparable<Attribut
   private final String error;
   private final String rawPath;
   private final String singlePathComponent;
-  private final Component[] components;
+  private final String[] components;
   
-  private static final class Component {
-    final String name;
-    final Integer asInteger;
-    
-    Component(String name, Integer asInteger) {
-      this.name = name;
-      this.asInteger = asInteger;
-    }
-  }
-  
-  private AttributeRef(String rawPath, String singlePathComponent, Component[] components) {
+  private AttributeRef(String rawPath, String singlePathComponent, String[] components) {
     this.error = null;
     this.rawPath = rawPath == null ? "" : rawPath;
     this.singlePathComponent = singlePathComponent;
@@ -103,10 +92,9 @@ public final class AttributeRef implements JsonSerializable, Comparable<Attribut
       // String.split won't behave properly in this case
       return new AttributeRef(Errors.ATTR_EXTRA_SLASH, refPath);
     }
-    String[] parsed = refPath.split("/");
-    Component[] components = new Component[parsed.length - 1];
-    for (int i = 0; i < components.length; i++) {
-      String p = parsed[i + 1];
+    String[] parsed = refPath.substring(1).split("/");
+    for (int i = 0; i < parsed.length; i++) {
+      String p = parsed[i];
       if (p.isEmpty()) {
         return new AttributeRef(Errors.ATTR_EXTRA_SLASH, refPath);
       }
@@ -114,15 +102,9 @@ public final class AttributeRef implements JsonSerializable, Comparable<Attribut
       if (unescaped == null) {
         return new AttributeRef(Errors.ATTR_INVALID_ESCAPE, refPath);
       }
-      Integer asInteger = null;
-      if (Character.isDigit(p.charAt(0))) {
-        try {
-          asInteger = Integer.parseInt(p);
-        } catch (NumberFormatException e) {}
-      }
-      components[i] = new Component(unescaped, asInteger);
+      parsed[i] = unescaped;
     }
-    return new AttributeRef(refPath, null, components);
+    return new AttributeRef(refPath, null, parsed);
   }
   
   /**
@@ -229,23 +211,7 @@ public final class AttributeRef implements JsonSerializable, Comparable<Attribut
     if (components == null) {
       return index == 0 ? singlePathComponent : null;
     }
-    return index < 0 || index >= components.length ? null : components[index].name;
-  }
-  
-  /**
-   * Retrieves a single path component from the attribute reference in the form of an integer.
-   * <p>
-   * This is equivalent to converting the string returned by {@link #getComponent(int)} to an
-   * integer, or null if it is not a numeric string.
-   * 
-   * @param index the zero-based index of the desired path component
-   * @return the path component parsed as an integer, or null
-   */
-  public Integer getComponentAsInteger(int index) {
-    if (components == null) {
-      return null;
-    }
-    return index < 0 || index >= components.length ? null : components[index].asInteger;
+    return index < 0 || index >= components.length ? null : components[index];
   }
   
   /**

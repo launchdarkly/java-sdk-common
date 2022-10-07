@@ -573,12 +573,7 @@ public final class LDContext implements JsonSerializable {
     }
     for (int i = 1; i < attributeRef.getDepth(); i++) {
       String component = attributeRef.getComponent(i);
-      Integer asInt = attributeRef.getComponentAsInteger(i);
-      if (asInt != null && value.getType() == LDValueType.ARRAY) {
-        value = value.get(asInt.intValue());
-      } else {
-        value = value.get(component);
-      }
+      value = value.get(component); // returns LDValue.null() if either property isn't found or value isn't an object
       if (value.isNull()) {
         break;
       }

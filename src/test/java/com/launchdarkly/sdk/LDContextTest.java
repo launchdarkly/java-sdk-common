@@ -255,31 +255,6 @@ public class LDContextTest {
     expectAttributeNotFoundForRef(
         LDContext.builder("key").set("my-attr", "xyz").build(),
         "/my-attr/my-prop");
-
-    // element in array
-    expectAttributeFoundForRef(LDValue.of("good"),
-        LDContext.builder("key").set("my-attr", LDValue.parse("[\"bad\",\"good\",\"worse\"]")).build(),
-        "/my-attr/1");
-
-    // element in nested array in object
-    expectAttributeFoundForRef(LDValue.of("good"),
-        LDContext.builder("key").set("my-attr", LDValue.parse("{\"my-prop\":[\"bad\",\"good\",\"worse\"]}")).build(),
-        "/my-attr/my-prop/1");
-
-    // index too low in array
-    expectAttributeNotFoundForRef(
-        LDContext.builder("key").set("my-attr", LDValue.parse("[\"bad\",\"good\",\"worse\"]")).build(),
-        "/my-attr/-1");
-
-    // index too high in array
-    expectAttributeNotFoundForRef(
-        LDContext.builder("key").set("my-attr", LDValue.parse("[\"bad\",\"good\",\"worse\"]")).build(),
-        "/my-attr/3");
-
-    // index in value that is not an array
-    expectAttributeNotFoundForRef(
-        LDContext.builder("key").set("my-attr", "xyz").build(),
-        "/my-attr/0");
   }
   
   @Test
