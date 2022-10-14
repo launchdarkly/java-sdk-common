@@ -42,10 +42,6 @@ public class ContextBuilderTest {
   
   @Test
   public void setValueCannotSetMetaProperties() {
-    LDContext c1 = LDContext.builder("key").set("secondary", "x").build();
-    assertThat(c1.getSecondary(), nullValue());
-    assertThat(c1.getValue("secondary"), equalTo(LDValue.of("x")));
-
     LDContext c2 = LDContext.builder("key").set("privateAttributes", "x").build();
     assertThat(c2.getPrivateAttributeCount(), equalTo(0));
     assertThat(c2.getValue("privateAttributes"), equalTo(LDValue.of("x")));
@@ -54,8 +50,8 @@ public class ContextBuilderTest {
   @Test
   public void setValueIgnoresInvalidNamesAndInvalidValueTypes() {
     LDContext c = LDContext.builder("key").set("_meta",
-        LDValue.buildObject().put("secondary", "x").build()).build();
-    assertThat(c.getSecondary(), nullValue());
+        LDValue.buildObject().put("privateAttributes", LDValue.arrayOf(LDValue.of("a"))).build()).build();
+    assertThat(c.getPrivateAttributeCount(), equalTo(0));
     assertThat(c.getValue("_meta"), equalTo(LDValue.ofNull()));
 
     assertThat(LDContext.builder(kind1, "key").set("kind", LDValue.of(1)).build().getKind(), equalTo(kind1));

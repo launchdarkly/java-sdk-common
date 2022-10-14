@@ -34,7 +34,6 @@ public class LDContextTest {
     assertThat(c1.getKey(), equalTo("x"));
     assertThat(c1.getName(), nullValue());
     assertThat(c1.isAnonymous(), is(false));
-    assertThat(c1.getSecondary(), nullValue());
     assertThat(c1.getCustomAttributeNames(), emptyIterable());
     
     LDContext c2 = LDContext.create(kind1, "x");
@@ -42,7 +41,6 @@ public class LDContextTest {
     assertThat(c2.getKey(), equalTo("x"));
     assertThat(c2.getName(), nullValue());
     assertThat(c2.isAnonymous(), is(false));
-    assertThat(c2.getSecondary(), nullValue());
     assertThat(c2.getCustomAttributeNames(), emptyIterable());
   }
   
@@ -55,7 +53,6 @@ public class LDContextTest {
     assertThat(LDContext.builder(".").anonymous(true).build().isAnonymous(), is(true));
     assertThat(LDContext.builder(".").anonymous(true).anonymous(false).build().isAnonymous(), is(false));
     assertThat(LDContext.builder(".").set("a", "x").build().getValue("a"), equalTo(LDValue.of("x")));
-    assertThat(LDContext.builder(".").secondary("x").build().getSecondary(), equalTo("x"));
   }
   
   @Test
@@ -122,7 +119,7 @@ public class LDContextTest {
         containsInAnyOrder("email", "happy"));
     
     // meta-attributes and non-optional attributes are not included
-    assertThat(LDContext.builder("a").secondary("b").anonymous(true).build().getCustomAttributeNames(),
+    assertThat(LDContext.builder("a").anonymous(true).privateAttributes("email").build().getCustomAttributeNames(),
         emptyIterable());
     
     // none for multi-kind context
@@ -223,7 +220,6 @@ public class LDContextTest {
   @Test
   public void getValueForRefCannotGetMetaProperties() {
     expectAttributeNotFoundForRef(LDContext.builder("key").privateAttributes("attr").build(), "privateAttributes");
-    expectAttributeNotFoundForRef(LDContext.builder("key").secondary("my-value").build(), "secondary");
   }
   
   @Test
@@ -333,10 +329,7 @@ public class LDContextTest {
     values.add(asList(LDContext.create(kind1, "b"), LDContext.create(kind1, "b")));
     
     values.add(asList(LDContext.builder("a").name("b").build(), LDContext.builder("a").name("b").build()));
-    
-    values.add(asList(LDContext.builder("a").secondary("b").build(), LDContext.builder("a").secondary("b").build()));
-    values.add(asList(LDContext.builder("a").secondary("").build(), LDContext.builder("a").secondary("").build()));
-    
+   
     values.add(asList(LDContext.builder("a").anonymous(true).build(), LDContext.builder("a").anonymous(true).build()));
     
     values.add(asList(LDContext.builder("a").set("b", true).build(), LDContext.builder("a").set("b", true).build()));  

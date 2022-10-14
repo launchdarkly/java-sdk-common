@@ -41,7 +41,6 @@ public class LDUser implements JsonSerializable {
   // Note that these fields are all stored internally as LDValue rather than String so that
   // we don't waste time repeatedly converting them to LDValue in the rule evaluation logic.
   final LDValue key;
-  final LDValue secondary;
   final LDValue ip;
   final LDValue email;
   final LDValue name;
@@ -57,7 +56,6 @@ public class LDUser implements JsonSerializable {
     this.key = LDValue.of(builder.key);
     this.ip = LDValue.of(builder.ip);
     this.country = LDValue.of(builder.country);
-    this.secondary = LDValue.of(builder.secondary);
     this.firstName = LDValue.of(builder.firstName);
     this.lastName = LDValue.of(builder.lastName);
     this.email = LDValue.of(builder.email);
@@ -75,7 +73,7 @@ public class LDUser implements JsonSerializable {
    */
   public LDUser(String key) {
     this.key = LDValue.of(key);
-    this.secondary = this.ip = this.email = this.name = this.avatar = this.firstName = this.lastName = this.anonymous = this.country =
+    this.ip = this.email = this.name = this.avatar = this.firstName = this.lastName = this.anonymous = this.country =
         LDValue.ofNull();
     this.custom = null;
     this.privateAttributeNames = null;
@@ -90,15 +88,6 @@ public class LDUser implements JsonSerializable {
     return key.stringValue();
   }
   
-  /**
-   * Returns the value of the secondary key property for the user, if set.
-   * 
-   * @return a string or null
-   */
-  public String getSecondary() {
-    return secondary.stringValue();
-  }
-
   /**
    * Returns the value of the IP property for the user, if set.
    * 
@@ -227,7 +216,6 @@ public class LDUser implements JsonSerializable {
     if (o instanceof LDUser) {
       LDUser ldUser = (LDUser) o;
       return Objects.equals(key, ldUser.key) &&
-          Objects.equals(secondary, ldUser.secondary) &&
           Objects.equals(ip, ldUser.ip) &&
           Objects.equals(email, ldUser.email) &&
           Objects.equals(name, ldUser.name) &&
@@ -244,7 +232,7 @@ public class LDUser implements JsonSerializable {
 
   @Override
   public int hashCode() {
-    return Objects.hash(key, secondary, ip, email, name, avatar, firstName, lastName, anonymous, country, custom, privateAttributeNames);
+    return Objects.hash(key, ip, email, name, avatar, firstName, lastName, anonymous, country, custom, privateAttributeNames);
   }
 
   @Override
@@ -264,7 +252,6 @@ public class LDUser implements JsonSerializable {
    */
   public static class Builder {
     private String key;
-    private String secondary;
     private String ip;
     private String firstName;
     private String lastName;
@@ -292,7 +279,6 @@ public class LDUser implements JsonSerializable {
     */
     public Builder(LDUser user) {
       this.key = user.key.stringValue();
-      this.secondary = user.secondary.stringValue();
       this.ip = user.ip.stringValue();
       this.firstName = user.firstName.stringValue();
       this.lastName = user.lastName.stringValue();
@@ -336,30 +322,6 @@ public class LDUser implements JsonSerializable {
     public Builder privateIp(String s) {
       addPrivate(UserAttribute.IP);
       return ip(s);
-    }
-
-    /**
-     * Sets the secondary key for a user. This affects
-     * <a href="https://docs.launchdarkly.com/home/flags/targeting-users#targeting-rules-based-on-user-attributes">feature flag targeting</a>
-     * as follows: if you have chosen to bucket users by a specific attribute, the secondary key (if set)
-     * is used to further distinguish between users who are otherwise identical according to that attribute.
-     * @param s the secondary key for the user
-     * @return the builder
-     */
-    public Builder secondary(String s) {
-      this.secondary = s;
-      return this;
-    }
-
-    /**
-     * Sets the secondary key for a user, and ensures that the secondary key attribute is not sent back to
-     * LaunchDarkly.
-     * @param s the secondary key for the user
-     * @return the builder
-     */
-    public Builder privateSecondary(String s) {
-      addPrivate(UserAttribute.SECONDARY_KEY);
-      return secondary(s);
     }
 
     /**

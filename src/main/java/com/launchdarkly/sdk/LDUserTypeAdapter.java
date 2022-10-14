@@ -22,9 +22,6 @@ final class LDUserTypeAdapter extends TypeAdapter<LDUser>{
       case "key":
         builder.key(readNullableString(reader));
         break;
-      case "secondary":
-        builder.secondary(readNullableString(reader));
-        break;
       case "ip":
         builder.ip(readNullableString(reader));
         break;

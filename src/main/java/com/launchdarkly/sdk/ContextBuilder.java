@@ -35,7 +35,6 @@ public final class ContextBuilder {
   private String key;
   private String name;
   private Map<String, LDValue> attributes;
-  private String secondary;
   private boolean anonymous;
   private List<AttributeRef> privateAttributes;
   private boolean copyOnWriteAttributes;
@@ -68,7 +67,7 @@ public final class ContextBuilder {
     this.copyOnWriteAttributes = attributes != null;
     this.copyOnWritePrivateAttributes = privateAttributes != null;
     
-    return LDContext.createSingle(kind, key, name, attributes, secondary, anonymous, privateAttributes, allowEmptyKey);
+    return LDContext.createSingle(kind, key, name, attributes, anonymous, privateAttributes, allowEmptyKey);
   }
   
   /**
@@ -162,40 +161,15 @@ public final class ContextBuilder {
     this.anonymous = anonymous;
     return this;
   }
-  
-  /**
-   * Sets a secondary key for the context.
-   * <p>
-   * This affects <a href="https://docs.launchdarkly.com/home/flags/targeting-users#targeting-rules-based-on-user-attributes">
-   * feature flag targeting</a> as follows: if you have chosen to bucket contexts by a
-   * specific attribute, the secondary key (if set) is used to further distinguish between
-   * contexts that are otherwise identical according to that attribute.
-   * <p>
-   * This is a metadata property, rather than an attribute that can be addressed in
-   * evaluations: that is, a rule clause that references the attribute name "secondary"
-   * will not use this value, but instead will use whatever value (if any) you have set
-   * for the name "secondary" with a method such as {@link #set(String, String)}).
-   * <p>
-   * Setting this value to an empty string is not the same as leaving it unset. If you
-   * need to clear this, set it to null.
-   * 
-   * @param secondary the secondary key, or null
-   * @return the builder
-   * @see LDContext#getSecondary()
-   */
-  public ContextBuilder secondary(String secondary) {
-    this.secondary = secondary;
-    return this;
-  }
-  
+ 
   /**
    * Sets the value of any attribute for the context.
    * <p>
    * This includes only attributes that are addressable in evaluations-- not metadata
-   * such as {@link #secondary(String)}. If {@code attributeName} is "secondary" or
+   * such as {@link #privateAttributes(String...)}. If {@code attributeName} is
    * "privateAttributes", you will be setting an attribute with that name which you can
    * use in evaluations or to record data for your own purposes, but it will be unrelated
-   * to {@link #secondary(String)} and {@link #privateAttributes(String...)}.
+   * to {@link #privateAttributes(String...)}.
    * <p>
    * This method uses the {@link LDValue} type to represent a value of any JSON type:
    * null, boolean, number, string, array, or object. For all attribute names that do
@@ -404,7 +378,6 @@ public final class ContextBuilder {
     key = context.getKey();
     name = context.getName();
     anonymous = context.isAnonymous();
-    secondary = context.getSecondary();
     attributes = context.attributes;
     privateAttributes = context.privateAttributes;
     copyOnWriteAttributes = true;
