@@ -168,6 +168,11 @@ public class LDUserTest extends BaseTest {
   }
 
   @Test
+  public void builderSetsKey() {
+    assertThat(new LDUser.Builder("a").key("b").build().getKey(), equalTo("b"));
+  }
+  
+  @Test
   public void canCopyContextWithBuilder() {
     LDContext user = new LDUser.Builder("key")
         .ip("127.0.0.1")
