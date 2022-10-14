@@ -7,9 +7,7 @@ import com.launchdarkly.sdk.ContextKind;
 import com.launchdarkly.sdk.EvaluationDetail;
 import com.launchdarkly.sdk.EvaluationReason;
 import com.launchdarkly.sdk.LDContext;
-import com.launchdarkly.sdk.LDUser;
 import com.launchdarkly.sdk.LDValue;
-import com.launchdarkly.sdk.UserAttribute;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
@@ -156,9 +154,7 @@ public abstract class JsonSerialization {
         knownDeserializableClasses.add(EvaluationReason.class);
         knownDeserializableClasses.add(EvaluationDetail.class);
         knownDeserializableClasses.add(LDContext.class);
-        knownDeserializableClasses.add(LDUser.class);
         knownDeserializableClasses.add(LDValue.class);
-        knownDeserializableClasses.add(UserAttribute.class);
         
         // Use reflection to find any additional classes provided by an SDK; if there are none or if
         // this fails for any reason, don't worry about it
