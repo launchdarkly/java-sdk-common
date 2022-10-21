@@ -42,7 +42,6 @@ public final class LDContext implements JsonSerializable {
   final String fullyQualifiedKey;
   final String name;
   final Map<String, LDValue> attributes;
-  final String secondary;
   final boolean anonymous;
   final List<AttributeRef> privateAttributes;
   
@@ -53,7 +52,6 @@ public final class LDContext implements JsonSerializable {
       String fullyQualifiedKey,
       String name,
       Map<String, LDValue> attributes,
-      String secondary,
       boolean anonymous,
       List<AttributeRef> privateAttributes
       ) {
@@ -64,7 +62,6 @@ public final class LDContext implements JsonSerializable {
     this.fullyQualifiedKey = fullyQualifiedKey;
     this.name = name;
     this.attributes = attributes;
-    this.secondary = secondary;
     this.anonymous = anonymous;
     this.privateAttributes = privateAttributes;
   }
@@ -77,7 +74,6 @@ public final class LDContext implements JsonSerializable {
     this.fullyQualifiedKey = "";
     this.name = null;
     this.attributes = null;
-    this.secondary = null;
     this.anonymous = false;
     this.privateAttributes = null;
   }
@@ -88,7 +84,6 @@ public final class LDContext implements JsonSerializable {
       String key,
       String name,
       Map<String, LDValue> attributes,
-      String secondary,
       boolean anonymous,
       List<AttributeRef> privateAttributes,
       boolean allowEmptyKey // allowEmptyKey is true only when deserializing old-style user JSON
@@ -104,7 +99,7 @@ public final class LDContext implements JsonSerializable {
     }
     String fullyQualifiedKey = kind.isDefault() ? key :
       (kind.toString() + ":" + escapeKeyForFullyQualifiedKey(key));
-    return new LDContext(kind, null, key, fullyQualifiedKey, name, attributes, secondary, anonymous, privateAttributes);
+    return new LDContext(kind, null, key, fullyQualifiedKey, name, attributes, anonymous, privateAttributes);
   }
   
   // Internal factory method for multi-kind contexts - implements all of the validation logic
@@ -157,7 +152,7 @@ public final class LDContext implements JsonSerializable {
       fullKey.append(c.getKind().toString()).append(':').append(escapeKeyForFullyQualifiedKey(c.getKey()));
     }
     return new LDContext(ContextKind.MULTI, multiContexts, "", fullKey.toString(),
-        null, null, null, false, null);
+        null, null, false, null);
   }
   
   // Internal factory method for a context in an invalid state.
@@ -194,7 +189,7 @@ public final class LDContext implements JsonSerializable {
    * @see #builder(ContextKind, String)
    */
   public static LDContext create(ContextKind kind, String key) {
-    return createSingle(kind, key, null, null, null, false, null, false);
+    return createSingle(kind, key, null, null, false, null, false);
   }
   
   /**
@@ -469,27 +464,10 @@ public final class LDContext implements JsonSerializable {
   }
 
   /**
-   * Returns the context's optional secondary key attribute.
-   * <p>
-   * For a single-kind context, this value is set by {@link ContextBuilder#secondary(String)}.
-   * It is null if no value was set.
-   * <p>
-   * For a multi-kind context, there is no single value and {@link #getSecondary()} returns null.
-   * Use {@link #getIndividualContext(int)} or {@link #getIndividualContext(String)} to
-   * inspect the LDContext for a particular kind, then call {@link #getSecondary()} on it.
-   * 
-   * @return the secondary key or null
-   * @see ContextBuilder#secondary(String)
-   */
-  public String getSecondary() {
-    return secondary;
-  }
-  
-  /**
    * Looks up the value of any attribute of the context by name.
    * <p>
    * This includes only attributes that are addressable in evaluations-- not metadata such
-   * as {@link #getSecondary()}.
+   * as {@link #getPrivateAttribute(int)}.
    * <p>
    * For a single-kind context, the attribute name can be any custom attribute that was set
    * by methods like {@link ContextBuilder#set(String, boolean)}. It can also be one of the
@@ -526,7 +504,7 @@ public final class LDContext implements JsonSerializable {
    * attribute, based on an {@link AttributeRef}.
    * <p>
    * This includes only attributes that are addressable in evaluations-- not metadata such
-   * as {@link #getSecondary()}.
+   * as {@link #getPrivateAttribute(int)}.
    * <p>
    * This implements the same behavior that the SDK uses to resolve attribute references
    * during a flag evaluation. In a single-kind context, the {@link AttributeRef} can
@@ -769,8 +747,7 @@ public final class LDContext implements JsonSerializable {
       }
       return true;
     }
-    if (!key.equals(o.key) || !Objects.equals(name, o.name) || anonymous != o.anonymous ||
-        !Objects.equals(secondary, o.secondary)) {
+    if (!key.equals(o.key) || !Objects.equals(name, o.name) || anonymous != o.anonymous) {
       return false;
     }
     if ((attributes == null ? 0 : attributes.size()) !=
@@ -810,7 +787,7 @@ public final class LDContext implements JsonSerializable {
     // of attribute names. That's necessary just for the sake of aligning with the behavior of equals(),
     // which is insensitive to ordering. However, using an LDContext as a map key is not an anticipated
     // or recommended use case.
-    int h = Objects.hash(error, kind, key, name, anonymous, secondary);
+    int h = Objects.hash(error, kind, key, name, anonymous);
     if (multiContexts != null) {
       for (LDContext c: multiContexts) {
         h = h * 17 + c.hashCode();

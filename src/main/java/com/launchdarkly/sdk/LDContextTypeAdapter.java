@@ -16,7 +16,6 @@ import static com.launchdarkly.sdk.LDContext.ATTR_NAME;
 
 final class LDContextTypeAdapter extends TypeAdapter<LDContext> {
   private static final String JSON_PROP_META = "_meta";
-  private static final String JSON_PROP_SECONDARY = "secondary";
   private static final String JSON_PROP_PRIVATE = "privateAttributes";
   private static final String JSON_PROP_OLD_PRIVATE = "privateAttributeNames";
   private static final String JSON_PROP_OLD_CUSTOM = "custom";
@@ -57,18 +56,13 @@ final class LDContextTypeAdapter extends TypeAdapter<LDContext> {
         LDValueTypeAdapter.INSTANCE.write(out, kv.getValue());
       }
     }
-    if (c.getSecondary() != null || c.getPrivateAttributeCount() != 0) {
+    if (c.getPrivateAttributeCount() != 0) {
       out.name(JSON_PROP_META).beginObject();
-      if (c.getSecondary() != null) {
-        out.name(JSON_PROP_SECONDARY).value(c.getSecondary());
+      out.name(JSON_PROP_PRIVATE).beginArray();
+      for (AttributeRef a: c.privateAttributes) {
+        out.value(a.toString());
       }
-      if (c.getPrivateAttributeCount() != 0) {
-        out.name(JSON_PROP_PRIVATE).beginArray();
-        for (AttributeRef a: c.privateAttributes) {
-          out.value(a.toString());
-        }
-        out.endArray();
-      }
+      out.endArray();
       out.endObject();
     }
     out.endObject();
@@ -129,9 +123,6 @@ final class LDContextTypeAdapter extends TypeAdapter<LDContext> {
       case ATTR_ANONYMOUS:
         cb.anonymous(requireValueType(v, LDValueType.BOOLEAN, true, key).booleanValue());
         break;
-      case JSON_PROP_SECONDARY:
-        cb.secondary(requireValueType(v, LDValueType.STRING, true, key).stringValue());
-        break;
       case JSON_PROP_OLD_PRIVATE:
         LDValue privateAttrs = requireValueType(v, LDValueType.ARRAY, true, JSON_PROP_OLD_PRIVATE);
         for (LDValue privateAttr: privateAttrs.values()) {
@@ -187,8 +178,6 @@ final class LDContextTypeAdapter extends TypeAdapter<LDContext> {
         break;
       case JSON_PROP_META:
         LDValue meta = requireValueType(v, LDValueType.OBJECT, true, key);
-        cb.secondary(requireValueType(meta.get(JSON_PROP_SECONDARY),
-            LDValueType.STRING, true, JSON_PROP_SECONDARY).stringValue());
         LDValue privateAttrs = requireValueType(meta.get(JSON_PROP_PRIVATE),
             LDValueType.ARRAY, true, JSON_PROP_PRIVATE);
         for (LDValue privateAttr: privateAttrs.values()) {

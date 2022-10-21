@@ -33,15 +33,6 @@ public final class UserAttribute implements JsonSerializable {
   });
 
   /**
-   * Represents the secondary key attribute.
-   */
-  public static final UserAttribute SECONDARY_KEY = new UserAttribute("secondary", new Function<LDUser, LDValue>() {
-    public LDValue apply(LDUser u) {
-      return u.secondary;
-    }
-  });
-  
-  /**
    * Represents the IP address attribute.
    */
   public static final UserAttribute IP = new UserAttribute("ip", new Function<LDUser, LDValue>() {
@@ -117,7 +108,7 @@ public final class UserAttribute implements JsonSerializable {
   static final Map<String, UserAttribute> BUILTINS;
   static {
     BUILTINS = new HashMap<>();
-    for (UserAttribute a: new UserAttribute[] { KEY, SECONDARY_KEY, IP, EMAIL, NAME, AVATAR, FIRST_NAME, LAST_NAME, COUNTRY, ANONYMOUS }) {
+    for (UserAttribute a: new UserAttribute[] { KEY, IP, EMAIL, NAME, AVATAR, FIRST_NAME, LAST_NAME, COUNTRY, ANONYMOUS }) {
       BUILTINS.put(a.getName(), a);
     }
   }

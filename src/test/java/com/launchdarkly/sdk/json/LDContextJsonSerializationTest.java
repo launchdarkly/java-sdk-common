@@ -58,10 +58,6 @@ public class LDContextJsonSerializationTest {
     }
 
     verifySerializeAndDeserialize(
-        LDContext.builder("a").secondary("b").build(),
-        "{\"kind\":\"user\",\"key\":\"a\",\"_meta\":{\"secondary\":\"b\"}}");
-
-    verifySerializeAndDeserialize(
         LDContext.builder("a").privateAttributes("b").build(),
         "{\"kind\":\"user\",\"key\":\"a\",\"_meta\":{\"privateAttributes\":[\"b\"]}}");
 
@@ -104,9 +100,6 @@ public class LDContextJsonSerializationTest {
           "{\"key\":\"a\",\"custom\":{\"b\":" + customValue.toJsonString() + "}}");
     }
 
-    verifyDeserialize(LDContext.builder("a").secondary("b").build(),
-        "{\"key\":\"a\",\"secondary\":\"b\"}");
-    
     verifyDeserialize(LDContext.builder("a").privateAttributes("b").build(),
         "{\"key\":\"a\",\"privateAttributeNames\":[\"b\"]}");
     

@@ -25,13 +25,6 @@ import static org.junit.Assert.assertTrue;
 @SuppressWarnings("javadoc")
 public class LDUserTest extends BaseTest {
   private static enum OptionalStringAttributes {
-    secondary(
-        new Function<LDUser, String>() { public String apply(LDUser u) { return u.getSecondary(); } },
-        new BiFunction<LDUser.Builder, String, LDUser.Builder>()
-          { public LDUser.Builder apply(LDUser.Builder b, String s) { return b.secondary(s); } },
-          new BiFunction<LDUser.Builder, String, LDUser.Builder>()
-          { public LDUser.Builder apply(LDUser.Builder b, String s) { return b.privateSecondary(s); } }),
-
     ip(
         new Function<LDUser, String>() { public String apply(LDUser u) { return u.getIp(); } },
         new BiFunction<LDUser.Builder, String, LDUser.Builder>()
@@ -238,7 +231,6 @@ public class LDUserTest extends BaseTest {
   @Test
   public void canCopyUserWithBuilder() {
     LDUser user = new LDUser.Builder("key")
-        .secondary("secondary")
         .ip("127.0.0.1")
         .firstName("Bob")
         .lastName("Loblaw")
