@@ -41,14 +41,11 @@ public abstract class LDUser {
   private LDUser() {}
 
   /**
-   * A <a href="http://en.wikipedia.org/wiki/Builder_pattern">builder</a> that helps construct {@link LDUser} objects. Builder
-   * calls can be chained, enabling the following pattern:
-   * <pre>
-   * LDUser user = new LDUser.Builder("key")
-   *      .country("US")
-   *      .ip("192.168.0.1")
-   *      .build()
-   * </pre>
+   * A a mutable object that uses the Builder pattern to specify properties for a user
+   * context.
+   * <p>
+   * This is a compatibility helper that has been retained to ease migration of code from the older
+   * "user" model to the newer "context" model. See {@link LDUser} for more information.
    */
   public static class Builder {
     private final ContextBuilder builder;
