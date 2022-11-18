@@ -8,6 +8,7 @@ abstract class Errors {
   static final String ATTR_INVALID_ESCAPE =
       "attribute reference contained an escape character (~) that was not followed by 0 or 1";
 
+  static final String CONTEXT_FROM_NULL_USER = "tried to use a null LDUser reference";
   static final String CONTEXT_NO_KEY = "context key must not be null or empty";
   static final String CONTEXT_KIND_CANNOT_BE_EMPTY = "context kind must not be empty in JSON";
   static final String CONTEXT_KIND_CANNOT_BE_KIND = "\"kind\" is not a valid context kind";

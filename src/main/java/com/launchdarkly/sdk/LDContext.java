@@ -4,18 +4,21 @@ import com.google.gson.annotations.JsonAdapter;
 import com.launchdarkly.sdk.json.JsonSerializable;
 import com.launchdarkly.sdk.json.JsonSerialization;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
 /**
  * A collection of attributes that can be referenced in flag evaluations and analytics events.
+ * <p>
+ * LDContext is the newer replacement for the previous, less flexible {@link LDUser} type.
+ * The current SDK still supports LDUser, but LDContext is now the preferred model and may
+ * entirely replace LDUser in the future.
  * <p>
  * To create an LDContext of a single kind, such as a user, you may use {@link #create(String)}
  * or {@link #create(ContextKind, String)} when only the key matters; or, to specify other
@@ -244,6 +247,72 @@ public final class LDContext implements JsonSerializable {
   }
   
   /**
+   * Converts a user to an equivalent {@link LDContext} instance.
+   * <p>
+   * This method is used by the SDK whenever an application passes a {@link LDUser} instance
+   * to methods such as {@code identify}. The SDK operates internally on the {@link LDContext}
+   * model, which is more flexible than the older LDUser model: an L User can always be converted
+   * to an LDContext, but not vice versa. The {@link ContextKind} of the resulting Context is
+   * {@link ContextKind#DEFAULT} ("user").
+   * <p>
+   * Because there is some overhead to this conversion, it is more efficient for applications to
+   * construct an LDContext and pass that to the SDK, rather than an LDUser. This is also recommended
+   * because the LDUser type may be removed in a future version of the SDK.
+   * <p>
+   * If the {@code user} parameter is null, or if the user has a null key, the method returns an
+   * LDContext in an invalid state (see {@link LDContext#isValid()}).
+   *
+   * @param user an LDUser object
+   * @return an LDContext with the same attributes as the LDUser
+   */
+  public static LDContext fromUser(LDUser user) {
+    if (user == null) {
+      return failed(Errors.CONTEXT_FROM_NULL_USER);
+    }
+    if (user.getKey() == null) {
+      return failed(Errors.CONTEXT_NO_KEY);
+    }
+    Map<String, LDValue> attributes = null;
+    for (UserAttribute a: UserAttribute.OPTIONAL_STRING_ATTRIBUTES) {
+      if (a == UserAttribute.NAME) {
+        continue;
+      }
+      LDValue value = user.getAttribute(a);
+      if (!value.isNull()) {
+        if (attributes == null) {
+          attributes = new HashMap<>(); 
+        }
+        attributes.put(a.getName(), value);
+      }
+    }
+    if (user.custom != null && !user.custom.isEmpty()) {
+      if (attributes == null) {
+        attributes = new HashMap<>(); 
+      }
+      for (Map.Entry<UserAttribute, LDValue> kv: user.custom.entrySet()) {
+        attributes.put(kv.getKey().getName(), kv.getValue());
+      }
+    }
+    List<AttributeRef> privateAttributes = null;
+    if (user.privateAttributeNames != null && !user.privateAttributeNames.isEmpty()) {
+      privateAttributes = new ArrayList<>();
+      for (UserAttribute pa: user.privateAttributeNames) {
+        privateAttributes.add(AttributeRef.fromLiteral(pa.getName()));
+      }
+    }
+    return new LDContext(
+        ContextKind.DEFAULT,
+        null,
+        user.getKey(),
+        user.getKey(),
+        user.getName(),
+        attributes,
+        user.isAnonymous(),
+        privateAttributes
+        );
+  }
+  
+  /**
    * Creates a {@link ContextBuilder} for building an LDContext, initializing its {@code key} and setting
    * {@code kind} to {@link ContextKind#DEFAULT}.
    * <p>
@@ -338,6 +407,8 @@ public final class LDContext implements JsonSerializable {
    * <li> It is a multi-kind context that does not have any kinds. See {@link #createMulti(LDContext...)}. </li>
    * <li> It is a multi-kind context where the same kind appears more than once. </li>
    * <li> It is a multi-kind context where at least one of the nested LDContexts has an error. </li>
+   * <li> It was created with {@link #fromUser(LDUser)} from a null LDUser reference, or from an
+   * LDUser that had a null key. </li>
    * </ul>
    * <p>
    * In any of these cases, {@link #isValid()} will return false, and {@link #getError()}

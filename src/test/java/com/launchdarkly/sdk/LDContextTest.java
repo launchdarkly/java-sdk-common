@@ -361,4 +361,57 @@ public class LDContextTest {
     values.add(asList(LDContext.createMulti(), LDContext.createMulti())); // invalid with a different error
     return values;
   }
+  
+  @Test
+  public void contextFromUser() {
+    LDUser u1 = new LDUser.Builder("key")
+        .ip("127.0.0.1")
+        .firstName("Bob")
+        .lastName("Loblaw")
+        .email("bob@example.com")
+        .privateName("Bob Loblaw")
+        .avatar("image")
+        .country("US")
+        .anonymous(true)
+        .build();
+    LDContext c1 = LDContext.fromUser(u1);
+    assertThat(c1, equalTo(
+        LDContext.builder(u1.getKey())
+          .set("ip", u1.getIp())
+          .set("firstName", u1.getFirstName())
+          .set("lastName", u1.getLastName())
+          .set("email", u1.getEmail())
+          .set("name", u1.getName())
+          .set("avatar", u1.getAvatar())
+          .set("country", u1.getCountry())
+          .privateAttributes("name")
+          .anonymous(true)
+          .build()
+        ));
+    
+    // test case where there were no built-in optional attrs, only custom
+    LDUser u2 = new LDUser.Builder("key")
+        .custom("c1", "v1")
+        .privateCustom("c2", "v2")
+        .build();
+    LDContext c2 = LDContext.fromUser(u2);
+    assertThat(c2, equalTo(
+        LDContext.builder(u2.getKey())
+          .set("c1", "v1")
+          .set("c2", "v2")
+          .privateAttributes("c2")
+          .build()
+        ));
+  }
+  
+  @Test
+  public void contextFromUserErrors() {
+    LDContext c1 = LDContext.fromUser(null);
+    assertThat(c1.isValid(), is(false));
+    assertThat(c1.getError(), equalTo(Errors.CONTEXT_FROM_NULL_USER));
+
+    LDContext c2 = LDContext.fromUser(new LDUser((String)null));
+    assertThat(c2.isValid(), is(false));
+    assertThat(c2.getError(), equalTo(Errors.CONTEXT_NO_KEY));
+}
 }
