@@ -402,6 +402,13 @@ public class LDContextTest {
           .privateAttributes("c2")
           .build()
         ));
+    
+    // anonymous user with null key
+    LDUser u3 = new LDUser.Builder((String)null).anonymous(true).build();
+    LDContext c3 = LDContext.fromUser(u3);
+    assertThat(c3.isValid(), is(true));
+    assertThat(c3.getKey(), equalTo(""));
+    assertThat(c3.isAnonymous(), is(true));
   }
   
   @Test

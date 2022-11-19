@@ -269,8 +269,17 @@ public final class LDContext implements JsonSerializable {
     if (user == null) {
       return failed(Errors.CONTEXT_FROM_NULL_USER);
     }
-    if (user.getKey() == null) {
-      return failed(Errors.CONTEXT_NO_KEY);
+    String key = user.getKey();
+    if (key == null) {
+      if (user.isAnonymous()) {
+        // In the old user model, a user was able to have a null key for the special case
+        // where (in the Android SDK only) the user was anonymous and the SDK would generate a
+        // key for it. There is a different mechanism for this in the new Android SDK, but we
+        // will replace the null key with "" so the original context is valid.
+        key = "";
+      } else {
+        return failed(Errors.CONTEXT_NO_KEY);
+      }
     }
     Map<String, LDValue> attributes = null;
     for (UserAttribute a: UserAttribute.OPTIONAL_STRING_ATTRIBUTES) {
@@ -303,8 +312,8 @@ public final class LDContext implements JsonSerializable {
     return new LDContext(
         ContextKind.DEFAULT,
         null,
-        user.getKey(),
-        user.getKey(),
+        key,
+        key,
         user.getName(),
         attributes,
         user.isAnonymous(),
