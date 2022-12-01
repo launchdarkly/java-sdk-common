@@ -29,6 +29,20 @@ import java.util.Objects;
  * <p>
  * An LDContext can be in an error state if it was built with invalid attributes. See
  * {@link #isValid()} and {@link #getError()}.
+ * <p>
+ * LaunchDarkly defines a standard JSON encoding for contexts, used by the JavaScript SDK
+ * and also in analytics events. {@link LDContext} can be converted to and from JSON in any of
+ * these ways:
+ * <ol>
+ * <li> With {@link JsonSerialization}.
+ * <li> With Gson, if and only if you configure your {@code Gson} instance with
+ * {@link com.launchdarkly.sdk.json.LDGson}.
+ * <li> With Jackson, if and only if you configure your {@code ObjectMapper} instance with
+ * {@link com.launchdarkly.sdk.json.LDJackson}.
+ * </ol>
+ * <p>
+ * To learn more about contexts, read <a href="https://docs.launchdarkly.com/home/contexts">the
+ * documentation</a>.
  */
 @JsonAdapter(LDContextTypeAdapter.class)
 public final class LDContext implements JsonSerializable {

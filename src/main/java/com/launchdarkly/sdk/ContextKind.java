@@ -25,6 +25,9 @@ import com.launchdarkly.sdk.json.JsonSerializable;
  * For a multi-kind context (see {@link LDContext#createMulti(LDContext...)}), the kind of
  * the top-level LDContext is always "multi" (the constant {@link #MULTI}); there is a 
  * specific Kind for each of the contexts contained within it.
+ * <p>
+ * To learn more, read <a href="https://docs.launchdarkly.com/home/contexts">the
+ * documentation</a>.
  */
 @JsonAdapter(ContextKindTypeAdapter.class)
 public final class ContextKind implements Comparable<ContextKind>, JsonSerializable {

@@ -16,18 +16,42 @@ import static java.util.Collections.unmodifiableMap;
 import static java.util.Collections.unmodifiableSet;
 
 /**
- * A collection of attributes that can affect flag evaluation, usually corresponding to a user of your application.
+ * Attributes of a user for whom you are evaluating feature flags.
  * <p>
- * The only mandatory property is the {@code key}, which must uniquely identify each user; this could be a username
- * or email address for authenticated users, or a session ID for anonymous users. All other built-in properties are
- * optional. You may also define custom properties with arbitrary names and values.
+ * {@link LDUser} contains any user-specific properties that may be used in feature flag
+ * configurations to produce different flag variations for different users. You may define
+ * these properties however you wish.
  * <p>
- * For a fuller description of user attributes and how they can be referenced in feature flag rules, see the reference
- * guides on <a href="https://docs.launchdarkly.com/home/users/attributes">Setting user attributes</a>
- * and <a href="https://docs.launchdarkly.com/home/flags/targeting-users">Targeting users</a>.
+ * LDUser supports only a subset of the behaviors that are available with the newer
+ * {@link LDContext} type. An LDUser is equivalent to an individual {@link LDContext} that has
+ * a {@link ContextKind} of {@link ContextKind#DEFAULT} ("user"); it also has more constraints
+ * on attribute values than LDContext does (for instance, built-in attributes such as
+ * {@link LDUser.Builder#email(String)}  can only have string values). Older LaunchDarkly SDKs
+ * only had the LDUser model, and the LDUser type has been retained for backward compatibility,
+ * but it may be removed in a future SDK version; also, the SDK will always convert an LDUser
+ * to an LDContext internally, which has some overhead. Therefore, developers are recommended
+ * to migrate toward using LDContext.
  * <p>
- * LaunchDarkly defines a standard JSON encoding for user objects, used by the JavaScript SDK and also in analytics
- * events. {@link LDUser} can be converted to and from JSON in any of these ways:
+ * The only mandatory property of LDUser is the {@code key}, which must uniquely identify each
+ * user. For authenticated users, this may be a username or e-mail address. For anonymous
+ * users, this could be an IP address or session ID.
+ * <p>
+ * Besides the mandatory key, LDUser supports two kinds of optional attributes: built-in
+ * attributes (e.g. {@link LDUser.Builder#name(String)} and {@link LDUser.Builder#country(String)})
+ * and custom attributes. The built-in attributes have specific allowed value types; also, two
+ * of them ({@code name} and {@code anonymous}) have special meanings in LaunchDarkly. Custom
+ * attributes have flexible value types, and can have any names that do not conflict with
+ * built-in attributes.
+ * <p>
+ * Both built-in attributes and custom attributes can be referenced in targeting rules, and
+ * are included in analytics data.
+ * <p>
+ * Instances of LDUser are immutable once created. They can be created with the constructor,
+ * or using a builder pattern with {@link LDUser.Builder}.
+ * <p>
+ * LaunchDarkly defines a standard JSON encoding for user objects, used by the JavaScript SDK
+ * and also in analytics events. {@link LDUser} can be converted to and from JSON in any of
+ * these ways:
  * <ol>
  * <li> With {@link JsonSerialization}.
  * <li> With Gson, if and only if you configure your {@code Gson} instance with
