@@ -25,13 +25,6 @@ import static org.junit.Assert.assertTrue;
 @SuppressWarnings("javadoc")
 public class LDUserTest extends BaseTest {
   private static enum OptionalStringAttributes {
-    secondary(
-        new Function<LDUser, String>() { public String apply(LDUser u) { return u.getSecondary(); } },
-        new BiFunction<LDUser.Builder, String, LDUser.Builder>()
-          { public LDUser.Builder apply(LDUser.Builder b, String s) { return b.secondary(s); } },
-          new BiFunction<LDUser.Builder, String, LDUser.Builder>()
-          { public LDUser.Builder apply(LDUser.Builder b, String s) { return b.privateSecondary(s); } }),
-
     ip(
         new Function<LDUser, String>() { public String apply(LDUser u) { return u.getIp(); } },
         new BiFunction<LDUser.Builder, String, LDUser.Builder>()
@@ -108,7 +101,6 @@ public class LDUserTest extends BaseTest {
       assertEquals(a.toString(), LDValue.ofNull(), user.getAttribute(a.attribute));
     }
     assertThat(user.isAnonymous(), is(false));
-    assertThat(user.getAttribute(UserAttribute.ANONYMOUS), equalTo(LDValue.ofNull()));
     assertThat(user.getAttribute(UserAttribute.forName("custom-attr")), equalTo(LDValue.ofNull()));
     assertThat(user.getCustomAttributes(), emptyIterable());
     assertThat(user.getPrivateAttributes(), emptyIterable());
@@ -131,7 +123,6 @@ public class LDUserTest extends BaseTest {
         }
       }
       assertThat(user.isAnonymous(), is(false));
-      assertThat(user.getAttribute(UserAttribute.ANONYMOUS), equalTo(LDValue.ofNull()));
       assertThat(user.getAttribute(UserAttribute.forName("custom-attr")), equalTo(LDValue.ofNull()));
       assertThat(user.getCustomAttributes(), emptyIterable());
       assertThat(user.getPrivateAttributes(), emptyIterable());
@@ -156,7 +147,6 @@ public class LDUserTest extends BaseTest {
         }
       }
       assertThat(user.isAnonymous(), is(false));
-      assertThat(user.getAttribute(UserAttribute.ANONYMOUS), equalTo(LDValue.ofNull()));
       assertThat(user.getAttribute(UserAttribute.forName("custom-attr")), equalTo(LDValue.ofNull()));
       assertThat(user.getCustomAttributes(), emptyIterable());
       assertThat(user.getPrivateAttributes(), contains(a.attribute));
@@ -238,7 +228,6 @@ public class LDUserTest extends BaseTest {
   @Test
   public void canCopyUserWithBuilder() {
     LDUser user = new LDUser.Builder("key")
-        .secondary("secondary")
         .ip("127.0.0.1")
         .firstName("Bob")
         .lastName("Loblaw")
@@ -283,6 +272,8 @@ public class LDUserTest extends BaseTest {
     List<List<LDUser>> testValues = new ArrayList<>();
     testValues.add(asList(new LDUser(key), new LDUser(key)));
     testValues.add(asList(new LDUser("key2"), new LDUser("key2")));
+    testValues.add(asList(new LDUser.Builder(key).anonymous(true).build(),
+        new LDUser.Builder(key).anonymous(true).build()));
     for (OptionalStringAttributes a: OptionalStringAttributes.values()) {
       List<LDUser> equalValues = new ArrayList<>();
       for (int i = 0; i < 2; i++) {
@@ -298,13 +289,6 @@ public class LDUserTest extends BaseTest {
         equalValuesPrivate.add(builder.build());
       }
       testValues.add(equalValuesPrivate);
-    }
-    for (boolean anonValue: new boolean[] { true, false }) {
-      List<LDUser> equalValues = new ArrayList<>();
-      for (int i = 0; i < 2; i++) {
-        equalValues.add(new LDUser.Builder(key).anonymous(anonValue).build());
-      }
-      testValues.add(equalValues);
     }
     for (String attrName: new String[] { "custom1", "custom2" }) {
       LDValue[] values = new LDValue[] { LDValue.of(true), LDValue.of(false) };

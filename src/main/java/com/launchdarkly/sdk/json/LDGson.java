@@ -11,7 +11,7 @@ import com.google.gson.TypeAdapterFactory;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
-import com.launchdarkly.sdk.LDUser;
+import com.launchdarkly.sdk.LDContext;
 import com.launchdarkly.sdk.LDValue;
 
 import java.io.IOException;
@@ -45,7 +45,7 @@ import java.util.Map;
  * <p>
  * This causes Gson to use the correct JSON representation logic (the same that would be used by
  * {@link JsonSerialization}) for any types that have the SDK's {@link JsonSerializable} marker
- * interface, such as {@link LDUser} and {@link LDValue}, regardless of whether they are the
+ * interface, such as {@link LDContext} and {@link LDValue}, regardless of whether they are the
  * top-level object being serialized or are contained in something else such as a collection. It
  * does not affect Gson's behavior for any other classes.
  * <p>

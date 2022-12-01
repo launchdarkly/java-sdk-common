@@ -11,7 +11,7 @@ import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.Module;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.module.SimpleModule;
-import com.launchdarkly.sdk.LDUser;
+import com.launchdarkly.sdk.LDContext;
 import com.launchdarkly.sdk.LDValue;
 
 import java.io.IOException;
@@ -31,7 +31,7 @@ import java.io.IOException;
  * <p>
  * This causes Jackson to use the correct JSON representation logic (the same that would be used by
  * {@link JsonSerialization}) for any types that have the SDK's {@link JsonSerializable} marker
- * interface, such as {@link LDUser} and {@link LDValue}, regardless of whether they are the
+ * interface, such as {@link LDContext} and {@link LDValue}, regardless of whether they are the
  * top-level object being serialized or are contained in something else such as a collection. It
  * does not affect Jackson's behavior for any other classes.
  * <p>

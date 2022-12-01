@@ -29,7 +29,6 @@ public class LDUserJsonSerializationTest extends BaseTest {
   @Test
   public void defaultJsonEncodingWithoutPrivateAttributes() throws Exception {
     LDUser user = new LDUser.Builder("userkey")
-        .secondary("s")
         .ip("i")
         .email("e")
         .name("n")
@@ -43,7 +42,6 @@ public class LDUserJsonSerializationTest extends BaseTest {
         .build();
     LDValue expectedJson = LDValue.buildObject()
         .put("key", "userkey")
-        .put("secondary", "s")
         .put("ip", "i")
         .put("email", "e")
         .put("name", "n")

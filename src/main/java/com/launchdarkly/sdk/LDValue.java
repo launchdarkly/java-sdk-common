@@ -1,6 +1,5 @@
 package com.launchdarkly.sdk;
 
-import com.google.gson.Gson;
 import com.google.gson.annotations.JsonAdapter;
 import com.google.gson.stream.JsonWriter;
 import com.launchdarkly.sdk.json.JsonSerializable;
@@ -23,7 +22,7 @@ import static java.util.Collections.emptyList;
  * values (a JSON array), or a map of strings to {@link LDValue} values (a JSON object). It is easily
  * convertible to standard Java types.
  * <p>
- * This can be used to represent complex data in a user custom attribute (see {@link LDUser.Builder#custom(String, LDValue)}),
+ * This can be used to represent complex data in a context attribute (see {@link ContextBuilder#set(String, LDValue)}),
  * or to get a feature flag value that uses a complex type or that does not always use the same
  * type (see the client's {@code jsonValueVariation} methods).
  * <p>

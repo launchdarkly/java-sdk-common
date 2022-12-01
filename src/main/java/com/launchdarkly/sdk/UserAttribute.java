@@ -13,9 +13,11 @@ import java.util.Map;
 /**
  * Represents a built-in or custom attribute name supported by {@link LDUser}.
  * <p>
- * This abstraction helps to distinguish attribute names from other {@link String} values, and also
- * improves efficiency in feature flag data structures and evaluations because built-in attributes
- * always reuse the same instances. 
+ * Application code rarely needs to use this type; it is used internally by the SDK for
+ * efficiency in flag evaluations. It can also be used as a reference for the constant
+ * names of built-in attributes such as {@link #EMAIL}. However, in the newer
+ * {@link LDContext} model, there are very few reserved attribute names, so the
+ * equivalent of {@link #EMAIL} would simply be a custom attribute called "email".
  * <p>
  * For a fuller description of user attributes and how they can be referenced in feature flag rules, see the reference
  * guides on <a href="https://docs.launchdarkly.com/home/users/attributes">Setting user attributes</a>
@@ -32,15 +34,6 @@ public final class UserAttribute implements JsonSerializable {
     }
   });
 
-  /**
-   * Represents the secondary key attribute.
-   */
-  public static final UserAttribute SECONDARY_KEY = new UserAttribute("secondary", new Function<LDUser, LDValue>() {
-    public LDValue apply(LDUser u) {
-      return u.secondary;
-    }
-  });
-  
   /**
    * Represents the IP address attribute.
    */
@@ -109,7 +102,7 @@ public final class UserAttribute implements JsonSerializable {
    */
   public static final UserAttribute ANONYMOUS = new UserAttribute("anonymous", new Function<LDUser, LDValue>() {
     public LDValue apply(LDUser u) {
-      return u.anonymous;
+      return LDValue.of(u.anonymous);
     }
   });
 
@@ -117,10 +110,12 @@ public final class UserAttribute implements JsonSerializable {
   static final Map<String, UserAttribute> BUILTINS;
   static {
     BUILTINS = new HashMap<>();
-    for (UserAttribute a: new UserAttribute[] { KEY, SECONDARY_KEY, IP, EMAIL, NAME, AVATAR, FIRST_NAME, LAST_NAME, COUNTRY, ANONYMOUS }) {
+    for (UserAttribute a: new UserAttribute[] { KEY, IP, EMAIL, NAME, AVATAR, FIRST_NAME, LAST_NAME, COUNTRY, ANONYMOUS }) {
       BUILTINS.put(a.getName(), a);
     }
   }
+  static final UserAttribute[] OPTIONAL_STRING_ATTRIBUTES =
+      new UserAttribute[] { IP, EMAIL, NAME, AVATAR, FIRST_NAME, LAST_NAME, COUNTRY };
   
   private final String name;
   final Function<LDUser, LDValue> builtInGetter;

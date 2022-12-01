@@ -14,7 +14,7 @@ public class TestHelpers {
   public static Iterable<UserAttribute> builtInAttributes() {
     return UserAttribute.BUILTINS.values();
   }
-  
+
   public static <T> List<T> listFromIterable(Iterable<T> it) {
     List<T> list = new ArrayList<>();
     for (T t: it) {

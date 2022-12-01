@@ -14,7 +14,7 @@ public class UserAttributeJsonSerializationTest extends BaseTest {
   public void userAttributeJsonSerializations() throws Exception {
     verifySerializeAndDeserialize(UserAttribute.NAME, "\"name\"");
     verifySerializeAndDeserialize(UserAttribute.forName("custom-attr"), "\"custom-attr\"");
-    
+
     verifyDeserializeInvalidJson(UserAttribute.class, "3");
   }
 }
