@@ -20,12 +20,6 @@ public class UserAttributeTest extends BaseTest {
   }
 
   @Test
-  public void secondaryKeyAttribute() {
-    assertEquals("secondary", UserAttribute.SECONDARY_KEY.getName());
-    assertTrue(UserAttribute.SECONDARY_KEY.isBuiltIn());
-  }
-  
-  @Test
   public void ipAttribute() {
     assertEquals("ip", UserAttribute.IP.getName());
     assertTrue(UserAttribute.IP.isBuiltIn());

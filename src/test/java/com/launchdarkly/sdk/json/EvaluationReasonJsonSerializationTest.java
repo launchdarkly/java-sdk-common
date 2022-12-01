@@ -42,10 +42,12 @@ public class EvaluationReasonJsonSerializationTest extends BaseTest {
     verifySerializeAndDeserialize(EvaluationReason.error(EvaluationReason.ErrorKind.FLAG_NOT_FOUND),
         "{\"kind\":\"ERROR\",\"errorKind\":\"FLAG_NOT_FOUND\"}");
 
-    // properties with defaults can be included
+    // properties with defaults can be included, explicit default values are ignored in parsing
     verifyDeserialize(EvaluationReason.fallthrough(false), "{\"kind\":\"FALLTHROUGH\",\"inExperiment\":false}");
     verifyDeserialize(EvaluationReason.ruleMatch(1, "id", false),
         "{\"kind\":\"RULE_MATCH\",\"ruleIndex\":1,\"ruleId\":\"id\",\"inExperiment\":false}");
+    verifyDeserialize(EvaluationReason.ruleMatch(1, null, false),
+        "{\"kind\":\"RULE_MATCH\",\"ruleIndex\":1,\"ruleId\":null}");
 
     // unknown properties are ignored
     JsonTestHelpers.verifyDeserialize(EvaluationReason.off(), "{\"kind\":\"OFF\",\"other\":true}");
@@ -54,6 +56,7 @@ public class EvaluationReasonJsonSerializationTest extends BaseTest {
     verifyDeserializeInvalidJson(EvaluationReason.class, "{}"); // must have "kind"
     verifyDeserializeInvalidJson(EvaluationReason.class, "{\"kind\":3}");
     verifyDeserializeInvalidJson(EvaluationReason.class, "{\"kind\":\"other\"}");
+    verifyDeserializeInvalidJson(EvaluationReason.class, "{\"kind\":\"RULE_MATCH\",\"ruleIndex\":1,\"ruleId\":3}");
   }
 
   @Test

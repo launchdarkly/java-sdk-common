@@ -2,8 +2,11 @@ package com.launchdarkly.sdk.json;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.launchdarkly.sdk.AttributeRef;
+import com.launchdarkly.sdk.ContextKind;
 import com.launchdarkly.sdk.EvaluationDetail;
 import com.launchdarkly.sdk.EvaluationReason;
+import com.launchdarkly.sdk.LDContext;
 import com.launchdarkly.sdk.LDUser;
 import com.launchdarkly.sdk.LDValue;
 import com.launchdarkly.sdk.UserAttribute;
@@ -83,6 +86,11 @@ public abstract class JsonSerialization {
   
   // We use this internally in situations where generic type checking isn't desirable
   static <T> T deserializeInternal(String json, Class<T> objectClass) throws SerializationException {
+    if (json == null || json.isEmpty()) {
+      // Annoyingly, Gson tolerates a totally empty input string and considers it equivalent to null,
+      // but that isn't a valid JSON document.
+      throw new SerializationException("input string was null/empty");
+    }
     try {
       return gson.fromJson(json, objectClass);
     } catch (Exception e) {
@@ -143,8 +151,11 @@ public abstract class JsonSerialization {
     // default case where it *doesn't* exist. This functionality is tested in the Java SDK.
     synchronized (knownDeserializableClasses) {
       if (knownDeserializableClasses.isEmpty()) {
+        knownDeserializableClasses.add(AttributeRef.class);
+        knownDeserializableClasses.add(ContextKind.class);
         knownDeserializableClasses.add(EvaluationReason.class);
         knownDeserializableClasses.add(EvaluationDetail.class);
+        knownDeserializableClasses.add(LDContext.class);
         knownDeserializableClasses.add(LDUser.class);
         knownDeserializableClasses.add(LDValue.class);
         knownDeserializableClasses.add(UserAttribute.class);

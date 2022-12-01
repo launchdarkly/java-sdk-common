@@ -11,7 +11,7 @@ This version of the library works with Java 7 and above.
 
 ## Contributing
 
-See [Contributing](https://github.com/launchdarkly/dotnet-sdk-common/blob/master/CONTRIBUTING.md).
+See [Contributing](CONTRIBUTING.md).
 
 ## About LaunchDarkly
  

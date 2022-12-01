@@ -8,7 +8,7 @@ import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
 import com.launchdarkly.sdk.EvaluationReason;
-import com.launchdarkly.sdk.LDUser;
+import com.launchdarkly.sdk.LDContext;
 import com.launchdarkly.sdk.LDValue;
 
 import org.junit.Test;
@@ -61,20 +61,20 @@ public class LDGsonTest {
   
   @Test
   public void complexObjectToJsonTree() {
-    LDUser user = new LDUser.Builder("userkey").name("name")
-        .custom("attr1", LDValue.ofNull())
-        .custom("attr2", LDValue.of(true))
-        .custom("attr3", LDValue.of(false))
-        .custom("attr4", LDValue.of(0))
-        .custom("attr5", LDValue.of(1))
-        .custom("attr6", LDValue.of(""))
-        .custom("attr7", LDValue.of("x"))
-        .custom("attr8", JsonTestHelpers.nestedArrayValue())
-        .custom("attr9", JsonTestHelpers.nestedObjectValue())
+    LDContext context = LDContext.builder("key").name("name")
+        .set("attr1", LDValue.ofNull())
+        .set("attr2", LDValue.of(true))
+        .set("attr3", LDValue.of(false))
+        .set("attr4", LDValue.of(0))
+        .set("attr5", LDValue.of(1))
+        .set("attr6", LDValue.of(""))
+        .set("attr7", LDValue.of("x"))
+        .set("attr8", JsonTestHelpers.nestedArrayValue())
+        .set("attr9", JsonTestHelpers.nestedObjectValue())
         .build();
-    JsonElement j = JsonTestHelpers.configureGson().toJsonTree(user);
+    JsonElement j = JsonTestHelpers.configureGson().toJsonTree(context);
     String js = JsonTestHelpers.gson.toJson(j);
-    assertEquals(LDValue.parse(JsonSerialization.serialize(user)), LDValue.parse(js));
+    assertEquals(LDValue.parse(JsonSerialization.serialize(context)), LDValue.parse(js));
   }
   
   @Test

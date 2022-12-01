@@ -16,18 +16,42 @@ import static java.util.Collections.unmodifiableMap;
 import static java.util.Collections.unmodifiableSet;
 
 /**
- * A collection of attributes that can affect flag evaluation, usually corresponding to a user of your application.
+ * Attributes of a user for whom you are evaluating feature flags.
  * <p>
- * The only mandatory property is the {@code key}, which must uniquely identify each user; this could be a username
- * or email address for authenticated users, or a session ID for anonymous users. All other built-in properties are
- * optional. You may also define custom properties with arbitrary names and values.
+ * {@link LDUser} contains any user-specific properties that may be used in feature flag
+ * configurations to produce different flag variations for different users. You may define
+ * these properties however you wish.
  * <p>
- * For a fuller description of user attributes and how they can be referenced in feature flag rules, see the reference
- * guides on <a href="https://docs.launchdarkly.com/home/users/attributes">Setting user attributes</a>
- * and <a href="https://docs.launchdarkly.com/home/flags/targeting-users">Targeting users</a>.
+ * LDUser supports only a subset of the behaviors that are available with the newer
+ * {@link LDContext} type. An LDUser is equivalent to an individual {@link LDContext} that has
+ * a {@link ContextKind} of {@link ContextKind#DEFAULT} ("user"); it also has more constraints
+ * on attribute values than LDContext does (for instance, built-in attributes such as
+ * {@link LDUser.Builder#email(String)}  can only have string values). Older LaunchDarkly SDKs
+ * only had the LDUser model, and the LDUser type has been retained for backward compatibility,
+ * but it may be removed in a future SDK version; also, the SDK will always convert an LDUser
+ * to an LDContext internally, which has some overhead. Therefore, developers are recommended
+ * to migrate toward using LDContext.
  * <p>
- * LaunchDarkly defines a standard JSON encoding for user objects, used by the JavaScript SDK and also in analytics
- * events. {@link LDUser} can be converted to and from JSON in any of these ways:
+ * The only mandatory property of LDUser is the {@code key}, which must uniquely identify each
+ * user. For authenticated users, this may be a username or e-mail address. For anonymous
+ * users, this could be an IP address or session ID.
+ * <p>
+ * Besides the mandatory key, LDUser supports two kinds of optional attributes: built-in
+ * attributes (e.g. {@link LDUser.Builder#name(String)} and {@link LDUser.Builder#country(String)})
+ * and custom attributes. The built-in attributes have specific allowed value types; also, two
+ * of them ({@code name} and {@code anonymous}) have special meanings in LaunchDarkly. Custom
+ * attributes have flexible value types, and can have any names that do not conflict with
+ * built-in attributes.
+ * <p>
+ * Both built-in attributes and custom attributes can be referenced in targeting rules, and
+ * are included in analytics data.
+ * <p>
+ * Instances of LDUser are immutable once created. They can be created with the constructor,
+ * or using a builder pattern with {@link LDUser.Builder}.
+ * <p>
+ * LaunchDarkly defines a standard JSON encoding for user objects, used by the JavaScript SDK
+ * and also in analytics events. {@link LDUser} can be converted to and from JSON in any of
+ * these ways:
  * <ol>
  * <li> With {@link JsonSerialization}.
  * <li> With Gson, if and only if you configure your {@code Gson} instance with
@@ -41,14 +65,13 @@ public class LDUser implements JsonSerializable {
   // Note that these fields are all stored internally as LDValue rather than String so that
   // we don't waste time repeatedly converting them to LDValue in the rule evaluation logic.
   final LDValue key;
-  final LDValue secondary;
   final LDValue ip;
   final LDValue email;
   final LDValue name;
   final LDValue avatar;
   final LDValue firstName;
   final LDValue lastName;
-  final LDValue anonymous;
+  final boolean anonymous;
   final LDValue country;
   final Map<UserAttribute, LDValue> custom;
   Set<UserAttribute> privateAttributeNames;
@@ -57,13 +80,12 @@ public class LDUser implements JsonSerializable {
     this.key = LDValue.of(builder.key);
     this.ip = LDValue.of(builder.ip);
     this.country = LDValue.of(builder.country);
-    this.secondary = LDValue.of(builder.secondary);
     this.firstName = LDValue.of(builder.firstName);
     this.lastName = LDValue.of(builder.lastName);
     this.email = LDValue.of(builder.email);
     this.name = LDValue.of(builder.name);
     this.avatar = LDValue.of(builder.avatar);
-    this.anonymous = builder.anonymous == null ? LDValue.ofNull() : LDValue.of(builder.anonymous);
+    this.anonymous = builder.anonymous;
     this.custom = builder.custom == null ? null : unmodifiableMap(builder.custom);
     this.privateAttributeNames = builder.privateAttributes == null ? null : unmodifiableSet(builder.privateAttributes);
   }
@@ -75,8 +97,9 @@ public class LDUser implements JsonSerializable {
    */
   public LDUser(String key) {
     this.key = LDValue.of(key);
-    this.secondary = this.ip = this.email = this.name = this.avatar = this.firstName = this.lastName = this.anonymous = this.country =
+    this.ip = this.email = this.name = this.avatar = this.firstName = this.lastName = this.country =
         LDValue.ofNull();
+    this.anonymous = false;
     this.custom = null;
     this.privateAttributeNames = null;
   }
@@ -90,15 +113,6 @@ public class LDUser implements JsonSerializable {
     return key.stringValue();
   }
   
-  /**
-   * Returns the value of the secondary key property for the user, if set.
-   * 
-   * @return a string or null
-   */
-  public String getSecondary() {
-    return secondary.stringValue();
-  }
-
   /**
    * Returns the value of the IP property for the user, if set.
    * 
@@ -168,7 +182,7 @@ public class LDUser implements JsonSerializable {
    * @return true for an anonymous user
    */
   public boolean isAnonymous() {
-    return anonymous.booleanValue();
+    return anonymous;
   }
   
   /**
@@ -227,15 +241,14 @@ public class LDUser implements JsonSerializable {
     if (o instanceof LDUser) {
       LDUser ldUser = (LDUser) o;
       return Objects.equals(key, ldUser.key) &&
-          Objects.equals(secondary, ldUser.secondary) &&
           Objects.equals(ip, ldUser.ip) &&
           Objects.equals(email, ldUser.email) &&
           Objects.equals(name, ldUser.name) &&
           Objects.equals(avatar, ldUser.avatar) &&
           Objects.equals(firstName, ldUser.firstName) &&
           Objects.equals(lastName, ldUser.lastName) &&
-          Objects.equals(anonymous, ldUser.anonymous) &&
           Objects.equals(country, ldUser.country) &&
+          anonymous == ldUser.anonymous &&
           Objects.equals(custom, ldUser.custom) &&
           Objects.equals(privateAttributeNames, ldUser.privateAttributeNames);
     }
@@ -244,7 +257,7 @@ public class LDUser implements JsonSerializable {
 
   @Override
   public int hashCode() {
-    return Objects.hash(key, secondary, ip, email, name, avatar, firstName, lastName, anonymous, country, custom, privateAttributeNames);
+    return Objects.hash(key, ip, email, name, avatar, firstName, lastName, anonymous, country, custom, privateAttributeNames);
   }
 
   @Override
@@ -264,15 +277,14 @@ public class LDUser implements JsonSerializable {
    */
   public static class Builder {
     private String key;
-    private String secondary;
     private String ip;
     private String firstName;
     private String lastName;
     private String email;
     private String name;
     private String avatar;
-    private Boolean anonymous;
     private String country;
+    private boolean anonymous = false;
     private Map<UserAttribute, LDValue> custom;
     private Set<UserAttribute> privateAttributes;
 
@@ -292,14 +304,13 @@ public class LDUser implements JsonSerializable {
     */
     public Builder(LDUser user) {
       this.key = user.key.stringValue();
-      this.secondary = user.secondary.stringValue();
       this.ip = user.ip.stringValue();
       this.firstName = user.firstName.stringValue();
       this.lastName = user.lastName.stringValue();
       this.email = user.email.stringValue();
       this.name = user.name.stringValue();
       this.avatar = user.avatar.stringValue();
-      this.anonymous = user.anonymous.isNull() ? null : user.anonymous.booleanValue();
+      this.anonymous = user.anonymous;
       this.country = user.country.stringValue();
       this.custom = user.custom == null ? null : new HashMap<>(user.custom);
       this.privateAttributes = user.privateAttributeNames == null ? null : new HashSet<>(user.privateAttributeNames);
@@ -336,30 +347,6 @@ public class LDUser implements JsonSerializable {
     public Builder privateIp(String s) {
       addPrivate(UserAttribute.IP);
       return ip(s);
-    }
-
-    /**
-     * Sets the secondary key for a user. This affects
-     * <a href="https://docs.launchdarkly.com/home/flags/targeting-users#targeting-rules-based-on-user-attributes">feature flag targeting</a>
-     * as follows: if you have chosen to bucket users by a specific attribute, the secondary key (if set)
-     * is used to further distinguish between users who are otherwise identical according to that attribute.
-     * @param s the secondary key for the user
-     * @return the builder
-     */
-    public Builder secondary(String s) {
-      this.secondary = s;
-      return this;
-    }
-
-    /**
-     * Sets the secondary key for a user, and ensures that the secondary key attribute is not sent back to
-     * LaunchDarkly.
-     * @param s the secondary key for the user
-     * @return the builder
-     */
-    public Builder privateSecondary(String s) {
-      addPrivate(UserAttribute.SECONDARY_KEY);
-      return secondary(s);
     }
 
     /**

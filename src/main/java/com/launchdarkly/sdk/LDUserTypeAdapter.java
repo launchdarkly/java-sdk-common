@@ -22,9 +22,6 @@ final class LDUserTypeAdapter extends TypeAdapter<LDUser>{
       case "key":
         builder.key(readNullableString(reader));
         break;
-      case "secondary":
-        builder.secondary(readNullableString(reader));
-        break;
       case "ip":
         builder.ip(readNullableString(reader));
         break;
@@ -100,6 +97,9 @@ final class LDUserTypeAdapter extends TypeAdapter<LDUser>{
 
     writer.beginObject();
     for (UserAttribute attr: UserAttribute.BUILTINS.values()) {
+      if (attr == UserAttribute.ANONYMOUS && !user.isAnonymous()) {
+        continue; // anonymous: false value doesn't need to be serialized
+      }
       LDValue value = user.getAttribute(attr);
       if (!value.isNull()) {
         writer.name(attr.getName());
