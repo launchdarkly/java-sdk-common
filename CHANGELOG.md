@@ -2,6 +2,22 @@
 
 All notable changes to the project will be documented in this file. This project adheres to [Semantic Versioning](http://semver.org).
 
+## [2.0.0] - 2022-12-01
+This major version release of `java-sdk-common` corresponds to the upcoming v6.0.0 release of the LaunchDarkly Java SDK (`java-server-sdk`) and the v4.0.0 release of the LaunchDarkly Android SDK (`android-client-sdk`), and cannot be used with earlier SDK versions.
+
+### Added:
+- The types `LDContext` and `ContextKind` define the new "context" model. "Contexts" are a replacement for the earlier concept of "users"; they can be populated with attributes in more or less the same way as before, but they also support new behaviors. More information about these features will be included in the release notes for the v6.0.0 Java SDK and v4.0.0 Android SDK releases.
+- The type `AttributeRef` defines the attribute reference syntax, for referencing subproperties of JSON objects in flag evaluations or private attribute configuration. Applications normally will not need to reference this type.
+
+### Changed:
+- It was previously allowable to set a user key to an empty string. In the new context model, the key is not allowed to be empty. Trying to use an empty key will cause evaluations to fail and return the default value.
+- There is no longer such a thing as a `secondary` meta-attribute that affects percentage rollouts. If you set an attribute with that name in an `LDContext`, it will simply be a custom attribute like any other.
+- The `anonymous` attribute in `LDUser` is now a simple boolean, with no distinction between a false state and a null state.
+
+### Removed:
+- Removed all types, fields, and methods that were deprecated as of the most recent release.
+- Removed the `secondary` meta-attribute in `LDUser` and `LDUser.Builder`.
+
 ## [1.3.0] - 2022-01-28
 ### Added:
 - In `EvaluationReason`, added optional status information related to the new Big Segments feature.
