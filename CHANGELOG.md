@@ -2,6 +2,13 @@
 
 All notable changes to the project will be documented in this file. This project adheres to [Semantic Versioning](http://semver.org).
 
+## [2.0.1] - 2023-05-17
+### Changed:
+- Updating Gradle to 7.6
+
+### Fixed:
+- Fixed NPE when creating a multi-context that included one invalid context.
+
 ## [2.0.0] - 2022-12-01
 This major version release of `java-sdk-common` corresponds to the upcoming v6.0.0 release of the LaunchDarkly Java SDK (`java-server-sdk`) and the v4.0.0 release of the LaunchDarkly Android SDK (`android-client-sdk`), and cannot be used with earlier SDK versions.
 
