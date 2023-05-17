@@ -15,6 +15,7 @@ import static org.hamcrest.Matchers.emptyIterable;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
+import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.sameInstance;
 import static org.junit.Assert.fail;
 
@@ -300,6 +301,21 @@ public class LDContextTest {
     LDContext c1plus2 = LDContext.multiBuilder().add(c1).add(c2).build();
     
     assertThat(LDContext.createMulti(c1plus2, c3), equalTo(LDContext.createMulti(c1, c2, c3)));
+  }
+
+  @Test
+  public void multiBuilderWithInvalidContextHasError() {
+    LDContext c1 = LDContext.create(ContextKind.of("#####"), "key1");
+    LDContext c2 = LDContext.create(kind2, "key2");
+    LDContext output = LDContext.createMulti(c1, c2);
+    assertThat(output,
+            equalTo(LDContext.multiBuilder().add(c1).add(c2).build()));
+
+    // we expect an error from the invalid context to propagate up
+    assertThat(output.getError(), notNullValue());
+
+    // we expect getting individual contexts to also fail in the error case
+    assertThat(output.getIndividualContext(kind2), nullValue());
   }
   
   @Test

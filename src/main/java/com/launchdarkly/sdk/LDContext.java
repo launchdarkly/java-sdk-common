@@ -135,7 +135,9 @@ public final class LDContext implements JsonSerializable {
         errors.add(c.getError());
       } else {
         for (int j = 0; j < i; j++) {
-          if (multiContexts[j].getKind().equals(c.getKind())) {
+          // since kind can be null in the malformed context case, need to do equality check with null safety.
+          // Objects.equals handles the null equality case without a NPE.
+          if (Objects.equals(multiContexts[j].getKind(), c.getKind())) {
             duplicates = true;
             break;
           }
@@ -723,10 +725,12 @@ public final class LDContext implements JsonSerializable {
       kind = ContextKind.DEFAULT;
     }
     if (multiContexts == null) {
-      return this.kind.equals(kind) ? this : null;
+      // kind.equals since kind has already been sanitized
+      return kind.equals(this.kind) ? this : null;
     }
     for (LDContext c: multiContexts) {
-      if (c.kind.equals(kind)) {
+      // kind.equals since kind has already been sanitized
+      if (kind.equals(c.kind)) {
         return c;
       }
     }
@@ -745,10 +749,12 @@ public final class LDContext implements JsonSerializable {
       return getIndividualContext(ContextKind.DEFAULT);
     }
     if (multiContexts == null) {
-      return this.kind.toString().equals(kind) ? this : null;
+      // kind.equals since kind has already been sanitized
+      return kind.equals(this.kind.toString()) ? this : null;
     }
     for (LDContext c: multiContexts) {
-      if (c.kind.toString().equals(kind)) {
+      // kind.equals since kind has already been sanitized
+      if (kind.equals(c.kind.toString())) {
         return c;
       }
     }
@@ -827,7 +833,7 @@ public final class LDContext implements JsonSerializable {
     if (error != null) {
       return true; // there aren't any other attributes
     }
-    if (!kind.equals(o.kind)) {
+    if (!Objects.equals(kind, o.kind)) {
       return false;
     }
     if (isMultiple()) {
@@ -835,13 +841,13 @@ public final class LDContext implements JsonSerializable {
         return false;
       }
       for (int i = 0; i < multiContexts.length; i++) {
-        if (!multiContexts[i].equals(o.multiContexts[i])) {
+        if (!Objects.equals(multiContexts[i], o.multiContexts[i])) {
           return false;
         }
       }
       return true;
     }
-    if (!key.equals(o.key) || !Objects.equals(name, o.name) || anonymous != o.anonymous) {
+    if (!Objects.equals(key, o.key) || !Objects.equals(name, o.name) || anonymous != o.anonymous) {
       return false;
     }
     if ((attributes == null ? 0 : attributes.size()) !=
