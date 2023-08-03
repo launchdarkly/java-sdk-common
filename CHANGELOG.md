@@ -2,6 +2,10 @@
 
 All notable changes to the project will be documented in this file. This project adheres to [Semantic Versioning](http://semver.org).
 
+## [2.1.0] - 2023-08-03
+### Changed:
+- Deprecated LDUser and related functionality. Use LDContext instead. To learn more, read https://docs.launchdarkly.com/home/contexts.
+
 ## [2.0.1] - 2023-05-17
 ### Changed:
 - Updating Gradle to 7.6
