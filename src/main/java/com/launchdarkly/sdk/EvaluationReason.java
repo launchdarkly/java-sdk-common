@@ -43,11 +43,11 @@ public final class EvaluationReason implements JsonSerializable {
      */
     FALLTHROUGH,
     /**
-     * Indicates that the user key was specifically targeted for this flag.
+     * Indicates that the context key was specifically targeted for this flag.
      */
     TARGET_MATCH,
     /**
-     * Indicates that the user matched one of the flag's rules.
+     * Indicates that the context matched one of the flag's rules.
      */
     RULE_MATCH,
     /**

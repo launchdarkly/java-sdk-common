@@ -90,7 +90,7 @@ public abstract class LDValue implements JsonSerializable {
    * Note that the LaunchDarkly service, and most of the SDKs, represent numeric values internally
    * in 64-bit floating-point, which has slightly less precision than a signed 64-bit {@code long};
    * therefore, the full range of {@code long} values cannot be accurately represented. If you need
-   * to set a user attribute to a numeric value with more significant digits than will fit in a
+   * to set a context attribute to a numeric value with more significant digits than will fit in a
    * {@code double}, it is best to encode it as a string.
    * 
    * @param value a long integer numeric value
@@ -625,7 +625,7 @@ public abstract class LDValue implements JsonSerializable {
      * Note that the LaunchDarkly service, and most of the SDKs, represent numeric values internally
      * in 64-bit floating-point, which has slightly less precision than a signed 64-bit {@code long};
      * therefore, the full range of {@code long} values cannot be accurately represented. If you need
-     * to set a user attribute to a numeric value with more significant digits than will fit in a
+     * to set a context attribute to a numeric value with more significant digits than will fit in a
      * {@code double}, it is best to encode it as a string.
      */
     public static final Converter<java.lang.Long> Long = new Converter<java.lang.Long>() {

@@ -9,6 +9,10 @@ import java.io.IOException;
 
 import static com.launchdarkly.sdk.Helpers.readNullableString;
 
+/**
+ * @deprecated consider using {@link LDContext} and {@link LDContextTypeAdapter} instead.
+ */
+@Deprecated
 final class LDUserTypeAdapter extends TypeAdapter<LDUser>{
   static final LDUserTypeAdapter INSTANCE = new LDUserTypeAdapter();
   
