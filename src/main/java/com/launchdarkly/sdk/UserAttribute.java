@@ -22,7 +22,10 @@ import java.util.Map;
  * For a fuller description of user attributes and how they can be referenced in feature flag rules, see the reference
  * guides on <a href="https://docs.launchdarkly.com/home/users/attributes">Setting user attributes</a>
  * and <a href="https://docs.launchdarkly.com/home/flags/targeting-users">Targeting users</a>.
+ *
+ * @deprecated {@link LDUser} replaced by {@link LDContext}
  */
+@Deprecated
 @JsonAdapter(UserAttribute.UserAttributeTypeAdapter.class)
 public final class UserAttribute implements JsonSerializable {
   /**
@@ -179,7 +182,8 @@ public final class UserAttribute implements JsonSerializable {
   public String toString() {
     return name;
   }
-  
+
+  @Deprecated
   static final class UserAttributeTypeAdapter extends TypeAdapter<UserAttribute>{    
     @Override
     public UserAttribute read(JsonReader reader) throws IOException {

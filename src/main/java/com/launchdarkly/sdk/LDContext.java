@@ -280,7 +280,10 @@ public final class LDContext implements JsonSerializable {
    *
    * @param user an LDUser object
    * @return an LDContext with the same attributes as the LDUser
+   *
+   * @deprecated use {@link LDContext} directly instead.
    */
+  @Deprecated
   public static LDContext fromUser(LDUser user) {
     if (user == null) {
       return failed(Errors.CONTEXT_FROM_NULL_USER);

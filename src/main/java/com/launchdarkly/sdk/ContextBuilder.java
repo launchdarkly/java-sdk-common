@@ -19,7 +19,7 @@ import java.util.Map;
  * to the same builder, so calls can be
  * chained:
  * <pre><code>
- *     LDContext context = LDContext.builder("user-key")
+ *     LDContext context = LDContext.builder("context-key-123abc")
  *       .name("my-name)
  *       .set("country", "us")
  *       .build();

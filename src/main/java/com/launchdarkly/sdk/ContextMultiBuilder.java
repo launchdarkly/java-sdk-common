@@ -18,7 +18,7 @@ import java.util.List;
  * chained:
  * <pre><code>
  *     LDContext context = LDContext.multiBuilder()
- *       .add(LDContext.create("my-user-key"))
+ *       .add(LDContext.create("context-key-123abc"))
  *       .add(LDContext.create(ContextKind.of("organization"), "my-org-key"))
  *       .build();
  * </code></pre>

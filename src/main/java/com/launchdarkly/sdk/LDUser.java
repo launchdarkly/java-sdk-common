@@ -59,7 +59,10 @@ import static java.util.Collections.unmodifiableSet;
  * <li> With Jackson, if and only if you configure your {@code ObjectMapper} instance with
  * {@link com.launchdarkly.sdk.json.LDJackson}.
  * </ol>
+ *
+ * @deprecated use {@link LDContext} instead.
  */
+@Deprecated
 @JsonAdapter(LDUserTypeAdapter.class)
 public class LDUser implements JsonSerializable {
   // Note that these fields are all stored internally as LDValue rather than String so that
@@ -274,7 +277,10 @@ public class LDUser implements JsonSerializable {
    *      .ip("192.168.0.1")
    *      .build()
    * </pre>
+   *
+   * @deprecated use {@link ContextBuilder} or {@link ContextMultiBuilder} instead via {@link LDContext#builder(String)}.
    */
+  @Deprecated
   public static class Builder {
     private String key;
     private String ip;
