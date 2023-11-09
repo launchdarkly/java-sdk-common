@@ -10,6 +10,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.emptyIterable;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
 
 @SuppressWarnings("javadoc")
@@ -130,5 +131,15 @@ public class ContextBuilderTest {
         assertThat(c2, equalTo(c1));
       }
     }
+  }
+
+  @Test
+  public void doesNotThrowNPEWhenReusingContext() {
+    LDContext initialContext = LDContext.builder("123456").build();
+    LDContext downstreamContext = LDContext.builderFromContext(initialContext)
+            .set("some_attribute", "someValue")
+            .build();
+
+    assertThat(downstreamContext, notNullValue());
   }
 }
