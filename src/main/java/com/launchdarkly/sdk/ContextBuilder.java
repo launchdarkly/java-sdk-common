@@ -380,8 +380,8 @@ public final class ContextBuilder {
     anonymous = context.isAnonymous();
     attributes = context.attributes;
     privateAttributes = context.privateAttributes;
-    copyOnWriteAttributes = true;
-    copyOnWritePrivateAttributes = true;
+    copyOnWriteAttributes = context.attributes != null;
+    copyOnWritePrivateAttributes = context.privateAttributes != null;
     return this;
   }
   
