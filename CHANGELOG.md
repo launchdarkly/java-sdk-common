@@ -2,6 +2,11 @@
 
 All notable changes to the project will be documented in this file. This project adheres to [Semantic Versioning](http://semver.org).
 
+## [2.1.1] - 2023-11-13
+### Fixed:
+- Fixes NPE when interacting with Context created by use of `copyFrom`.  (Thanks, [
+pedroafonsodias](https://github.com/launchdarkly/java-sdk-common/pull/15))
+
 ## [2.1.0] - 2023-08-03
 ### Changed:
 - Deprecated LDUser and related functionality. Use LDContext instead. To learn more, read https://docs.launchdarkly.com/home/contexts.
