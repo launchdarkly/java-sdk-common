@@ -1,17 +1,5 @@
-# LaunchDarkly SDK Java Common Code
-
-[![Circle CI](https://circleci.com/gh/launchdarkly/java-sdk-common.svg?style=shield)](https://circleci.com/gh/launchdarkly/java-sdk-common)
-[![Javadocs](http://javadoc.io/badge/com.launchdarkly/launchdarkly-java-sdk-common.svg)](http://javadoc.io/doc/com.launchdarkly/launchdarkly-java-sdk-common)
-
-This project contains Java classes and interfaces that are shared between the LaunchDarkly server-side Java SDK and the LaunchDarkly Android SDK. Code that is specific to one or the other is in [java-server-sdk](https://github.com/launchdarkly/java-server-sdk) or [android-client-sdk](https://github.com/launchdarkly/android-client-sdk).
-
-## Supported Java versions
-
-This version of the library works with Java 7 and above.
-
-## Contributing
-
-See [Contributing](CONTRIBUTING.md).
+# This code has a new home!
+You can now find it here in our [java-core repository](https://github.com/launchdarkly/java-core).
 
 ## About LaunchDarkly
  
